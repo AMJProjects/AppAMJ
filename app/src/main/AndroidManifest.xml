@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AMJProject"
         tools:targetApi="31">
+
+        <!-- Corrigido o nome da Activity para o caminho correto -->
+        <activity
+            android:name=".EsqueciSenhaActivity"
+            android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -19,10 +25,10 @@
             android:theme="@style/Theme.AMJProject">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
