@@ -1,11 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.compose) // Caso use Compose
 }
 
 android {
-    namespace = "com.example.amj_project"
+    namespace = "com.example.amj_project" // Certifique-se de que isso está correto
     compileSdk = 35
 
     defaultConfig {
@@ -38,25 +38,20 @@ android {
     }
 
     buildFeatures {
-        compose = true
+        compose = true // Remova ou ajuste essa linha caso não use Compose
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.2" // Certifique-se de estar usando a versão mais recente
+        kotlinCompilerExtensionVersion = "1.5.2"
     }
 }
 
 dependencies {
-    // Dependência do ConstraintLayout
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-
-    // Dependência do AppCompat
     implementation("androidx.appcompat:appcompat:1.6.1")
-
-    // Core KTX
     implementation("androidx.core:core-ktx:1.10.1")
 
-    // Dependências do Compose
+    // Dependências do Compose (remova se não for usar)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))

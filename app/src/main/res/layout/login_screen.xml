@@ -6,22 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- Imagem de fundo -->
+    <!-- Cor de fundo -->
+    <!-- Cor de fundo #420001 -->
 
     <!-- Logo -->
-    <ImageView
-        android:id="@+id/imageViewBackground"
+
+    <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="Imagem de fundo"
-        android:scaleType="fitXY"
-        android:src="@drawable/fundo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        android:background="#420001"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="16dp" />
 
     <ImageView
         android:id="@+id/logoImageView"
@@ -68,10 +63,6 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Campo de Senha -->
-
-    <!-- Ícone de Olho para Mostrar/Ocultar Senha -->
-
-    <!-- Link "Esqueci minha senha" -->
     <EditText
         android:id="@+id/senhaEditText"
         android:layout_width="369dp"
@@ -90,6 +81,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/emailEditText" />
 
+    <!-- Ícone de Olho para Mostrar/Ocultar Senha -->
     <ImageView
         android:id="@+id/eyeIcon"
         android:layout_width="33dp"
@@ -102,6 +94,7 @@
         app:layout_constraintTop_toTopOf="@id/senhaEditText"
         app:layout_constraintVertical_bias="0.0" />
 
+    <!-- Link "Esqueci minha senha" -->
     <TextView
         android:id="@+id/forgotPasswordTextView"
         android:layout_width="wrap_content"
@@ -115,4 +108,19 @@
         app:layout_constraintTop_toBottomOf="@id/senhaEditText"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Botão de Entrar -->
+    <Button
+        android:id="@+id/entrarButton"
+        android:layout_width="372dp"
+        android:layout_height="65dp"
+        android:layout_marginTop="116dp"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="@android:color/white"
+        android:text="Entrar"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@+id/emailEditText"
+        app:layout_constraintHorizontal_bias="0.414"
+        app:layout_constraintStart_toStartOf="@+id/emailEditText"
+        app:layout_constraintTop_toBottomOf="@id/forgotPasswordTextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

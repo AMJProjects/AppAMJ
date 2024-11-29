@@ -18,6 +18,7 @@
             android:name=".EsqueciSenhaActivity"
             android:exported="false" />
 
+        <!-- MainActivity: A Activity principal com o filtro de Intent para iniciar o app -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
