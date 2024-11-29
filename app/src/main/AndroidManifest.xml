@@ -13,12 +13,12 @@
         android:theme="@style/Theme.AMJProject"
         tools:targetApi="31">
 
-        <!-- Corrigido o nome da Activity para o caminho correto -->
+        <!-- Tela de Recuperação de Senha -->
         <activity
             android:name=".EsqueciSenhaActivity"
             android:exported="false" />
 
-        <!-- MainActivity: A Activity principal com o filtro de Intent para iniciar o app -->
+        <!-- Tela de Login (Principal) -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
