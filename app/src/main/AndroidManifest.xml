@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permissão para acessar a internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,6 +15,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AMJProject"
         tools:targetApi="31">
+
+        <!-- Menu Principal Activity -->
+        <activity
+            android:name=".ui.theme.MenuPrincipalActivity"
+            android:exported="true" />
 
         <!-- Tela de Recuperação de Senha -->
         <activity
@@ -31,5 +39,4 @@
         </activity>
 
     </application>
-
 </manifest>

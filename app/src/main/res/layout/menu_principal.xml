@@ -1,0 +1,20 @@
+<!-- menu_principal.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/menuTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bem-vindo ao Menu Principal"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:padding="20dp"/>
+
+    <!-- Outros itens do menu podem ser adicionados aqui -->
+
+</LinearLayout>
