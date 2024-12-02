@@ -1,20 +1,90 @@
-<!-- menu_principal.xml -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@drawable/bg_home">
 
-    <TextView
-        android:id="@+id/menuTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Bem-vindo ao Menu Principal"
-        android:textSize="20sp"
-        android:gravity="center"
-        android:padding="20dp"/>
+    <Button
+        android:id="@+id/button"
+        android:layout_width="259dp"
+        android:layout_height="93dp"
+        android:layout_marginTop="236dp"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="#4C0000"
+        android:text="Escopos Pendetes"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Outros itens do menu podem ser adicionados aqui -->
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="259dp"
+        android:layout_height="93dp"
+        android:layout_marginTop="44dp"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="#AB0000"
+        android:text="Adicionar um escopo"
+        android:textColor="#FDFDFD"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        tools:ignore="MissingConstraints" />
 
-</LinearLayout>
+    <ImageButton
+        android:id="@+id/concluidos"
+        android:layout_width="87dp"
+        android:layout_height="64dp"
+        android:backgroundTint="#8D0000"
+        android:contentDescription="Escopos concluídos"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/btn_concluidos"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="50dp"
+        tools:layout_editor_absoluteY="801dp" />
+
+    <ImageButton
+        android:id="@+id/home"
+        android:layout_width="74dp"
+        android:layout_height="65dp"
+        android:layout_marginEnd="28dp"
+        android:backgroundTint="#8D0000"
+        android:scaleType="fitCenter"
+        android:contentDescription="Menu principal"
+        app:layout_constraintEnd_toStartOf="@+id/tarefas"
+        app:layout_constraintHorizontal_bias="0.933"
+        app:layout_constraintStart_toEndOf="@+id/concluidos"
+        app:srcCompat="@drawable/btn_home"
+        tools:layout_editor_absoluteY="800dp"
+        tools:ignore="MissingConstraints" />
+
+    <ImageButton
+        android:id="@+id/tarefas"
+        android:layout_width="83dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="44dp"
+        android:backgroundTint="#8D0000"
+        android:scaleType="fitCenter"
+        android:contentDescription="Tarefas"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/btn_tarefas"
+        tools:layout_editor_absoluteY="805dp"
+        tools:ignore="MissingConstraints" />
+
+    <ImageButton
+        android:id="@+id/perfil"
+        android:layout_width="94dp"
+        android:layout_height="72dp"
+        android:scaleType="fitCenter"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="#4C0000"
+        android:contentDescription="Perfil"
+        app:srcCompat="@drawable/icon_perfil"
+        tools:layout_editor_absoluteX="304dp"
+        tools:layout_editor_absoluteY="16dp"
+        tools:ignore="MissingConstraints" />
+</androidx.constraintlayout.widget.ConstraintLayout>

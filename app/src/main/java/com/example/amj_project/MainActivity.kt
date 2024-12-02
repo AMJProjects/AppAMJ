@@ -8,6 +8,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.amj_project.ui.theme.MenuPrincipalActivity
 
 class MainActivity : AppCompatActivity() {
     private var isPasswordVisible: Boolean = false
