@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
     // Função para fazer a requisição de login
     private fun login(email: String, senha: String) {
-        val url = "http://10.0.2.2:3000/login"  // URL do servidor
+        val url = "http://localhost:3000/login"  // URL do servidor
 
         // Criação do JSON para enviar os dados
         val json = JSONObject()
