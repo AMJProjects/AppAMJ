@@ -1,5 +1,6 @@
 package com.example.amj_project
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
@@ -11,6 +12,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.ui.theme.MenuPrincipalActivity
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -20,10 +24,13 @@ import java.io.IOException
 class MainActivity : AppCompatActivity() {
     private var isPasswordVisible: Boolean = false
     private val client = OkHttpClient()
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_screen)
+
+        auth = Firebase.auth
 
         // Encontrando os componentes
         val emailEditText = findViewById<EditText>(R.id.emailEditText)
@@ -68,6 +75,34 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show()
             }
 
+        }
+    }
+
+    private fun createUserWithEmailAndPassword(email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            if (task.isSuccessful){
+                Log.d(TAG, "createUserWithEmailAndPassword: Sucess")
+                val user = auth.currentUser
+            } else {
+                Log.w(TAG, "createUserWithEmailAndPassword: Failure", task.exception)
+                Toast.makeText(baseContext, "Authentication Failure", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    companion object {
+        private var TAG = "EmailAndPassword"
+
+    }    }
+
+    private fun signInWithEmailAndPassword(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+        if (task.isSuccessful){
+            Log.d(TAG, "signInUserWithEmailAndPassword: Sucess")
+            val user = auth.currentUser
+        } else {
+            Log.w(TAG, "signInUserWithEmailAndPassword: Failure", task.exception)
+            Toast.makeText(baseContext, "Authentication Failure", Toast.LENGTH_SHORT).show()
         }
     }
 

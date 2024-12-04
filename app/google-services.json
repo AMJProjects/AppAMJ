@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "35905632031",
+    "project_id": "projeto-app-amj",
+    "storage_bucket": "projeto-app-amj.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:35905632031:android:8aa5f8b25c4a4dd655222a",
+        "android_client_info": {
+          "package_name": "com.example.amj_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJQgeq5zzO2BS4rLClcvKQc2Bk27FNRrY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
