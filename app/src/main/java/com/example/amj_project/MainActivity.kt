@@ -3,6 +3,7 @@ package com.example.amj_project
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -22,6 +23,15 @@ class MainActivity : AppCompatActivity() {
         val eyeIcon = findViewById<ImageView>(R.id.eyeIcon)
         val forgotPasswordTextView = findViewById<TextView>(R.id.forgotPasswordTextView)
         val entrarButton = findViewById<Button>(R.id.entrarButton)
+
+        val menuPrincipalButton = findViewById<Button>(R.id.button2) // ID do botão
+
+        // Ação do botão
+        menuPrincipalButton.setOnClickListener {
+            val intent = Intent(this, MenuPrincipalActivity::class.java)
+            startActivity(intent)
+            finish() // Finaliza a atividade atual para que o botão "Voltar" do dispositivo não retorne a ela.
+        }
 
         // Configura o clique no ícone de olho
         eyeIcon.setOnClickListener {
@@ -48,12 +58,9 @@ class MainActivity : AppCompatActivity() {
 
         // Configuração do botão Entrar
         entrarButton.setOnClickListener {
-            // Aqui você pode adicionar a lógica de validação do login (email e senha)
-
-            // Se o login for bem-sucedido, redireciona para o MenuPrincipalActivity
             val intent = Intent(this, MenuPrincipalActivity::class.java)
             startActivity(intent)
-            finish() // Finaliza a MainActivity para não voltar para a tela de login
+            finish()
         }
     }
 }

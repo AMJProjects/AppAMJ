@@ -123,4 +123,5 @@
         app:layout_constraintHorizontal_bias="0.414"
         app:layout_constraintStart_toStartOf="@+id/emailEditText"
         app:layout_constraintTop_toBottomOf="@id/forgotPasswordTextView" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

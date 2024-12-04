@@ -44,8 +44,8 @@
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/btn_concluidos"
         tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="50dp"
-        tools:layout_editor_absoluteY="801dp" />
+        tools:layout_editor_absoluteX="52dp"
+        tools:layout_editor_absoluteY="782dp" />
 
     <ImageButton
         android:id="@+id/home"
@@ -53,38 +53,38 @@
         android:layout_height="65dp"
         android:layout_marginEnd="28dp"
         android:backgroundTint="#8D0000"
-        android:scaleType="fitCenter"
         android:contentDescription="Menu principal"
+        android:scaleType="fitCenter"
         app:layout_constraintEnd_toStartOf="@+id/tarefas"
-        app:layout_constraintHorizontal_bias="0.933"
+        app:layout_constraintHorizontal_bias="0.828"
         app:layout_constraintStart_toEndOf="@+id/concluidos"
         app:srcCompat="@drawable/btn_home"
-        tools:layout_editor_absoluteY="800dp"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="782dp" />
 
     <ImageButton
         android:id="@+id/tarefas"
         android:layout_width="83dp"
         android:layout_height="60dp"
-        android:layout_marginEnd="44dp"
+        android:layout_marginEnd="52dp"
         android:backgroundTint="#8D0000"
-        android:scaleType="fitCenter"
         android:contentDescription="Tarefas"
+        android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/btn_tarefas"
-        tools:layout_editor_absoluteY="805dp"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="786dp" />
 
     <ImageButton
         android:id="@+id/perfil"
         android:layout_width="94dp"
         android:layout_height="72dp"
-        android:scaleType="fitCenter"
         android:background="@drawable/botaoredondo"
-        android:backgroundTint="#4C0000"
+        android:backgroundTint="#530303"
         android:contentDescription="Perfil"
+        android:scaleType="fitCenter"
         app:srcCompat="@drawable/icon_perfil"
+        tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="304dp"
-        tools:layout_editor_absoluteY="16dp"
-        tools:ignore="MissingConstraints" />
+        tools:layout_editor_absoluteY="16dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
