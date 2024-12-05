@@ -42,38 +42,30 @@
         android:backgroundTint="#8D0000"
         android:contentDescription="Escopos concluídos"
         android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/home"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button3"
+        app:layout_constraintVertical_bias="0.872"
         app:srcCompat="@drawable/btn_concluidos"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="52dp"
-        tools:layout_editor_absoluteY="782dp" />
+        tools:ignore="MissingConstraints" />
 
     <ImageButton
         android:id="@+id/home"
         android:layout_width="74dp"
         android:layout_height="65dp"
-        android:layout_marginEnd="28dp"
         android:backgroundTint="#8D0000"
         android:contentDescription="Menu principal"
         android:scaleType="fitCenter"
-        app:layout_constraintEnd_toStartOf="@+id/tarefas"
-        app:layout_constraintHorizontal_bias="0.828"
-        app:layout_constraintStart_toEndOf="@+id/concluidos"
-        app:srcCompat="@drawable/btn_home"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteY="782dp" />
-
-    <ImageButton
-        android:id="@+id/tarefas"
-        android:layout_width="83dp"
-        android:layout_height="60dp"
-        android:layout_marginEnd="52dp"
-        android:backgroundTint="#8D0000"
-        android:contentDescription="Tarefas"
-        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/btn_tarefas"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteY="786dp" />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/concluidos"
+        app:layout_constraintTop_toBottomOf="@+id/button3"
+        app:layout_constraintVertical_bias="0.875"
+        app:srcCompat="@drawable/btn_home"
+        tools:ignore="MissingConstraints" />
 
     <ImageButton
         android:id="@+id/perfil"
@@ -83,8 +75,12 @@
         android:backgroundTint="#530303"
         android:contentDescription="Perfil"
         android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.911"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.097"
         app:srcCompat="@drawable/icon_perfil"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="304dp"
-        tools:layout_editor_absoluteY="16dp" />
+        tools:ignore="MissingConstraints" />
 </androidx.constraintlayout.widget.ConstraintLayout>

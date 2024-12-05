@@ -51,14 +51,14 @@ class MainActivity : AppCompatActivity() {
 
         // Configuração do botão Entrar
         entrarButton.setOnClickListener {
-            val email = emailEditText.text.toString()
-            val senha = senhaEditText.text.toString()
+            val email = emailEditText.text.toString().trim() // Remove espaços extras
+            val senha = senhaEditText.text.toString().trim() // Remove espaços extras
 
             // Verifica se os campos não estão vazios
-            if (email.isNotEmpty() && senha.isNotEmpty()) {
-                signInWithEmailAndPassword(email, senha)
-            } else {
+            if (email.isEmpty() || senha.isEmpty()) {
                 Toast.makeText(this, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show()
+            } else {
+                signInWithEmailAndPassword(email, senha)
             }
         }
     }

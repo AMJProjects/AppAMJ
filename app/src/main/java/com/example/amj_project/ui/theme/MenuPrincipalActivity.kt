@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import com.example.amj_project.EscoposConcluidosActivity
+import com.example.amj_project.EsqueciSenhaActivity
 import com.example.amj_project.MainActivity
 import com.example.amj_project.R
 
@@ -17,7 +19,6 @@ class MenuPrincipalActivity : AppCompatActivity() {
         val escoposPendentesButton = findViewById<Button>(R.id.button)
         val adicionarEscopoButton = findViewById<Button>(R.id.button3)
         val escoposConcluidosButton = findViewById<ImageButton>(R.id.concluidos)
-        val tarefasButton = findViewById<ImageButton>(R.id.tarefas)
         val perfilButton = findViewById<ImageButton>(R.id.perfil)
 
         // Navegação para as atividades correspondentes
@@ -33,11 +34,6 @@ class MenuPrincipalActivity : AppCompatActivity() {
 
         escoposConcluidosButton.setOnClickListener {
             val intent = Intent(this, EscoposConcluidosActivity::class.java)
-            startActivity(intent)
-        }
-
-        tarefasButton.setOnClickListener {
-            val intent = Intent(this, TarefasActivity::class.java)
             startActivity(intent)
         }
 

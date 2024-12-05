@@ -38,5 +38,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.theme.AdicionarEscopoActivity" />
+        <activity android:name=".ui.theme.EscoposPendentesActivity" />
+        <activity android:name=".EscoposConcluidosActivity" />
+        <activity android:name=".ui.theme.TarefasActivity" />
+        <activity android:name=".ui.theme.PerfilActivity" />
+
+
     </application>
 </manifest>
