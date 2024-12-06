@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_home">
+    android:background="@drawable/bg_escopos">
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btn_pendente"
         android:layout_width="259dp"
         android:layout_height="93dp"
-        android:layout_marginTop="236dp"
+        android:layout_marginTop="272dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#4C0000"
         android:text="Escopos Pendetes"
@@ -21,10 +21,10 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/btn_add_escopo"
         android:layout_width="259dp"
         android:layout_height="93dp"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="52dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#AB0000"
         android:text="Adicionar um escopo"
@@ -32,55 +32,40 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button"
-        tools:ignore="MissingConstraints" />
-
-    <ImageButton
-        android:id="@+id/concluidos"
-        android:layout_width="87dp"
-        android:layout_height="64dp"
-        android:backgroundTint="#8D0000"
-        android:contentDescription="Escopos concluídos"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/home"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button3"
-        app:layout_constraintVertical_bias="0.872"
-        app:srcCompat="@drawable/btn_concluidos"
-        tools:ignore="MissingConstraints" />
-
-    <ImageButton
-        android:id="@+id/home"
-        android:layout_width="74dp"
-        android:layout_height="65dp"
-        android:backgroundTint="#8D0000"
-        android:contentDescription="Menu principal"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/concluidos"
-        app:layout_constraintTop_toBottomOf="@+id/button3"
-        app:layout_constraintVertical_bias="0.875"
-        app:srcCompat="@drawable/btn_home"
+        app:layout_constraintTop_toBottomOf="@+id/btn_pendente"
         tools:ignore="MissingConstraints" />
 
     <ImageButton
         android:id="@+id/perfil"
         android:layout_width="94dp"
         android:layout_height="72dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/botaoredondo"
-        android:backgroundTint="#530303"
+        android:backgroundTint="#4C0000"
         android:contentDescription="Perfil"
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.911"
+        app:layout_constraintHorizontal_bias="0.949"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.097"
+        app:layout_constraintVertical_bias="0.179"
         app:srcCompat="@drawable/icon_perfil"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints,UnknownId" />
+
+    <Button
+        android:id="@+id/btn_concluido"
+        android:layout_width="259dp"
+        android:layout_height="93dp"
+        android:layout_marginTop="52dp"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="#7C0101"
+        android:text="Escopos Concluídos"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_add_escopo"
+        app:layout_constraintVertical_bias="0.008" />
 </androidx.constraintlayout.widget.ConstraintLayout>

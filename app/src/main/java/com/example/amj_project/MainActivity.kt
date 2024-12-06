@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
                 eyeIcon.setImageResource(R.drawable.closed_eye_icon) // Ícone de olho fechado
             } else {
                 senhaEditText.inputType = InputType.TYPE_CLASS_TEXT
-                eyeIcon.setImageResource(R.drawable.eye_icon) // Ícone de olho aberto
+                eyeIcon.setImageResource(R.drawable.olho) // Ícone de olho aberto
             }
             isPasswordVisible = !isPasswordVisible
             senhaEditText.setSelection(senhaEditText.text.length)

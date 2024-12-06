@@ -10,6 +10,12 @@
 
     <!-- Logo -->
 
+    <!-- Texto de boas-vindas -->
+
+    <!-- Campo de Email -->
+
+    <!-- Botão de Entrar -->
+
     <View
         android:id="@+id/view2"
         android:layout_width="match_parent"
@@ -22,57 +28,96 @@
         android:id="@+id/logoImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
         android:contentDescription="Logo do AMJ"
         android:scaleType="centerCrop"
         android:src="@drawable/logo"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toTopOf="@+id/welcomeTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/view2"
+        app:layout_constraintVertical_bias="0.74" />
 
-    <!-- Texto de boas-vindas -->
     <TextView
         android:id="@+id/welcomeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginBottom="40dp"
         android:text="Bem Vindo ao sistema\nGrupo AMJ Fire"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="30sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/logoImageView" />
+        app:layout_constraintBottom_toTopOf="@+id/emailEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Campo de Email -->
+    <ImageView
+        android:id="@+id/eyeIcon"
+        android:layout_width="40dp"
+        android:layout_height="31dp"
+        android:contentDescription="Mostrar/ocultar senha"
+        android:scaleType="fitCenter"
+        android:src="@drawable/olho"
+        app:layout_constraintBottom_toTopOf="@+id/view2"
+        app:layout_constraintEnd_toStartOf="@+id/view2"
+        app:layout_constraintHorizontal_bias="0.172"
+        app:layout_constraintStart_toEndOf="@+id/view2"
+        app:layout_constraintTop_toBottomOf="@+id/view2"
+        app:layout_constraintVertical_bias="0.311" />
+
+    <TextView
+        android:id="@+id/forgotPasswordTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Esqueci minha senha"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/view2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.174"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view2"
+        app:layout_constraintVertical_bias="0.311"
+        tools:ignore="MissingConstraints" />
+
+    <Button
+        android:id="@+id/entrarButton"
+        android:layout_width="306dp"
+        android:layout_height="56dp"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="@android:color/white"
+        android:text="Entrar"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/view2"
+        app:layout_constraintEnd_toStartOf="@+id/view2"
+        app:layout_constraintStart_toEndOf="@+id/view2"
+        app:layout_constraintTop_toBottomOf="@+id/view2"
+        app:layout_constraintVertical_bias="0.189" />
+
     <EditText
         android:id="@+id/emailEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="20dp"
+        android:layout_width="340dp"
+        android:layout_height="58dp"
         android:background="@drawable/botaoredondo"
         android:hint="Email:"
+        android:inputType="textEmailAddress"
         android:paddingLeft="20dp"
         android:paddingTop="20dp"
         android:paddingRight="20dp"
         android:paddingBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@+id/view2"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/welcomeTextView" />
-
-    <!-- Campo de Senha -->
-
-    <!-- Ícone de Olho para Mostrar/Ocultar Senha -->
-
-    <!-- Link "Esqueci minha senha" -->
+        app:layout_constraintTop_toBottomOf="@+id/view2" />
 
     <EditText
         android:id="@+id/senhaEditText"
-        android:layout_width="369dp"
-        android:layout_height="64dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="340dp"
+        android:layout_height="58dp"
         android:background="@drawable/botaoredondo"
         android:hint="Senha:"
         android:inputType="textPassword"
@@ -80,53 +125,11 @@
         android:paddingTop="20dp"
         android:paddingRight="20dp"
         android:paddingBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@+id/forgotPasswordTextView"
+        app:layout_constraintBottom_toTopOf="@+id/view2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emailEditText"
-        app:layout_constraintVertical_bias="0.5" />
-
-    <ImageView
-        android:id="@+id/eyeIcon"
-        android:layout_width="35dp"
-        android:layout_height="57dp"
-        android:contentDescription="Mostrar/ocultar senha"
-        android:src="@drawable/eye_icon"
-        app:layout_constraintBottom_toBottomOf="@id/senhaEditText"
-        app:layout_constraintEnd_toEndOf="@+id/senhaEditText"
-        app:layout_constraintHorizontal_bias="0.952"
-        app:layout_constraintStart_toStartOf="@+id/senhaEditText"
-        app:layout_constraintTop_toTopOf="@id/senhaEditText"
-        app:layout_constraintVertical_bias="0.606" />
-
-    <TextView
-        android:id="@+id/forgotPasswordTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:text="Esqueci minha senha"
-        android:textColor="@android:color/white"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/senhaEditText" />
-
-    <!-- Botão de Entrar -->
-    <Button
-        android:id="@+id/entrarButton"
-        android:layout_width="372dp"
-        android:layout_height="65dp"
-        android:layout_marginTop="80dp"
-        android:background="@drawable/botaoredondo"
-        android:backgroundTint="@android:color/white"
-        android:text="Entrar"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/emailEditText"
-        app:layout_constraintHorizontal_bias="0.414"
-        app:layout_constraintStart_toStartOf="@+id/emailEditText"
-        app:layout_constraintTop_toBottomOf="@id/forgotPasswordTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/view2"
+        app:layout_constraintVertical_bias="0.409" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

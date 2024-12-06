@@ -16,9 +16,9 @@ class MenuPrincipalActivity : AppCompatActivity() {
         setContentView(R.layout.menu_principal)
 
         // Botões principais
-        val escoposPendentesButton = findViewById<Button>(R.id.button)
-        val adicionarEscopoButton = findViewById<Button>(R.id.button3)
-        val escoposConcluidosButton = findViewById<ImageButton>(R.id.concluidos)
+        val escoposPendentesButton = findViewById<Button>(R.id.btn_pendente)
+        val adicionarEscopoButton = findViewById<Button>(R.id.btn_add_escopo)
+        val escoposConcluidosButton = findViewById<Button>(R.id.btn_concluido)
         val perfilButton = findViewById<ImageButton>(R.id.perfil)
 
         // Navegação para as atividades correspondentes
