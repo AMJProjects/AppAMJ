@@ -41,6 +41,13 @@ class RegistroActivity : AppCompatActivity() {
                     Toast.makeText(this@RegistroActivity, "Senhas não são iguais!", Toast.LENGTH_SHORT).show()
                 }
             }
+
+        }
+        // Ação do botão "Voltar"
+        binding.btnVoltarMenu.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java) // Substitua MainActivity pela sua tela de login, se necessário.
+            startActivity(intent)
+            finish() // Finaliza a atividade atual para evitar que o usuário volte
         }
     }
 
