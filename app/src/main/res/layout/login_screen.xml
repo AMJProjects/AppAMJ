@@ -22,7 +22,7 @@
         android:layout_height="match_parent"
         android:background="#420001"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+        tools:layout_editor_absoluteY="16dp" />
 
     <ImageView
         android:id="@+id/logoImageView"
@@ -93,9 +93,10 @@
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/view2"
         app:layout_constraintEnd_toStartOf="@+id/view2"
+        app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toEndOf="@+id/view2"
         app:layout_constraintTop_toBottomOf="@+id/view2"
-        app:layout_constraintVertical_bias="0.189" />
+        app:layout_constraintVertical_bias="0.2" />
 
     <EditText
         android:id="@+id/emailEditText"
@@ -131,5 +132,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view2"
         app:layout_constraintVertical_bias="0.409" />
+
+    <Button
+        android:id="@+id/registerButton"
+        android:layout_width="306dp"
+        android:layout_height="56dp"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="@android:color/white"
+        android:text="Registrar"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/view2"
+        app:layout_constraintEnd_toStartOf="@+id/view2"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toEndOf="@+id/view2"
+        app:layout_constraintTop_toBottomOf="@+id/view2"
+        app:layout_constraintVertical_bias="0.116" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

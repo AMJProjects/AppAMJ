@@ -38,6 +38,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ui.theme.RegistroActivity">
+        </activity>
+
+
+
         <activity android:name=".ui.theme.AdicionarEscopoActivity" />
         <activity android:name=".ui.theme.EscoposPendentesActivity" />
         <activity android:name=".EscoposConcluidosActivity" />

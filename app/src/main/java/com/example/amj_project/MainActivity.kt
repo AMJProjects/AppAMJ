@@ -30,7 +30,9 @@ class MainActivity : AppCompatActivity() {
         val eyeIcon = findViewById<ImageView>(R.id.eyeIcon)
         val forgotPasswordTextView = findViewById<TextView>(R.id.forgotPasswordTextView)
         val entrarButton = findViewById<Button>(R.id.entrarButton)
+        val registerButton = findViewById<Button>(R.id.registerButton)  // Referência do botão "Registrar"
 
+        // Configuração do ícone de olho para mostrar/ocultar a senha
         eyeIcon.setOnClickListener {
             if (isPasswordVisible) {
                 senhaEditText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
@@ -60,6 +62,12 @@ class MainActivity : AppCompatActivity() {
             } else {
                 signInWithEmailAndPassword(email, senha)
             }
+        }
+
+        // Configuração do botão Registrar
+        registerButton.setOnClickListener {
+            val intent = Intent(this, com.example.amj_project.ui.theme.RegistroActivity::class.java)
+            startActivity(intent)
         }
     }
 
