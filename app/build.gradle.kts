@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.material)
     implementation(libs.androidx.activity)
+    implementation(libs.firebase.database.ktx)
 
     // Testes
     testImplementation(libs.junit)

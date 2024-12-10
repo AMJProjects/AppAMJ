@@ -11,10 +11,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.database.FirebaseDatabase
 
 class RegistroActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: RegistroBinding
+    private val database = FirebaseDatabase.getInstance().reference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,65 +28,73 @@ class RegistroActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         binding.btnRegister.setOnClickListener {
-            val email: String = binding.etEmail.text.toString().trim()
-            val password: String = binding.etPassword.text.toString().trim()
-            val confirmPassword: String = binding.etConfirmPassword.text.toString().trim()
+            val nome = binding.etNome.text.toString().trim()
+            val cargo = binding.etCargo.text.toString().trim()
+            val email = binding.etEmail.text.toString().trim()
+            val password = binding.etPassword.text.toString().trim()
+            val confirmPassword = binding.etConfirmPassword.text.toString().trim()
 
-            // Verificando se todos os campos estão preenchidos
-            if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(this@RegistroActivity, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show()
+            // Verificar campos vazios
+            if (nome.isEmpty() || cargo.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                Toast.makeText(this, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show()
+            } else if (password != confirmPassword) {
+                Toast.makeText(this, "As senhas não coincidem", Toast.LENGTH_SHORT).show()
             } else {
-                // Verificando se as senhas coincidem
-                if (password == confirmPassword) {
-                    createUserEmailAndPassword(email, password)
-                } else {
-                    Toast.makeText(this@RegistroActivity, "Senhas não são iguais!", Toast.LENGTH_SHORT).show()
-                }
+                createUserAndSaveData(nome, cargo, email, password)
             }
-
         }
-        // Ação do botão "Voltar"
+
         binding.btnVoltarMenu.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java) // Substitua MainActivity pela sua tela de login, se necessário.
+            val intent = Intent(this, MainActivity::class.java) // Voltar ao menu principal
             startActivity(intent)
-            finish() // Finaliza a atividade atual para evitar que o usuário volte
+            finish()
         }
     }
 
-    private fun createUserEmailAndPassword(email: String, password: String) {
+    private fun createUserAndSaveData(nome: String, cargo: String, email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Log.d(TAG, "createUserEmailAndPassword: Success")
-                val user = auth.currentUser
-
-                // Mensagem de sucesso
-                Toast.makeText(this@RegistroActivity, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
-
-                // Navega para a tela de login ou uma tela principal
-                val intent = Intent(this@RegistroActivity, MainActivity::class.java) // Ou outra Activity de sua escolha
-                startActivity(intent)
-                finish() // Finaliza a tela de registro para evitar que o usuário volte para ela
-            } else {
-                val exception = task.exception
-                Log.w(TAG, "createUserEmailAndPassword: Failure", exception)
-
-                // Exibe o erro detalhado
-                exception?.let { e ->
-                    if (e is FirebaseAuthWeakPasswordException) {
-                        Toast.makeText(this@RegistroActivity, "Senha muito fraca. A senha deve ter pelo menos 6 caracteres.", Toast.LENGTH_SHORT).show()
-                    } else if (e is FirebaseAuthUserCollisionException) {
-                        Toast.makeText(this@RegistroActivity, "Este e-mail já está registrado.", Toast.LENGTH_SHORT).show()
-                    } else if (e is FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(this@RegistroActivity, "O e-mail fornecido é inválido.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this@RegistroActivity, "Falha na autenticação: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                val userId = auth.currentUser?.uid
+                if (userId != null) {
+                    // Salvar os dados do usuário no Firebase Realtime Database
+                    val userMap = mapOf(
+                        "nome" to nome,
+                        "cargo" to cargo,
+                        "email" to email
+                    )
+                    database.child("users").child(userId).setValue(userMap).addOnCompleteListener { saveTask ->
+                        if (saveTask.isSuccessful) {
+                            Toast.makeText(this, "Conta criada com sucesso!", Toast.LENGTH_SHORT).show()
+                            navigateToProfile(nome, cargo, email)
+                        } else {
+                            Toast.makeText(this, "Erro ao salvar os dados", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
+            } else {
+                handleFirebaseAuthError(task.exception)
             }
         }
     }
 
-    companion object {
-        private const val TAG = "EmailAndPassword"
+    private fun navigateToProfile(nome: String, cargo: String, email: String) {
+        val intent = Intent(this, PerfilActivity::class.java)
+        intent.putExtra("nome", nome)
+        intent.putExtra("cargo", cargo)
+        intent.putExtra("email", email)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun handleFirebaseAuthError(exception: Exception?) {
+        if (exception is FirebaseAuthWeakPasswordException) {
+            Toast.makeText(this, "Senha muito fraca! Deve conter pelo menos 6 caracteres.", Toast.LENGTH_SHORT).show()
+        } else if (exception is FirebaseAuthUserCollisionException) {
+            Toast.makeText(this, "Este e-mail já está cadastrado.", Toast.LENGTH_SHORT).show()
+        } else if (exception is FirebaseAuthInvalidCredentialsException) {
+            Toast.makeText(this, "E-mail inválido.", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Erro: ${exception?.localizedMessage}", Toast.LENGTH_SHORT).show()
+        }
     }
 }
