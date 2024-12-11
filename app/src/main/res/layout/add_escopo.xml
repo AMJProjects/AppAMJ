@@ -11,7 +11,7 @@
         android:id="@+id/textView2"
         android:layout_width="112dp"
         android:layout_height="31dp"
-        android:layout_marginTop="128dp"
+        android:layout_marginTop="120dp"
         android:background="#AEAEAE"
         android:paddingLeft="10dp"
         android:text="Escopo n:"
@@ -25,7 +25,7 @@
         android:id="@+id/editTextNumber"
         android:layout_width="297dp"
         android:layout_height="31dp"
-        android:layout_marginTop="128dp"
+        android:layout_marginTop="120dp"
         android:background="#AEAEAE"
         android:ems="10"
         android:inputType="number"
@@ -41,7 +41,7 @@
         android:id="@+id/editTextText3"
         android:layout_width="303dp"
         android:layout_height="45dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#D9D9D9"
         android:ems="10"
@@ -75,7 +75,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:text="Tipo de serviço:"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,10 +87,11 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:text="Status:"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spinnerTipoManutencao" />
 
@@ -98,7 +99,7 @@
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="8dp"
         android:text="Resumo do escopo"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -110,10 +111,11 @@
         android:id="@+id/textView7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:text="Numero pedido de compra: "
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.518"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputEditText" />
 
@@ -122,6 +124,7 @@
         android:layout_width="265dp"
         android:layout_height="54dp"
         android:layout_margin="16dp"
+        android:layout_marginTop="8dp"
         android:spinnerMode="dropdown"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -131,7 +134,7 @@
         android:id="@+id/spinnerTipoManutencao2"
         android:layout_width="265dp"
         android:layout_height="54dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="8dp"
         android:spinnerMode="dropdown"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -142,6 +145,7 @@
         android:layout_width="247dp"
         android:layout_height="38dp"
         android:layout_marginTop="8dp"
+        android:paddingLeft="10dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#D9D9D9"
         android:ems="10"
@@ -164,7 +168,8 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextNumber2"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintVertical_bias="0.26" />
+
 
     <Button
         android:id="@+id/button5"
@@ -180,14 +185,16 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/button3"
         app:layout_constraintTop_toBottomOf="@+id/editTextNumber2"
-        app:layout_constraintVertical_bias="0.5" />
-
+        app:layout_constraintVertical_bias="0.274" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/textInputEditText"
-        android:layout_width="303dp"
-        android:layout_height="82dp"
+        android:layout_width="301dp"
+        android:layout_height="89dp"
         android:layout_marginTop="20dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#D9D9D9"
         app:layout_constraintEnd_toEndOf="parent"

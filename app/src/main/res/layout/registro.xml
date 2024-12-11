@@ -41,7 +41,7 @@
         android:inputType="textShortMessage"
         android:minHeight="48dp"
         android:padding="12dp"
-        android:textColor="@color/white" />
+        android:textColor="@color/black" />
 
     <EditText
         android:id="@+id/etCargo"
@@ -53,7 +53,7 @@
         android:inputType="textShortMessage"
         android:minHeight="48dp"
         android:padding="12dp"
-        android:textColor="@color/white" />
+        android:textColor="@color/black" />
 
     <EditText
         android:id="@+id/etEmail"
@@ -65,7 +65,7 @@
         android:inputType="textEmailAddress"
         android:minHeight="48dp"
         android:padding="12dp"
-        android:textColor="@color/white" />
+        android:textColor="@color/black" />
 
     <EditText
         android:id="@+id/etPassword"

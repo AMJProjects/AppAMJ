@@ -32,7 +32,7 @@
         app:srcCompat="@drawable/logout" />
 
     <EditText
-        android:id="@+id/editTextText"
+        android:id="@+id/etNome"
         android:layout_width="242dp"
         android:layout_height="53dp"
         android:layout_marginTop="56dp"
@@ -45,32 +45,15 @@
         android:textColor="#1B1A1A"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <EditText
-        android:id="@+id/editTextPhone"
+        android:id="@+id/etCargo"
         android:layout_width="242dp"
         android:layout_height="53dp"
-        android:layout_marginTop="40dp"
-        android:background="@drawable/botaoredondo"
-        android:backgroundTint="#ADADAD"
-        android:ems="10"
-        android:hint="Telefone"
-        android:inputType="phone"
-        android:paddingLeft="20dp"
-        android:textColor="#000000"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
-
-    <EditText
-        android:id="@+id/editTextText2"
-        android:layout_width="242dp"
-        android:layout_height="53dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#ADADAD"
         android:ems="10"
@@ -82,26 +65,25 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextPhone" />
+        app:layout_constraintTop_toBottomOf="@+id/etNome" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/btn_salvar"
         android:layout_width="222dp"
         android:layout_height="62dp"
+        android:layout_marginTop="112dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#530303"
         android:text="Salvar mudanças"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText2"
-        app:layout_constraintVertical_bias="0.26" />
+        app:layout_constraintTop_toBottomOf="@+id/etCargo" />
 
     <ImageButton
-        android:id="@+id/imageButton2"
+        android:id="@+id/btnSalvar"
         android:layout_width="77dp"
         android:layout_height="55dp"
         android:layout_marginTop="40dp"

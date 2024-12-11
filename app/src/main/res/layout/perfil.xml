@@ -2,31 +2,63 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_perfil"
     android:orientation="vertical"
     android:padding="16dp">
 
-    <ImageButton
-        android:id="@+id/imageButton4"
-        android:layout_marginTop="20dp"
-        android:layout_width="80dp"
+    <!-- Barra de ações -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:srcCompat="@drawable/setinha_preta" />
+        android:orientation="horizontal">
 
+        <ImageButton
+            android:id="@+id/btn_voltar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/white"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/setinha_preta" />
+
+        <ImageButton
+            android:id="@+id/btn_logout"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="270dp"
+            android:layout_marginTop="22dp"
+            android:background="@color/white"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/logout" />
+    </LinearLayout>
+
+    <!-- Imagem de perfil -->
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/icon_perfil" />
+
+    <!-- Dados do perfil -->
     <TextView
         android:id="@+id/tvNome"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:layout_marginTop="16dp"
+        android:paddingLeft="10dp"
         android:text="Nome"
         android:textColor="@android:color/black"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvCargo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:layout_marginTop="8dp"
+        android:paddingLeft="10dp"
         android:text="Cargo"
         android:textColor="@android:color/black"
         android:textSize="18sp" />
@@ -35,8 +67,21 @@
         android:id="@+id/tvEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:layout_marginTop="8dp"
+        android:paddingLeft="10dp"
         android:text="Email"
         android:textColor="@android:color/black"
         android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/btn_editar_perfil"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="#530303"
+        android:text="Editar Perfil"
+        android:textColor="@color/white" />
+
 </LinearLayout>
