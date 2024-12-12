@@ -10,6 +10,9 @@ import com.example.amj_project.MainActivity
 import com.example.amj_project.R
 
 class PerfilActivity : AppCompatActivity() {
+
+    private val REQUEST_CODE_EDITAR_PERFIL = 1  // Código de requisição para identificar a atividade de edição
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.perfil)
@@ -28,8 +31,8 @@ class PerfilActivity : AppCompatActivity() {
             val intent = Intent(this, EditarPerfilActivity::class.java)
             intent.putExtra("nome", nome)
             intent.putExtra("cargo", cargo)
-            intent.putExtra("userId", userId)  // Passando o ID do usuário para a tela de edição
-            startActivity(intent)
+            intent.putExtra("userId", userId)
+            startActivityForResult(intent, REQUEST_CODE_EDITAR_PERFIL)
         }
 
         // Botão Voltar para a tela principal
@@ -43,6 +46,19 @@ class PerfilActivity : AppCompatActivity() {
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == RESULT_OK && data != null) {
+            val nomeAtualizado = data.getStringExtra("nome")
+            val cargoAtualizado = data.getStringExtra("cargo")
+
+            // Atualiza a tela de perfil com os dados recebidos
+            findViewById<TextView>(R.id.tvNome).text = nomeAtualizado
+            findViewById<TextView>(R.id.tvCargo).text = cargoAtualizado
         }
     }
 }

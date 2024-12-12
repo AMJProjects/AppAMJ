@@ -60,6 +60,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
+
     // Dependências do Compose (remova se não for usar)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -71,6 +72,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.storage.ktx)
 
     // Testes
     testImplementation(libs.junit)
