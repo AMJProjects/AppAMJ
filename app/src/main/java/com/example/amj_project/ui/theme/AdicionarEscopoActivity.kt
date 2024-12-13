@@ -60,20 +60,18 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             val numeroEscopo = findViewById<EditText>(R.id.editTextNumber).text.toString()
             val empresa = findViewById<EditText>(R.id.editTextText3).text.toString()
             val dataEstimativa = findViewById<EditText>(R.id.editTextDate).text.toString()
-            val tipoServico = spinnerTipoManutencao.selectedItem.toString()
-            val status = spinnerTipoManutencao2.selectedItem.toString()
-            val resumoEscopo = findViewById<EditText>(R.id.textInputEditText).text.toString()
 
             // Verificação de campos obrigatórios
-            if (numeroEscopo.isEmpty() || empresa.isEmpty() || dataEstimativa.isEmpty() || resumoEscopo.isEmpty()) {
+            if (numeroEscopo.isEmpty() || empresa.isEmpty() || dataEstimativa.isEmpty()) {
                 Toast.makeText(this, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             // Criação do escopo
-            val escopoCriado = "Escopo n°: $numeroEscopo\nEmpresa: $empresa\nData Estimada: $dataEstimativa\nTipo de Serviço: $tipoServico\nResumo: $resumoEscopo"
+            val escopoCriado = "Escopo n°: $numeroEscopo\nEmpresa: $empresa\nData Estimada: $dataEstimativa"
 
             // Determina a tela para redirecionar com base no status
+            val status = spinnerTipoManutencao2.selectedItem.toString()
             val intent: Intent
             if (status == "Concluído") {
                 intent = Intent(this, EscoposConcluidosActivity::class.java)
