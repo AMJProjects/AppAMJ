@@ -30,7 +30,7 @@
         android:ems="10"
         android:inputType="number"
         android:paddingLeft="5dp"
-        android:text="214"
+        android:text="215"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
