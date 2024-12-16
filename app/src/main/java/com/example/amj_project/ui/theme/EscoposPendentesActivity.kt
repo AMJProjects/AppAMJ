@@ -2,10 +2,13 @@ package com.example.amj_project.ui.theme
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.graphics.Color
 import com.example.amj_project.R
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -19,7 +22,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.escopos_pendentes)
 
-        val tvPendentes: TextView = findViewById(R.id.tvPendentes)
+        val layoutDinamico: LinearLayout = findViewById(R.id.layoutDinamico)
         val voltarMenuButton = findViewById<Button>(R.id.button4)
 
         // Inicializa o Firebase Firestore
@@ -30,22 +33,26 @@ class EscoposPendentesActivity : AppCompatActivity() {
             .whereIn("status", listOf("Integração pendente", "Realização pendente"))
             .get()
             .addOnSuccessListener { result ->
-                val stringBuilder = StringBuilder()
 
-                // Itera sobre os documentos retornados e adiciona os dados ao StringBuilder
+                // Itera sobre os documentos retornados e cria TextViews dinâmicos
                 for (document in result) {
-                    val numeroEscopo = document.getString("numeroEscopo")
-                    val empresa = document.getString("empresa")
-                    val dataEstimativa = document.getString("dataEstimativa")
+                    val numeroEscopo = document.getString("numeroEscopo") ?: "N/A"
+                    val empresa = document.getString("empresa") ?: "N/A"
+                    val dataEstimativa = document.getString("dataEstimativa") ?: "N/A"
 
-                    stringBuilder.append("Número: $numeroEscopo\nEmpresa: $empresa\nData Estimada: $dataEstimativa\n\n")
+                    val textoEscopo = "Número: $numeroEscopo\nEmpresa: $empresa\nData Estimada: $dataEstimativa"
+
+                    // Adiciona o escopo como um TextView ao layout dinâmico
+                    adicionarTextoDinamico(layoutDinamico, textoEscopo)
                 }
 
-                // Atualiza o TextView com os escopos pendentes
-                tvPendentes.text = stringBuilder.toString()
+                // Caso não haja escopos, exibe uma mensagem
+                if (result.isEmpty) {
+                    adicionarTextoDinamico(layoutDinamico, "Nenhum escopo pendente encontrado.")
+                }
             }
             .addOnFailureListener { e ->
-                tvPendentes.text = "Erro ao carregar os escopos pendentes: ${e.message}"
+                adicionarTextoDinamico(layoutDinamico, "Erro ao carregar os escopos pendentes: ${e.message}")
             }
 
         voltarMenuButton.setOnClickListener {
@@ -54,4 +61,28 @@ class EscoposPendentesActivity : AppCompatActivity() {
             finish() // Finaliza a atividade atual para evitar acúmulo de pilha
         }
     }
+
+    // Função para adicionar TextView dinâmico ao layout
+    private fun adicionarTextoDinamico(layout: LinearLayout, texto: String) {
+        val textView = TextView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = 10  // Adicionando marginTop de 10dp
+            }
+            setText(texto)
+            textSize = 16f
+            setPadding(16, 16, 16, 16)
+            setBackgroundResource(R.drawable.botaoredondo)
+
+            // Corrigido: usando setBackgroundTintList com a cor adequada
+            backgroundTintList = androidx.core.content.ContextCompat.getColorStateList(
+                context, R.color.gray
+            )  // Defina a cor como um recurso de cor no seu projeto
+        }
+        layout.addView(textView)
+    }
+
+
 }
