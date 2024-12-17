@@ -21,11 +21,13 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.add_escopo)
 
+        // Inicializa o Firestore
         db = FirebaseFirestore.getInstance()
 
         // Referência ao layout dinâmico
         layoutDinamico = findViewById(R.id.layoutDinamico)
 
+        // Busca o último número de escopo no Firestore
         buscarUltimoNumeroEscopo()
 
         val spinnerTipoManutencao: Spinner = findViewById(R.id.spinnerTipoManutencao)
@@ -54,12 +56,16 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             val dataEstimativa = findViewById<EditText>(R.id.editTextDate).text.toString()
             val status = spinnerTipoManutencao2.selectedItem.toString()
 
+            // Validação básica dos campos
             if (empresa.isEmpty() || dataEstimativa.isEmpty()) {
                 Toast.makeText(this, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // Gera o número do novo escopo
             val novoNumeroEscopo = ultimoNumeroEscopo + 1
+
+            // Cria o escopo com os dados inseridos
             val escopo = hashMapOf(
                 "numeroEscopo" to novoNumeroEscopo.toString(),
                 "empresa" to empresa,
@@ -67,10 +73,11 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                 "status" to status
             )
 
+            // Salva no Firestore
             db.collection("escopos")
                 .add(escopo)
                 .addOnSuccessListener {
-                    ultimoNumeroEscopo = novoNumeroEscopo
+                    ultimoNumeroEscopo = novoNumeroEscopo // Atualiza o número do último escopo
                     adicionarTextoDinamico("Escopo $novoNumeroEscopo: $empresa - $dataEstimativa ($status)")
                     Toast.makeText(this, "Escopo salvo com sucesso!", Toast.LENGTH_SHORT).show()
                 }
@@ -80,6 +87,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         }
     }
 
+    // Método que busca o último número de escopo no Firestore
     private fun buscarUltimoNumeroEscopo() {
         db.collection("escopos")
             .orderBy("numeroEscopo", Query.Direction.DESCENDING)
@@ -90,7 +98,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                     val ultimoEscopo = documents.first()
                     ultimoNumeroEscopo = ultimoEscopo.getString("numeroEscopo")?.toInt() ?: 0
                 } else {
-                    ultimoNumeroEscopo = 0
+                    ultimoNumeroEscopo = 0 // Se não houver nenhum escopo, começa do zero
                 }
             }
             .addOnFailureListener {
@@ -98,6 +106,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             }
     }
 
+    // Método para adicionar dinamicamente um TextView ao layout
     private fun adicionarTextoDinamico(texto: String) {
         val textView = TextView(this).apply {
             layoutParams = LinearLayout.LayoutParams(

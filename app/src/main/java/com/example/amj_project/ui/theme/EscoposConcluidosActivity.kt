@@ -50,7 +50,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
 
                 // Caso não haja escopos, exibe uma mensagem
                 if (result.isEmpty) {
-                    adicionarTextoDinamico(layoutDinamico, "Nenhum escopo pendente encontrado.")
+                    adicionarTextoDinamico(layoutDinamico, "Nenhum escopo concluído encontrado.")
                 }
             }
             .addOnFailureListener { e ->
