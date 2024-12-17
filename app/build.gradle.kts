@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.firebase.database.ktx)
     implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.viewfinder.core)
 
     // Testes
     testImplementation(libs.junit)

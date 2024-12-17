@@ -48,6 +48,7 @@
         <activity android:name=".EscoposConcluidosActivity" />
         <activity android:name=".ui.theme.PerfilActivity" />
         <activity android:name=".ui.theme.EditarPerfilActivity" />
+        <activity android:name=".ui.theme.DetalhesEscopoActivity" />
 
 
 
