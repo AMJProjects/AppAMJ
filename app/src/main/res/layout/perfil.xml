@@ -1,87 +1,133 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_perfil"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@drawable/bg_perfil">
 
     <!-- Barra de ações -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/btn_voltar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="20dp"
-            android:background="@color/white"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/setinha_preta" />
-
-        <ImageButton
-            android:id="@+id/btn_logout"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginLeft="270dp"
-            android:layout_marginTop="22dp"
-            android:background="@color/white"
-            android:scaleType="fitCenter"
-            app:srcCompat="@drawable/logout" />
-    </LinearLayout>
 
     <!-- Imagem de perfil -->
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:src="@drawable/icon_perfil" />
+
 
     <!-- Dados do perfil -->
-    <TextView
+
+    <ImageButton
+        android:id="@+id/btn_voltar"
+        android:layout_width="39dp"
+        android:layout_height="39dp"
+        android:background="@color/white"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_logout"
+        app:layout_constraintHorizontal_bias="0.049"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.063"
+        app:srcCompat="@drawable/setinha_preta"
+        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+    <ImageButton
+        android:id="@+id/btn_logout"
+        android:layout_width="35dp"
+        android:layout_height="34dp"
+        android:background="@color/white"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.957"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.063"
+        app:srcCompat="@drawable/logout"
+        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="132dp"
+        android:layout_height="161dp"
+        android:src="@drawable/icon_perfil"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.159" />
+
+    <EditText
         android:id="@+id/tvNome"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:paddingLeft="10dp"
-        android:text="Nome"
-        android:textColor="@android:color/black"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:layout_width="365dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="#ADADAD"
+        android:ems="10"
+        android:hint="Nome"
+        android:inputType="text"
+        android:paddingLeft="20dp"
+        android:textColor="#211F1F"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvEmail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        tools:ignore="MissingConstraints,TouchTargetSizeCheck" />
 
-    <TextView
+    <EditText
         android:id="@+id/tvCargo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:paddingLeft="10dp"
-        android:text="Cargo"
-        android:textColor="@android:color/black"
-        android:textSize="18sp" />
+        android:layout_width="360dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="28dp"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="#ADADAD"
+        android:ems="10"
+        android:hint="Cargo"
+        android:inputType="text"
+        android:paddingLeft="20dp"
+        android:textColor="#211F1F"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/btn_editar_perfil"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        tools:ignore="MissingConstraints,DuplicateClickableBoundsCheck,TouchTargetSizeCheck" />
 
-    <TextView
+    <EditText
         android:id="@+id/tvEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:paddingLeft="10dp"
-        android:text="Email"
-        android:textColor="@android:color/black"
-        android:textSize="18sp" />
+        android:layout_width="363dp"
+        android:layout_height="41dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/botaoredondo"
+        android:backgroundTint="#ADADAD"
+        android:ems="10"
+        android:hint="Email"
+        android:inputType="text"
+        android:paddingLeft="20dp"
+        android:textColor="#211F1F"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvCargo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        tools:ignore="MissingConstraints,TouchTargetSizeCheck" />
 
     <Button
         android:id="@+id/btn_editar_perfil"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="30dp"
+        android:layout_width="151dp"
+        android:layout_height="42dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#530303"
         android:text="Editar Perfil"
-        android:textColor="@color/white" />
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.671"
+        tools:ignore="MissingConstraints,TouchTargetSizeCheck" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

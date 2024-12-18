@@ -10,7 +10,7 @@
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="108dp"
+        android:layout_marginTop="72dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,16 +30,18 @@
         android:paddingLeft="20dp"
         android:textColor="#1B1A1A"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/etCargo"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.485"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_foto" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_foto"
+        app:layout_constraintVertical_bias="0.5" />
 
     <EditText
         android:id="@+id/etCargo"
         android:layout_width="242dp"
         android:layout_height="53dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="12dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#ADADAD"
         android:ems="10"
@@ -49,37 +51,42 @@
         android:textColor="#211F1F"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.485"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etNome" />
 
     <Button
         android:id="@+id/btn_salvar"
-        android:layout_width="222dp"
-        android:layout_height="62dp"
-        android:layout_marginTop="56dp"
+        android:layout_width="231dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="40dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#530303"
         android:text="Salvar mudanças"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etCargo" />
+        app:layout_constraintTop_toBottomOf="@+id/etCargo"
+        app:layout_constraintVertical_bias="0.382"
+        tools:ignore="TouchTargetSizeCheck" />
 
     <Button
         android:id="@+id/btn_foto"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
+        android:layout_width="136dp"
+        android:layout_height="42dp"
         android:layout_marginTop="32dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#530303"
         android:text="Alterar foto"
         android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/etNome"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintVertical_bias="0.5"
+        tools:ignore="TouchTargetSizeCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
