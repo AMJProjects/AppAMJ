@@ -2,11 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.gms.google-services")
+    id("com.google.gms.google-services") // Plugin de Google Services
 }
 
 android {
-    namespace = "com.example.amj_project" // Certifique-se de que isso está correto
+    namespace = "com.example.amj_project"
     compileSdk = 35
 
     defaultConfig {
@@ -39,7 +39,7 @@ android {
     }
 
     buildFeatures {
-        compose = true // Remova ou ajuste essa linha caso não use Compose
+        compose = true
     }
 
     composeOptions {
@@ -59,9 +59,11 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.android.gms:play-services-base:18.0.1")
+    implementation("com.google.firebase:firebase-auth:21.0.1")
+    implementation("com.google.firebase:firebase-firestore:24.0.0")
 
-
-    // Dependências do Compose (remova se não for usar)
+    // Dependências do Compose
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))

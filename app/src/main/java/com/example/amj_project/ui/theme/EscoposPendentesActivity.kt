@@ -40,7 +40,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
 
                 // Itera sobre os documentos retornados e cria TextViews dinâmicos
                 for (document in result) {
-                    val numeroEscopo = document.getString("numeroEscopo") ?: "N/A"
+                    val numeroEscopo = document.get("numeroEscopo") as? Number ?: 0L  // Garantir que é número
                     val empresa = document.getString("empresa") ?: "N/A"
                     val dataEstimativa = document.getString("dataEstimativa") ?: "N/A"
                     val tipoServico = document.getString("tipoServico") ?: "N/A"
@@ -69,7 +69,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
                     adicionarTextoDinamico(
                         layoutDinamico,
                         "Nenhum escopo concluído encontrado.",
-                        "",
+                        0L,
                         "",
                         "",
                         "",
@@ -83,7 +83,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
                 adicionarTextoDinamico(
                     layoutDinamico,
                     "Erro ao carregar os escopos pendentes: ${e.message}",
-                    "", "", "", "", "", "", ""
+                    0L, "", "", "", "", "", ""
                 )
             }
 
@@ -99,7 +99,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
     private fun adicionarTextoDinamico(
         layout: LinearLayout,
         texto: String,
-        numeroEscopo: String,
+        numeroEscopo: Number,
         empresa: String,
         dataEstimativa: String,
         tipoServico: String,
@@ -190,6 +190,4 @@ class EscoposPendentesActivity : AppCompatActivity() {
         // Adicionando o container ao layout principal
         layout.addView(containerLayout)
     }
-
-
 }

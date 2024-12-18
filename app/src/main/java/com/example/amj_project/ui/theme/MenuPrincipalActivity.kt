@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
-import com.example.amj_project.EscoposConcluidosActivity
 import com.example.amj_project.EsqueciSenhaActivity
 import com.example.amj_project.MainActivity
 import com.example.amj_project.R

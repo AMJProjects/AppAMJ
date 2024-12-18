@@ -1,4 +1,4 @@
-package com.example.amj_project
+package com.example.amj_project.ui.theme
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.amj_project.R
 import com.example.amj_project.ui.theme.DetalhesEscopoActivity
 import com.example.amj_project.ui.theme.MenuPrincipalActivity
 import com.google.firebase.firestore.FirebaseFirestore
@@ -33,12 +34,12 @@ class EscoposConcluidosActivity : AppCompatActivity() {
 
         // Busca todos os escopos com status "Concluído"
         db.collection("escopos")
-            .whereIn("status", listOf("Concluído"))
+            .whereIn("status", listOf("Concluído"))  // Corrigido o fechamento do listOf
             .get()
             .addOnSuccessListener { result ->
                 // Itera sobre os documentos retornados e cria TextViews dinâmicos
                 for (document in result) {
-                    val numeroEscopo = document.getString("numeroEscopo") ?: "N/A"
+                    val numeroEscopo = document.get("numeroEscopo") as? Number ?: 0L  // Garantir que é número
                     val empresa = document.getString("empresa") ?: "N/A"
                     val dataEstimativa = document.getString("dataEstimativa") ?: "N/A"
                     val tipoServico = document.getString("tipoServico") ?: "N/A"
@@ -67,7 +68,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                     adicionarTextoDinamico(
                         layoutDinamico,
                         "Nenhum escopo concluído encontrado.",
-                        "",
+                        0L,
                         "",
                         "",
                         "",
@@ -81,7 +82,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                 adicionarTextoDinamico(
                     layoutDinamico,
                     "Erro ao carregar os escopos pendentes: ${e.message}",
-                    "", "", "", "", "", "", ""
+                    0L, "", "", "", "", "", ""
                 )
             }
 
@@ -97,7 +98,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
     private fun adicionarTextoDinamico(
         layout: LinearLayout,
         texto: String,
-        numeroEscopo: String,
+        numeroEscopo: Number,
         empresa: String,
         dataEstimativa: String,
         tipoServico: String,
