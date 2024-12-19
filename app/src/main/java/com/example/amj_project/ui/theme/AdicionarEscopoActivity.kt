@@ -3,7 +3,6 @@ package com.example.amj_project.ui.theme
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.R
@@ -54,10 +53,13 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         salvarButton.setOnClickListener {
             val empresa = findViewById<EditText>(R.id.editTextText3).text.toString()
             val dataEstimativa = findViewById<EditText>(R.id.editTextDate).text.toString()
+            val tipoServico = spinnerTipoManutencao.selectedItem.toString()
             val status = spinnerTipoManutencao2.selectedItem.toString()
+            val resumoEscopo = findViewById<EditText>(R.id.textInputEditText).text.toString()
+            val numeroPedidoCompra = findViewById<EditText>(R.id.editTextNumber2).text.toString()
 
             // Validação básica dos campos
-            if (empresa.isEmpty() || dataEstimativa.isEmpty()) {
+            if (empresa.isEmpty() || dataEstimativa.isEmpty() || resumoEscopo.isEmpty() || numeroPedidoCompra.isEmpty()) {
                 Toast.makeText(this, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -67,10 +69,13 @@ class AdicionarEscopoActivity : AppCompatActivity() {
 
             // Cria o escopo com os dados inseridos
             val escopo = hashMapOf(
-                "numeroEscopo" to novoNumeroEscopo.toString(),
+                "numeroEscopo" to novoNumeroEscopo,
                 "empresa" to empresa,
                 "dataEstimativa" to dataEstimativa,
-                "status" to status
+                "tipoServico" to tipoServico,
+                "status" to status,
+                "resumoEscopo" to resumoEscopo,
+                "numeroPedidoCompra" to numeroPedidoCompra
             )
 
             // Salva no Firestore
@@ -96,7 +101,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     val ultimoEscopo = documents.first()
-                    ultimoNumeroEscopo = ultimoEscopo.getString("numeroEscopo")?.toInt() ?: 0
+                    ultimoNumeroEscopo = (ultimoEscopo.get("numeroEscopo") as? Long)?.toInt() ?: 0
                 } else {
                     ultimoNumeroEscopo = 0 // Se não houver nenhum escopo, começa do zero
                 }

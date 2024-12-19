@@ -33,13 +33,25 @@
     <!-- Botão Voltar ao Menu Fixado no Final -->
     <Button
         android:id="@+id/btnVoltarMenu"
-        android:layout_width="200dp"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="8dp"
+        android:layout_toStartOf="@id/editBtn"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#8D0000"
         android:text="Voltar ao Menu"
         android:textColor="@color/white" />
+
+    <!-- Botão de Edição -->
+    <ImageButton
+        android:id="@+id/editBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="fitCenter"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:background="@android:color/transparent"
+        app:srcCompat="@drawable/btn_edit" />
 
 </RelativeLayout>

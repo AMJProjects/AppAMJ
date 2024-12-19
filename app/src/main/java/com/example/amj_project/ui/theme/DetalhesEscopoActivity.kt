@@ -1,10 +1,13 @@
 package com.example.amj_project.ui.theme
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.R
 
@@ -21,6 +24,7 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
 
         // Recupera os dados passados pela Intent
+        val escopoId = intent.getStringExtra("escopoId") // ID do escopo passado para detalhes
         val numeroEscopo = intent.getStringExtra("numeroEscopo") ?: "N/A"
         val empresa = intent.getStringExtra("empresa") ?: "N/A"
         val dataEstimativa = intent.getStringExtra("dataEstimativa") ?: "N/A"
@@ -28,6 +32,37 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         val status = intent.getStringExtra("status") ?: "N/A"
         val resumoEscopo = intent.getStringExtra("resumoEscopo") ?: "N/A"
         val numeroPedidoCompra = intent.getStringExtra("numeroPedidoCompra") ?: "N/A"
+
+        // Logs para depuração
+        Log.d("DetalhesEscopo", "escopoId: $escopoId")
+        Log.d("DetalhesEscopo", "numeroEscopo: $numeroEscopo")
+        Log.d("DetalhesEscopo", "empresa: $empresa")
+        Log.d("DetalhesEscopo", "dataEstimativa: $dataEstimativa")
+        Log.d("DetalhesEscopo", "tipoServico: $tipoServico")
+        Log.d("DetalhesEscopo", "status: $status")
+        Log.d("DetalhesEscopo", "resumoEscopo: $resumoEscopo")
+        Log.d("DetalhesEscopo", "numeroPedidoCompra: $numeroPedidoCompra")
+
+        // Configura o botão de edição para navegar para EditarEscopoActivity
+        val editBtn: ImageButton = findViewById(R.id.editBtn)
+        editBtn.setOnClickListener {
+            if (escopoId != null) {
+                val intent = Intent(this, EditarEscopoActivity::class.java).apply {
+                    putExtra("escopoId", escopoId) // Envia o ID do escopo para edição
+                    putExtra("empresa", empresa)  // Envia dados adicionais para preencher os campos
+                    putExtra("numeroEscopo", numeroEscopo)
+                    putExtra("dataEstimativa", dataEstimativa)
+                    putExtra("tipoServico", tipoServico)
+                    putExtra("status", status)
+                    putExtra("resumoEscopo", resumoEscopo)
+                    putExtra("numeroPedidoCompra", numeroPedidoCompra)
+                }
+                startActivity(intent)
+            } else {
+                // Exibe uma mensagem caso o escopoId não tenha sido encontrado
+                Toast.makeText(this, "Erro: Escopo não encontrado!", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         // Configura o botão de voltar ao menu principal
         voltarMenuButton.setOnClickListener {

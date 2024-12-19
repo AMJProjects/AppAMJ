@@ -45,10 +45,13 @@
 
         <activity android:name=".ui.theme.AdicionarEscopoActivity" />
         <activity android:name=".ui.theme.EscoposPendentesActivity" />
-        <activity android:name=".EscoposConcluidosActivity" />
+        <activity android:name=".ui.theme.EscoposConcluidosActivity" />
         <activity android:name=".ui.theme.PerfilActivity" />
         <activity android:name=".ui.theme.EditarPerfilActivity" />
         <activity android:name=".ui.theme.DetalhesEscopoActivity" />
+        <activity android:name=".ui.theme.EditarEscopoActivity" />
+
+
 
 
 
