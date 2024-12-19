@@ -8,30 +8,65 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.MainActivity
 import com.example.amj_project.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 
 class PerfilActivity : AppCompatActivity() {
 
     private val REQUEST_CODE_EDITAR_PERFIL = 1  // Código de requisição para identificar a atividade de edição
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.perfil)
 
-        // Dados recebidos
-        val nome = intent.getStringExtra("nome")
-        val cargo = intent.getStringExtra("cargo")
-        val userId = intent.getStringExtra("userId")  // ID do usuário
+        // Inicializa o FirebaseAuth e FirebaseDatabase
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference
 
-        // Exibindo dados
-        findViewById<TextView>(R.id.tvNome).text = nome
-        findViewById<TextView>(R.id.tvCargo).text = cargo
+        val tvNome = findViewById<TextView>(R.id.tvNome)
+        val tvCargo = findViewById<TextView>(R.id.tvCargo)
+        val tvEmail = findViewById<TextView>(R.id.tvEmail)
+
+        // Obtém o usuário atual autenticado
+        val user = auth.currentUser
+
+        if (user != null) {
+            // Exibe o email do usuário
+            tvEmail.text = user.email
+
+            // Recupera o nome e o cargo do Firebase Realtime Database usando o UID do usuário
+            val userId = user.uid
+            val userRef = database.child("users").child(userId)
+
+            userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val nome = snapshot.child("nome").getValue(String::class.java) ?: "Nome não disponível"
+                        val cargo = snapshot.child("cargo").getValue(String::class.java) ?: "Cargo não disponível"
+
+                        // Atualiza a interface com os dados do usuário
+                        tvNome.text = nome
+                        tvCargo.text = cargo
+                    } else {
+                        tvNome.text = "Nome não disponível"
+                        tvCargo.text = "Cargo não disponível"
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    tvNome.text = "Erro ao carregar nome"
+                    tvCargo.text = "Erro ao carregar cargo"
+                }
+            })
+        }
 
         // Botão Editar Perfil
         findViewById<Button>(R.id.btn_editar_perfil).setOnClickListener {
             val intent = Intent(this, EditarPerfilActivity::class.java)
-            intent.putExtra("nome", nome)
-            intent.putExtra("cargo", cargo)
-            intent.putExtra("userId", userId)
+            intent.putExtra("nome", tvNome.text.toString())
+            intent.putExtra("cargo", tvCargo.text.toString())
             startActivityForResult(intent, REQUEST_CODE_EDITAR_PERFIL)
         }
 
@@ -43,6 +78,7 @@ class PerfilActivity : AppCompatActivity() {
 
         // Botão Logout para a tela de login
         findViewById<ImageButton>(R.id.btn_logout).setOnClickListener {
+            auth.signOut()  // Realiza o logout do Firebase
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
