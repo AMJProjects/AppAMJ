@@ -92,7 +92,6 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         }
     }
 
-    // Método que busca o último número de escopo no Firestore
     private fun buscarUltimoNumeroEscopo() {
         db.collection("escopos")
             .orderBy("numeroEscopo", Query.Direction.DESCENDING)
@@ -111,7 +110,6 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             }
     }
 
-    // Método para adicionar dinamicamente um TextView ao layout
     private fun adicionarTextoDinamico(texto: String) {
         val textView = TextView(this).apply {
             layoutParams = LinearLayout.LayoutParams(

@@ -5,17 +5,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- Cor de fundo -->
-    <!-- Cor de fundo #420001 -->
-
-    <!-- Logo -->
-
-    <!-- Texto de boas-vindas -->
-
-    <!-- Campo de Email -->
-
-    <!-- Botão de Entrar -->
-
     <View
         android:id="@+id/view2"
         android:layout_width="match_parent"
