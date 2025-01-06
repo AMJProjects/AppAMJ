@@ -2,124 +2,122 @@ package com.example.amj_project.ui.theme
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.TypedValue
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.R
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 
 class AdicionarEscopoActivity : AppCompatActivity() {
 
     private lateinit var db: FirebaseFirestore
-    private var ultimoNumeroEscopo: Int = 0 // Armazena o último número de escopo
-    private lateinit var layoutDinamico: LinearLayout // Layout para adicionar TextViews dinamicamente
+    private var ultimoNumeroEscopo: Int = 0
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.add_escopo)
 
-        // Inicializa o Firestore
         db = FirebaseFirestore.getInstance()
 
-        // Referência ao layout dinâmico
-        layoutDinamico = findViewById(R.id.layoutDinamico)
+        val editMode = intent.getBooleanExtra("editMode", false)
+        val escopoId = intent.getStringExtra("escopoId")
+        val empresaEdit = intent.getStringExtra("empresa")
+        val numeroEscopoEdit = intent.getStringExtra("numeroEscopo")
+        val dataEstimativaEdit = intent.getStringExtra("dataEstimativa")
+        val tipoServicoEdit = intent.getStringExtra("tipoServico")
+        val statusEdit = intent.getStringExtra("status")
+        val resumoEscopoEdit = intent.getStringExtra("resumoEscopo")
+        val numeroPedidoCompraEdit = intent.getStringExtra("numeroPedidoCompra")
 
-        // Busca o último número de escopo no Firestore
-        buscarUltimoNumeroEscopo()
+        val empresaField = findViewById<EditText>(R.id.editTextText3)
+        val dataEstimativaField = findViewById<EditText>(R.id.editTextDate)
+        val tipoServicoSpinner = findViewById<Spinner>(R.id.spinnerTipoManutencao)
+        val statusSpinner = findViewById<Spinner>(R.id.spinnerTipoManutencao2)
+        val resumoField = findViewById<EditText>(R.id.textInputEditText)
+        val numeroPedidoField = findViewById<EditText>(R.id.editTextNumber2)
 
-        val spinnerTipoManutencao: Spinner = findViewById(R.id.spinnerTipoManutencao)
-        val tiposManutencao = listOf("Corretiva", "Preventiva", "Obras")
-        val adapterManutencao = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            tiposManutencao
-        )
-        adapterManutencao.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerTipoManutencao.adapter = adapterManutencao
+        if (editMode) {
+            empresaField.setText(empresaEdit)
+            dataEstimativaField.setText(dataEstimativaEdit)
+            resumoField.setText(resumoEscopoEdit)
+            numeroPedidoField.setText(numeroPedidoCompraEdit)
 
-        val spinnerTipoManutencao2: Spinner = findViewById(R.id.spinnerTipoManutencao2)
-        val tiposManutencao2 = listOf("Concluído", "Integração pendente", "Realização pendente")
-        val adapterStatus = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            tiposManutencao2
-        )
-        adapterStatus.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerTipoManutencao2.adapter = adapterStatus
+            tipoServicoSpinner.setSelection(getSpinnerIndex(tipoServicoSpinner, tipoServicoEdit))
+            statusSpinner.setSelection(getSpinnerIndex(statusSpinner, statusEdit))
+        } else {
+            buscarUltimoNumeroEscopo()
+        }
 
         val salvarButton: Button = findViewById(R.id.button3)
         salvarButton.setOnClickListener {
-            val empresa = findViewById<EditText>(R.id.editTextText3).text.toString()
-            val dataEstimativa = findViewById<EditText>(R.id.editTextDate).text.toString()
-            val tipoServico = spinnerTipoManutencao.selectedItem.toString()
-            val status = spinnerTipoManutencao2.selectedItem.toString()
-            val resumoEscopo = findViewById<EditText>(R.id.textInputEditText).text.toString()
-            val numeroPedidoCompra = findViewById<EditText>(R.id.editTextNumber2).text.toString()
+            val empresa = empresaField.text.toString()
+            val dataEstimativa = dataEstimativaField.text.toString()
+            val tipoServico = tipoServicoSpinner.selectedItem.toString()
+            val status = statusSpinner.selectedItem.toString()
+            val resumo = resumoField.text.toString()
+            val numeroPedidoCompra = numeroPedidoField.text.toString()
 
-            // Validação básica dos campos
-            if (empresa.isEmpty() || dataEstimativa.isEmpty() || resumoEscopo.isEmpty() || numeroPedidoCompra.isEmpty()) {
+            if (empresa.isEmpty() || dataEstimativa.isEmpty() || resumo.isEmpty() || numeroPedidoCompra.isEmpty()) {
                 Toast.makeText(this, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Gera o número do novo escopo
-            val novoNumeroEscopo = ultimoNumeroEscopo + 1
-
-            // Cria o escopo com os dados inseridos
-            val escopo = hashMapOf(
-                "numeroEscopo" to novoNumeroEscopo,
-                "empresa" to empresa,
-                "dataEstimativa" to dataEstimativa,
-                "tipoServico" to tipoServico,
-                "status" to status,
-                "resumoEscopo" to resumoEscopo,
-                "numeroPedidoCompra" to numeroPedidoCompra
-            )
-
-            // Salva no Firestore
-            db.collection("escopos")
-                .add(escopo)
-                .addOnSuccessListener {
-                    ultimoNumeroEscopo = novoNumeroEscopo // Atualiza o número do último escopo
-                    adicionarTextoDinamico("Escopo $novoNumeroEscopo: $empresa - $dataEstimativa ($status)")
-                    Toast.makeText(this, "Escopo salvo com sucesso!", Toast.LENGTH_SHORT).show()
+            if (editMode && escopoId != null) {
+                db.collection("escopos").document(escopoId).update(
+                    mapOf(
+                        "empresa" to empresa,
+                        "dataEstimativa" to dataEstimativa,
+                        "tipoServico" to tipoServico,
+                        "status" to status,
+                        "resumoEscopo" to resumo,
+                        "numeroPedidoCompra" to numeroPedidoCompra
+                    )
+                ).addOnSuccessListener {
+                    Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                    finish()
+                }.addOnFailureListener { e ->
+                    Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
-                .addOnFailureListener { e ->
+            } else {
+                val novoEscopo = mapOf(
+                    "numeroEscopo" to (ultimoNumeroEscopo + 1),
+                    "empresa" to empresa,
+                    "dataEstimativa" to dataEstimativa,
+                    "tipoServico" to tipoServico,
+                    "status" to status,
+                    "resumoEscopo" to resumo,
+                    "numeroPedidoCompra" to numeroPedidoCompra
+                )
+                db.collection("escopos").add(novoEscopo).addOnSuccessListener {
+                    Toast.makeText(this, "Escopo criado com sucesso!", Toast.LENGTH_SHORT).show()
+                    finish()
+                }.addOnFailureListener { e ->
                     Toast.makeText(this, "Erro ao salvar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+            }
         }
     }
 
     private fun buscarUltimoNumeroEscopo() {
         db.collection("escopos")
-            .orderBy("numeroEscopo", Query.Direction.DESCENDING)
+            .orderBy("numeroEscopo", com.google.firebase.firestore.Query.Direction.DESCENDING)
             .limit(1)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
-                    val ultimoEscopo = documents.first()
-                    ultimoNumeroEscopo = (ultimoEscopo.get("numeroEscopo") as? Long)?.toInt() ?: 0
-                } else {
-                    ultimoNumeroEscopo = 0 // Se não houver nenhum escopo, começa do zero
+                    ultimoNumeroEscopo = documents.first().get("numeroEscopo").toString().toInt()
                 }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Erro ao buscar número do escopo.", Toast.LENGTH_SHORT).show()
+            }.addOnFailureListener {
+                ultimoNumeroEscopo = 0
             }
     }
 
-    private fun adicionarTextoDinamico(texto: String) {
-        val textView = TextView(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            setText(texto)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-            setPadding(16, 16, 16, 16)
+    private fun getSpinnerIndex(spinner: Spinner, value: String?): Int {
+        for (i in 0 until spinner.count) {
+            if (spinner.getItemAtPosition(i).toString() == value) {
+                return i
+            }
         }
-        layoutDinamico.addView(textView)
+        return 0
     }
 }
