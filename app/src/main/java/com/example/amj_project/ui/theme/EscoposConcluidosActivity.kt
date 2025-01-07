@@ -12,22 +12,28 @@ class EscoposConcluidosActivity : AppCompatActivity() {
 
     private lateinit var db: FirebaseFirestore
     private lateinit var containerConcluidos: LinearLayout
-    private lateinit var containerPendentes: LinearLayout
+    private lateinit var buttonVoltarMenu: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.escopos_concluidos)
 
         db = FirebaseFirestore.getInstance()
-        containerConcluidos = findViewById(R.id.layoutConcluidos)
-        containerPendentes = findViewById(R.id.layoutPendentes)
+        containerConcluidos = findViewById(R.id.layoutDinamico)
+        buttonVoltarMenu = findViewById(R.id.button4) // ID do botão "Voltar ao Menu"
 
-        carregarEscopos("escoposConcluidos", containerConcluidos)
-        carregarEscopos("escoposPendentes", containerPendentes)
+        carregarEscoposConcluidos()
+
+        // Configura o botão "Voltar ao Menu" para retornar à tela principal
+        buttonVoltarMenu.setOnClickListener {
+            val intent = Intent(this, MenuPrincipalActivity::class.java)
+            startActivity(intent)
+            finish() // Finaliza a activity atual para não acumular no stack
+        }
     }
 
-    private fun carregarEscopos(colecao: String, container: LinearLayout) {
-        db.collection(colecao)
+    private fun carregarEscoposConcluidos() {
+        db.collection("escoposConcluidos")
             .orderBy("numeroEscopo", Query.Direction.ASCENDING) // Ordena por número crescente
             .get()
             .addOnSuccessListener { documents ->
@@ -36,12 +42,12 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                     val numeroEscopo = document.get("numeroEscopo").toString()
                     val empresa = document.get("empresa").toString()
                     val dataEstimativa = document.get("dataEstimativa").toString()
-                    adicionarTextoDinamico(index, numeroEscopo, empresa, dataEstimativa, document.id, container)
+                    adicionarTextoDinamico(index, numeroEscopo, empresa, dataEstimativa, document.id)
                     index++
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Erro ao carregar escopos da coleção $colecao.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Erro ao carregar escopos concluídos.", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -50,8 +56,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
         numeroEscopo: String,
         empresa: String,
         dataEstimativa: String,
-        escopoId: String,
-        container: LinearLayout
+        escopoId: String
     ) {
         val layoutEscopo = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -85,6 +90,6 @@ class EscoposConcluidosActivity : AppCompatActivity() {
 
         layoutEscopo.addView(textView)
         layoutEscopo.addView(buttonVisualizar)
-        container.addView(layoutEscopo)
+        containerConcluidos.addView(layoutEscopo)
     }
 }
