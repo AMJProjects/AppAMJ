@@ -36,6 +36,17 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         val resumoField = findViewById<EditText>(R.id.textInputEditText)
         val numeroPedidoField = findViewById<EditText>(R.id.editTextNumber2)
 
+        val tiposManutencao = listOf("Preventiva", "Corretiva", "Preditiva")
+        val statusManutencao = listOf("Pendente", "Em Andamento", "Concluído")
+
+        val tipoAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, tiposManutencao)
+        tipoAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        tipoServicoSpinner.adapter = tipoAdapter
+
+        val statusAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, statusManutencao)
+        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        statusSpinner.adapter = statusAdapter
+
         if (editMode) {
             empresaField.setText(empresaEdit)
             dataEstimativaField.setText(dataEstimativaEdit)
@@ -62,33 +73,32 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (editMode && escopoId != null) {
-                db.collection("escopos").document(escopoId).update(
-                    mapOf(
-                        "empresa" to empresa,
-                        "dataEstimativa" to dataEstimativa,
-                        "tipoServico" to tipoServico,
-                        "status" to status,
-                        "resumoEscopo" to resumo,
-                        "numeroPedidoCompra" to numeroPedidoCompra
-                    )
-                ).addOnSuccessListener {
-                    Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                    finish()
-                }.addOnFailureListener { e ->
-                    Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+            val novoEscopo = mapOf(
+                "numeroEscopo" to (ultimoNumeroEscopo + 1),
+                "empresa" to empresa,
+                "dataEstimativa" to dataEstimativa,
+                "tipoServico" to tipoServico,
+                "status" to status,
+                "resumoEscopo" to resumo,
+                "numeroPedidoCompra" to numeroPedidoCompra
+            )
+
+            val collection = if (status == "Concluído") {
+                "escoposConcluidos"
             } else {
-                val novoEscopo = mapOf(
-                    "numeroEscopo" to (ultimoNumeroEscopo + 1),
-                    "empresa" to empresa,
-                    "dataEstimativa" to dataEstimativa,
-                    "tipoServico" to tipoServico,
-                    "status" to status,
-                    "resumoEscopo" to resumo,
-                    "numeroPedidoCompra" to numeroPedidoCompra
-                )
-                db.collection("escopos").add(novoEscopo).addOnSuccessListener {
+                "escoposPendentes"
+            }
+
+            if (editMode && escopoId != null) {
+                db.collection(collection).document(escopoId).update(novoEscopo)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }.addOnFailureListener { e ->
+                        Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                db.collection(collection).add(novoEscopo).addOnSuccessListener {
                     Toast.makeText(this, "Escopo criado com sucesso!", Toast.LENGTH_SHORT).show()
                     finish()
                 }.addOnFailureListener { e ->
