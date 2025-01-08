@@ -18,6 +18,12 @@ class EditarEscopoActivity : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
 
         val escopoId = intent.getStringExtra("escopoId")
+        val empresa = intent.getStringExtra("empresa")
+        val dataEstimativa = intent.getStringExtra("dataEstimativa")
+        val resumoEscopo = intent.getStringExtra("resumoEscopo")
+        val tipoServico = intent.getStringExtra("tipoServico")
+        val status = intent.getStringExtra("status")
+
         val empresaEditText = findViewById<EditText>(R.id.editarEmpresa)
         val dataEstimativaEditText = findViewById<EditText>(R.id.editarDataEstimativa)
         val resumoEditText = findViewById<EditText>(R.id.editarResumo)
@@ -25,70 +31,49 @@ class EditarEscopoActivity : AppCompatActivity() {
         val statusSpinner = findViewById<Spinner>(R.id.spinnerStatus)
         val salvarButton = findViewById<Button>(R.id.salvarEdicaoBtn)
 
-        if (escopoId != null) {
-            buscarDadosEscopo(escopoId) { dados ->
-                empresaEditText.setText(dados["empresa"] as String?)
-                dataEstimativaEditText.setText(dados["dataEstimativa"] as String?)
-                resumoEditText.setText(dados["resumoEscopo"] as String?)
-                tipoServicoSpinner.setSelection(
-                    obterIndiceSpinner(
-                        tipoServicoSpinner,
-                        dados["tipoServico"] as String?
-                    )
-                )
-                statusSpinner.setSelection(
-                    obterIndiceSpinner(
-                        statusSpinner,
-                        dados["status"] as String?
-                    )
-                )
-            }
-        } else {
-            Toast.makeText(this, "Erro ao carregar o escopo para edição.", Toast.LENGTH_SHORT)
-                .show()
-            finish()
+        try {
+            // Preenche os campos com os dados recebidos
+            empresaEditText.setText(empresa)
+            dataEstimativaEditText.setText(dataEstimativa)
+            resumoEditText.setText(resumoEscopo)
+            tipoServicoSpinner.setSelection(obterIndiceSpinner(tipoServicoSpinner, tipoServico))
+            statusSpinner.setSelection(obterIndiceSpinner(statusSpinner, status))
+        } catch (e: Exception) {
+            Log.e("EditarEscopoActivity", "Erro ao preencher campos: ${e.message}")
+            Toast.makeText(this, "Erro ao carregar dados para edição.", Toast.LENGTH_SHORT).show()
         }
 
+        // Configura o botão salvar para atualizar os dados no Firestore
         salvarButton.setOnClickListener {
-            val dadosAtualizados = hashMapOf(
-                "empresa" to empresaEditText.text.toString(),
-                "dataEstimativa" to dataEstimativaEditText.text.toString(),
-                "resumoEscopo" to resumoEditText.text.toString(),
-                "tipoServico" to tipoServicoSpinner.selectedItem.toString(),
-                "status" to statusSpinner.selectedItem.toString()
-            )
+            try {
+                val dadosAtualizados: MutableMap<String, Any> = hashMapOf(
+                    "empresa" to empresaEditText.text.toString(),
+                    "dataEstimativa" to dataEstimativaEditText.text.toString(),
+                    "resumoEscopo" to resumoEditText.text.toString(),
+                    "tipoServico" to tipoServicoSpinner.selectedItem.toString(),
+                    "status" to statusSpinner.selectedItem.toString()
+                )
 
-            db.collection("escopos").document(escopoId!!)
-                .update(dadosAtualizados as Map<String, Any>)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                    finish()
+                if (escopoId != null) {
+                    if (escopoId.isNotEmpty()) {
+                        db.collection("escopos").document(escopoId!!)
+                            .update(dadosAtualizados)  // Atualiza os dados no Firestore
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("EditarEscopoActivity", "Erro ao atualizar escopo: ${e.message}")
+                                Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "Erro: Escopo não encontrado!", Toast.LENGTH_SHORT).show()
+                    }
                 }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+            } catch (e: Exception) {
+                Log.e("EditarEscopoActivity", "Erro ao salvar dados: ${e.message}")
+                Toast.makeText(this, "Erro ao salvar dados.", Toast.LENGTH_SHORT).show()
+            }
         }
-    }
-
-    private fun buscarDadosEscopo(
-        escopoId: String,
-        callback: (dados: Map<String, Any>) -> Unit
-    ) {
-        db.collection("escopos").document(escopoId)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    callback(document.data ?: emptyMap())
-                } else {
-                    Toast.makeText(this, "Escopo não encontrado!", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao buscar escopo: ${e.message}", Toast.LENGTH_SHORT)
-                    .show()
-                finish()
-            }
     }
 
     private fun obterIndiceSpinner(spinner: Spinner, valor: String?): Int {

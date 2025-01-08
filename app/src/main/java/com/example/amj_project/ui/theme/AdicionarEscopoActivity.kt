@@ -2,6 +2,7 @@ package com.example.amj_project.ui.theme
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.R
@@ -56,7 +57,16 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             tipoServicoSpinner.setSelection(getSpinnerIndex(tipoServicoSpinner, tipoServicoEdit))
             statusSpinner.setSelection(getSpinnerIndex(statusSpinner, statusEdit))
         } else {
-            buscarUltimoNumeroEscopo()
+            buscarUltimoNumeroEscopo(statusSpinner.selectedItem.toString())
+        }
+
+        statusSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val status = statusSpinner.selectedItem.toString()
+                buscarUltimoNumeroEscopo(status) // Buscar número do escopo com base no status
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
         val salvarButton: Button = findViewById(R.id.button3)
@@ -108,14 +118,22 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         }
     }
 
-    private fun buscarUltimoNumeroEscopo() {
-        db.collection("escopos")
+    private fun buscarUltimoNumeroEscopo(status: String) {
+        val collection = if (status == "Concluído") {
+            "escoposConcluidos"
+        } else {
+            "escoposPendentes"
+        }
+
+        db.collection(collection)
             .orderBy("numeroEscopo", com.google.firebase.firestore.Query.Direction.DESCENDING)
             .limit(1)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     ultimoNumeroEscopo = documents.first().get("numeroEscopo").toString().toInt()
+                } else {
+                    ultimoNumeroEscopo = 0 // Se não houver escopos, começa do 0
                 }
             }.addOnFailureListener {
                 ultimoNumeroEscopo = 0

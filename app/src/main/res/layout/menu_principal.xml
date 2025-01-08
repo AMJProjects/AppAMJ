@@ -13,7 +13,7 @@
         android:layout_marginTop="272dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#4C0000"
-        android:text="Escopos Pendetes"
+        android:text="Escopos Pendentes"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"

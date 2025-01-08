@@ -47,11 +47,24 @@ class DetalhesEscopoActivity : AppCompatActivity() {
 
         // Configura o botão de edição
         editBtn.setOnClickListener {
+            Log.d("DetalhesEscopo", "Clicou no botão de editar")
             if (escopoId.isNotEmpty()) {
-                val intent = Intent(this, EditarEscopoActivity::class.java).apply {
-                    putExtra("escopoId", escopoId)
+                try {
+                    val intent = Intent(this, EditarEscopoActivity::class.java).apply {
+                        putExtra("escopoId", escopoId)
+                        putExtra("numeroEscopo", numeroEscopo)
+                        putExtra("empresa", empresa)
+                        putExtra("dataEstimativa", dataEstimativa)
+                        putExtra("tipoServico", tipoServico)
+                        putExtra("status", status)
+                        putExtra("resumoEscopo", resumoEscopo)
+                        putExtra("numeroPedidoCompra", numeroPedidoCompra)
+                    }
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Log.e("DetalhesEscopo", "Erro ao iniciar EditarEscopoActivity: ${e.message}")
+                    Toast.makeText(this, "Erro ao tentar abrir a tela de edição.", Toast.LENGTH_SHORT).show()
                 }
-                startActivity(intent)
             } else {
                 Toast.makeText(this, "Erro: Escopo não encontrado!", Toast.LENGTH_SHORT).show()
             }
