@@ -3,10 +3,7 @@ package com.example.amj_project.ui.theme
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.R
 
@@ -21,7 +18,6 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
         val editBtn: ImageButton = findViewById(R.id.editBtn)
 
-        // Recupera os dados da Intent
         val escopoId = intent.getStringExtra("escopoId") ?: ""
         val numeroEscopo = intent.getStringExtra("numeroEscopo") ?: "N/A"
         val empresa = intent.getStringExtra("empresa") ?: "N/A"
@@ -31,10 +27,6 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         val resumoEscopo = intent.getStringExtra("resumoEscopo") ?: "N/A"
         val numeroPedidoCompra = intent.getStringExtra("numeroPedidoCompra") ?: "N/A"
 
-        // Exibe os detalhes no log para depuração
-        Log.d("DetalhesEscopo", "escopoId: $escopoId")
-
-        // Preenche os detalhes na tela
         textViewDetalhes.text = """
             Número: $numeroEscopo
             Empresa: $empresa
@@ -45,32 +37,20 @@ class DetalhesEscopoActivity : AppCompatActivity() {
             Número do Pedido de Compra: $numeroPedidoCompra
         """.trimIndent()
 
-        // Configura o botão de edição
         editBtn.setOnClickListener {
-            Log.d("DetalhesEscopo", "Clicou no botão de editar")
-            if (escopoId.isNotEmpty()) {
-                try {
-                    val intent = Intent(this, EditarEscopoActivity::class.java).apply {
-                        putExtra("escopoId", escopoId)
-                        putExtra("numeroEscopo", numeroEscopo)
-                        putExtra("empresa", empresa)
-                        putExtra("dataEstimativa", dataEstimativa)
-                        putExtra("tipoServico", tipoServico)
-                        putExtra("status", status)
-                        putExtra("resumoEscopo", resumoEscopo)
-                        putExtra("numeroPedidoCompra", numeroPedidoCompra)
-                    }
-                    startActivity(intent)
-                } catch (e: Exception) {
-                    Log.e("DetalhesEscopo", "Erro ao iniciar EditarEscopoActivity: ${e.message}")
-                    Toast.makeText(this, "Erro ao tentar abrir a tela de edição.", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(this, "Erro: Escopo não encontrado!", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, EditarEscopoActivity::class.java).apply {
+                putExtra("escopoId", escopoId)
+                putExtra("numeroEscopo", numeroEscopo)
+                putExtra("empresa", empresa)
+                putExtra("dataEstimativa", dataEstimativa)
+                putExtra("tipoServico", tipoServico)
+                putExtra("status", status)
+                putExtra("resumoEscopo", resumoEscopo)
+                putExtra("numeroPedidoCompra", numeroPedidoCompra)
             }
+            startActivity(intent)
         }
 
-        // Botão voltar
         voltarMenuButton.setOnClickListener { finish() }
         voltarEscopo.setOnClickListener { finish() }
     }

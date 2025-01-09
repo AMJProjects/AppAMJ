@@ -7,6 +7,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.R
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 
 class AdicionarEscopoActivity : AppCompatActivity() {
 
@@ -20,6 +21,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
 
         db = FirebaseFirestore.getInstance()
 
+        // Recuperar dados enviados via Intent
         val editMode = intent.getBooleanExtra("editMode", false)
         val escopoId = intent.getStringExtra("escopoId")
         val empresaEdit = intent.getStringExtra("empresa")
@@ -30,24 +32,28 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         val resumoEscopoEdit = intent.getStringExtra("resumoEscopo")
         val numeroPedidoCompraEdit = intent.getStringExtra("numeroPedidoCompra")
 
+        // Referenciar os campos do layout
         val empresaField = findViewById<EditText>(R.id.editTextText3)
         val dataEstimativaField = findViewById<EditText>(R.id.editTextDate)
         val tipoServicoSpinner = findViewById<Spinner>(R.id.spinnerTipoManutencao)
         val statusSpinner = findViewById<Spinner>(R.id.spinnerTipoManutencao2)
         val resumoField = findViewById<EditText>(R.id.textInputEditText)
         val numeroPedidoField = findViewById<EditText>(R.id.editTextNumber2)
+        val salvarButton: Button = findViewById(R.id.button3)
 
+        // Dados para os Spinners
         val tiposManutencao = listOf("Preventiva", "Corretiva", "Preditiva")
         val statusManutencao = listOf("Pendente", "Em Andamento", "Concluído")
 
-        val tipoAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, tiposManutencao)
-        tipoAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        tipoServicoSpinner.adapter = tipoAdapter
+        // Configurar os Spinners
+        tipoServicoSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, tiposManutencao).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        statusSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, statusManutencao).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
 
-        val statusAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, statusManutencao)
-        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        statusSpinner.adapter = statusAdapter
-
+        // Caso seja modo de edição, preencher os campos com os valores recebidos
         if (editMode) {
             empresaField.setText(empresaEdit)
             dataEstimativaField.setText(dataEstimativaEdit)
@@ -57,19 +63,21 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             tipoServicoSpinner.setSelection(getSpinnerIndex(tipoServicoSpinner, tipoServicoEdit))
             statusSpinner.setSelection(getSpinnerIndex(statusSpinner, statusEdit))
         } else {
+            // Buscar último número de escopo inicial
             buscarUltimoNumeroEscopo(statusSpinner.selectedItem.toString())
         }
 
+        // Listener para atualizar o número do escopo ao mudar o status
         statusSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val status = statusSpinner.selectedItem.toString()
-                buscarUltimoNumeroEscopo(status) // Buscar número do escopo com base no status
+                buscarUltimoNumeroEscopo(status)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        val salvarButton: Button = findViewById(R.id.button3)
+        // Configuração do botão de salvar
         salvarButton.setOnClickListener {
             val empresa = empresaField.text.toString()
             val dataEstimativa = dataEstimativaField.text.toString()
@@ -126,16 +134,18 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         }
 
         db.collection(collection)
-            .orderBy("numeroEscopo", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .orderBy("numeroEscopo", Query.Direction.DESCENDING)
             .limit(1)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     ultimoNumeroEscopo = documents.first().get("numeroEscopo").toString().toInt()
                 } else {
-                    ultimoNumeroEscopo = 0 // Se não houver escopos, começa do 0
+                    ultimoNumeroEscopo = 0
                 }
-            }.addOnFailureListener {
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Erro ao buscar número de escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                 ultimoNumeroEscopo = 0
             }
     }
