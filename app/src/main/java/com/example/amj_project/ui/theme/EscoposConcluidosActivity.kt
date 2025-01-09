@@ -19,7 +19,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
         setContentView(R.layout.escopos_concluidos)
 
         db = FirebaseFirestore.getInstance()
-        containerConcluidos = findViewById(R.id.layoutDinamico)
+        containerConcluidos = findViewById(R.id.layoutDinamico) // ID do layout para os escopos
         buttonVoltarMenu = findViewById(R.id.button4) // ID do botão "Voltar ao Menu"
 
         carregarEscoposConcluidos()
@@ -28,7 +28,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
         buttonVoltarMenu.setOnClickListener {
             val intent = Intent(this, MenuPrincipalActivity::class.java)
             startActivity(intent)
-            finish() // Finaliza a activity atual para não acumular no stack
+            finish() // Finaliza a activity atual para evitar acúmulo no stack
         }
     }
 
@@ -42,7 +42,15 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                     val numeroEscopo = document.get("numeroEscopo").toString()
                     val empresa = document.get("empresa").toString()
                     val dataEstimativa = document.get("dataEstimativa").toString()
-                    adicionarTextoDinamico(index, numeroEscopo, empresa, dataEstimativa, document.id)
+                    val status = document.get("status").toString() // Adicionando status
+                    val tipoServico = document.get("tipoServico").toString() // Adicionando tipo de serviço
+                    val resumoEscopo = document.get("resumoEscopo").toString() // Adicionando resumo do escopo
+                    val numeroPedidoCompra = document.get("numeroPedidoCompra").toString() // Adicionando número do pedido de compra
+
+                    adicionarTextoDinamico(
+                        numeroEscopo, empresa, dataEstimativa, status, tipoServico,
+                        resumoEscopo, numeroPedidoCompra, document.id
+                    )
                     index++
                 }
             }
@@ -52,10 +60,13 @@ class EscoposConcluidosActivity : AppCompatActivity() {
     }
 
     private fun adicionarTextoDinamico(
-        index: Int,
         numeroEscopo: String,
         empresa: String,
         dataEstimativa: String,
+        status: String,
+        tipoServico: String,
+        resumoEscopo: String,
+        numeroPedidoCompra: String,
         escopoId: String
     ) {
         val layoutEscopo = LinearLayout(this).apply {
@@ -70,7 +81,8 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             }
         }
 
-        val textoEscopo = "Escopo $index\nNúmero: $numeroEscopo\nEmpresa: $empresa\nData Estimada: $dataEstimativa"
+        // Alteração aqui para exibir apenas "Número" e Status
+        val textoEscopo = "Número: $numeroEscopo\nEmpresa: $empresa\nData Estimada: $dataEstimativa\nStatus: $status"
         val textView = TextView(this).apply {
             text = textoEscopo
             textSize = 16f
@@ -84,6 +96,10 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                 intent.putExtra("numeroEscopo", numeroEscopo)
                 intent.putExtra("empresa", empresa)
                 intent.putExtra("dataEstimativa", dataEstimativa)
+                intent.putExtra("status", status)
+                intent.putExtra("tipoServico", tipoServico)
+                intent.putExtra("resumoEscopo", resumoEscopo)
+                intent.putExtra("numeroPedidoCompra", numeroPedidoCompra)
                 startActivity(intent)
             }
         }

@@ -34,7 +34,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
 
     private fun carregarEscoposPendentes() {
         db.collection("escoposPendentes")
-            .orderBy("numeroEscopo", Query.Direction.ASCENDING) // Ordena por número crescente
+            .orderBy("numeroEscopo", Query.Direction.ASCENDING)
             .get()
             .addOnSuccessListener { documents ->
                 var index = 1
@@ -43,7 +43,14 @@ class EscoposPendentesActivity : AppCompatActivity() {
                     val empresa = document.get("empresa").toString()
                     val dataEstimativa = document.get("dataEstimativa").toString()
                     val status = document.get("status").toString()
-                    adicionarTextoDinamico(index, numeroEscopo, empresa, dataEstimativa, status, document.id)
+                    val tipoServico = document.get("tipoServico").toString() // Adicionando tipo de serviço
+                    val resumoEscopo = document.get("resumoEscopo").toString() // Adicionando resumo do escopo
+                    val numeroPedidoCompra = document.get("numeroPedidoCompra").toString() // Adicionando número do pedido de compra
+
+                    adicionarTextoDinamico(
+                        numeroEscopo, empresa, dataEstimativa, status, tipoServico,
+                        resumoEscopo, numeroPedidoCompra, document.id
+                    )
                     index++
                 }
             }
@@ -53,17 +60,19 @@ class EscoposPendentesActivity : AppCompatActivity() {
     }
 
     private fun adicionarTextoDinamico(
-        index: Int,
         numeroEscopo: String,
         empresa: String,
         dataEstimativa: String,
         status: String,
+        tipoServico: String,
+        resumoEscopo: String,
+        numeroPedidoCompra: String,
         escopoId: String
     ) {
         val layoutEscopo = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(16, 16, 16, 16)
-            setBackgroundResource(R.drawable.botaoredondo) // Mesmo estilo visual
+            setBackgroundResource(R.drawable.botaoredondo)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -72,7 +81,8 @@ class EscoposPendentesActivity : AppCompatActivity() {
             }
         }
 
-        val textoEscopo = "Escopo $index\nNúmero: $numeroEscopo\nEmpresa: $empresa\nData Estimada: $dataEstimativa\nStatus: $status"
+        // Alteração aqui para exibir apenas "Número" e Status
+        val textoEscopo = "Número: $numeroEscopo\nEmpresa: $empresa\nData Estimada: $dataEstimativa\nStatus: $status"
         val textView = TextView(this).apply {
             text = textoEscopo
             textSize = 16f
@@ -87,6 +97,9 @@ class EscoposPendentesActivity : AppCompatActivity() {
                 intent.putExtra("empresa", empresa)
                 intent.putExtra("dataEstimativa", dataEstimativa)
                 intent.putExtra("status", status)
+                intent.putExtra("tipoServico", tipoServico)
+                intent.putExtra("resumoEscopo", resumoEscopo)
+                intent.putExtra("numeroPedidoCompra", numeroPedidoCompra)
                 startActivity(intent)
             }
         }
