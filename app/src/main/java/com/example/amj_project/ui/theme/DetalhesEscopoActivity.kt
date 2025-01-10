@@ -2,7 +2,6 @@ package com.example.amj_project.ui.theme
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.R
@@ -37,10 +36,9 @@ class DetalhesEscopoActivity : AppCompatActivity() {
             Número do Pedido de Compra: $numeroPedidoCompra
         """.trimIndent()
 
-        textViewDetalhes.setLineSpacing(8f, 1.0f)
-
         editBtn.setOnClickListener {
-            val intent = Intent(this, EditarEscopoActivity::class.java).apply {
+            val intent = Intent(this, AdicionarEscopoActivity::class.java).apply {
+                putExtra("editMode", true)
                 putExtra("escopoId", escopoId)
                 putExtra("numeroEscopo", numeroEscopo)
                 putExtra("empresa", empresa)
@@ -54,7 +52,6 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         }
 
         voltarMenuButton.setOnClickListener { finish() }
-
         voltarEscopo.setOnClickListener { finish() }
     }
 }

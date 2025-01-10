@@ -132,3 +132,4 @@ data class Escopo(
     val numeroPedidoCompra: String,
     val escopoId: String
 )
+

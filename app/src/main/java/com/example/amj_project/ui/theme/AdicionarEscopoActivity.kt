@@ -92,8 +92,9 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            val numeroEscopoAtual = ultimoNumeroEscopo + 1
             val novoEscopo = mapOf(
-                "numeroEscopo" to (ultimoNumeroEscopo + 1),
+                "numeroEscopo" to numeroEscopoAtual,
                 "empresa" to empresa,
                 "dataEstimativa" to dataEstimativa,
                 "tipoServico" to tipoServico,
@@ -102,24 +103,19 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                 "numeroPedidoCompra" to numeroPedidoCompra
             )
 
-            val collection = if (status == "Concluído") {
-                "escoposConcluidos"
-            } else {
-                "escoposPendentes"
-            }
+            val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
 
             if (editMode && escopoId != null) {
-                db.collection(collection).document(escopoId).update(novoEscopo)
-                    .addOnSuccessListener {
-                        Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                        finish()
-                    }.addOnFailureListener { e ->
-                        Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
+                db.collection(collection).document(escopoId).update(novoEscopo).addOnSuccessListener {
+                    Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                    voltarParaLista(status)
+                }.addOnFailureListener { e ->
+                    Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 db.collection(collection).add(novoEscopo).addOnSuccessListener {
                     Toast.makeText(this, "Escopo criado com sucesso!", Toast.LENGTH_SHORT).show()
-                    finish()
+                    voltarParaLista(status)
                 }.addOnFailureListener { e ->
                     Toast.makeText(this, "Erro ao salvar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -133,7 +129,6 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             startActivity(intent)
             finish() // Finaliza a activity atual
         }
-
     }
 
     private fun buscarUltimoNumeroEscopo(status: String) {
@@ -167,5 +162,16 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             }
         }
         return 0
+    }
+
+    private fun voltarParaLista(status: String) {
+        val targetActivity = if (status == "Concluído") {
+            EscoposConcluidosActivity::class.java
+        } else {
+            EscoposPendentesActivity::class.java
+        }
+        val intent = Intent(this, targetActivity)
+        startActivity(intent)
+        finish() // Finaliza a Activity atual
     }
 }
