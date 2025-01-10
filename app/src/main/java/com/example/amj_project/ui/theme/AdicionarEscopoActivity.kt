@@ -92,7 +92,13 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val numeroEscopoAtual = ultimoNumeroEscopo + 1
+            // Determinar o número do escopo
+            val numeroEscopoAtual = if (editMode && numeroEscopoEdit != null) {
+                numeroEscopoEdit.toInt() // Preserva o número existente
+            } else {
+                ultimoNumeroEscopo + 1 // Gera novo número apenas para novos registros
+            }
+
             val novoEscopo = mapOf(
                 "numeroEscopo" to numeroEscopoAtual,
                 "empresa" to empresa,
@@ -122,21 +128,17 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             }
         }
 
-        val cancelarButton = findViewById<Button>(R.id.button5) // Botão com ID button5
+        val cancelarButton = findViewById<Button>(R.id.button5)
 
         cancelarButton.setOnClickListener {
             val intent = Intent(this, MenuPrincipalActivity::class.java)
             startActivity(intent)
-            finish() // Finaliza a activity atual
+            finish()
         }
     }
 
     private fun buscarUltimoNumeroEscopo(status: String) {
-        val collection = if (status == "Concluído") {
-            "escoposConcluidos"
-        } else {
-            "escoposPendentes"
-        }
+        val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
 
         db.collection(collection)
             .orderBy("numeroEscopo", Query.Direction.DESCENDING)
@@ -155,6 +157,16 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             }
     }
 
+    private fun voltarParaLista(status: String) {
+        val intent = if (status == "Concluído") {
+            Intent(this, EscoposConcluidosActivity::class.java)
+        } else {
+            Intent(this, EscoposPendentesActivity::class.java)
+        }
+        startActivity(intent)
+        finish()
+    }
+
     private fun getSpinnerIndex(spinner: Spinner, value: String?): Int {
         for (i in 0 until spinner.count) {
             if (spinner.getItemAtPosition(i).toString() == value) {
@@ -162,16 +174,5 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             }
         }
         return 0
-    }
-
-    private fun voltarParaLista(status: String) {
-        val targetActivity = if (status == "Concluído") {
-            EscoposConcluidosActivity::class.java
-        } else {
-            EscoposPendentesActivity::class.java
-        }
-        val intent = Intent(this, targetActivity)
-        startActivity(intent)
-        finish() // Finaliza a Activity atual
     }
 }
