@@ -17,6 +17,7 @@ class EditarEscopoActivity : AppCompatActivity() {
 
         db = FirebaseFirestore.getInstance()
 
+        // Recebe os dados da Intent
         val escopoId = intent.getStringExtra("escopoId")
         val empresa = intent.getStringExtra("empresa")
         val dataEstimativa = intent.getStringExtra("dataEstimativa")
@@ -25,11 +26,13 @@ class EditarEscopoActivity : AppCompatActivity() {
         val status = intent.getStringExtra("status")
         val numeroPedidoCompra = intent.getStringExtra("numeroPedidoCompra")
 
+        // Referências para os campos de entrada
         val empresaEditText = findViewById<EditText>(R.id.editarEmpresa)
         val dataEstimativaEditText = findViewById<EditText>(R.id.editarDataEstimativa)
         val resumoEditText = findViewById<EditText>(R.id.editarResumo)
         val tipoServicoSpinner = findViewById<Spinner>(R.id.spinnerTipoServico)
         val statusSpinner = findViewById<Spinner>(R.id.spinnerStatus)
+        val numeroPedidoCompraEditText = findViewById<EditText>(R.id.editTextNumber2) // Usando o ID correto
         val salvarButton = findViewById<Button>(R.id.salvarEdicaoBtn)
 
         // Adicionar adaptadores para os spinners
@@ -50,6 +53,7 @@ class EditarEscopoActivity : AppCompatActivity() {
         resumoEditText.setText(resumoEscopo)
         tipoServicoSpinner.setSelection(obterIndiceSpinner(tipoServicoSpinner, tipoServico))
         statusSpinner.setSelection(obterIndiceSpinner(statusSpinner, status))
+        numeroPedidoCompraEditText.setText(numeroPedidoCompra) // Preenche o número do pedido de compra
 
         salvarButton.setOnClickListener {
             val dadosAtualizados: HashMap<String, String?> = hashMapOf(
@@ -58,7 +62,7 @@ class EditarEscopoActivity : AppCompatActivity() {
                 "resumoEscopo" to resumoEditText.text.toString(),
                 "tipoServico" to tipoServicoSpinner.selectedItem.toString(),
                 "status" to statusSpinner.selectedItem.toString(),
-                "numeroPedidoCompra" to numeroPedidoCompra
+                "numeroPedidoCompra" to numeroPedidoCompraEditText.text.toString() // Atualiza o valor do campo
             )
 
             if (escopoId != null) {

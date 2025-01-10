@@ -1,6 +1,7 @@
 package com.example.amj_project.ui.theme
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -124,6 +125,15 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                 }
             }
         }
+
+        val cancelarButton = findViewById<Button>(R.id.button5) // Botão com ID button5
+
+        cancelarButton.setOnClickListener {
+            val intent = Intent(this, MenuPrincipalActivity::class.java)
+            startActivity(intent)
+            finish() // Finaliza a activity atual
+        }
+
     }
 
     private fun buscarUltimoNumeroEscopo(status: String) {

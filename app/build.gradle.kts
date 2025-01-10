@@ -62,6 +62,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-base:18.0.1")
     implementation("com.google.firebase:firebase-auth:21.0.1")
     implementation("com.google.firebase:firebase-firestore:24.0.0")
+    implementation ("androidx.appcompat:appcompat:1.3.1")
 
     // Dependências do Compose
     implementation(libs.androidx.lifecycle.runtime.ktx)

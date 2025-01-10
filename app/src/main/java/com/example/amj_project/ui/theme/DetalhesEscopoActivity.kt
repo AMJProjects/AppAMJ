@@ -37,6 +37,8 @@ class DetalhesEscopoActivity : AppCompatActivity() {
             Número do Pedido de Compra: $numeroPedidoCompra
         """.trimIndent()
 
+        textViewDetalhes.setLineSpacing(8f, 1.0f)
+
         editBtn.setOnClickListener {
             val intent = Intent(this, EditarEscopoActivity::class.java).apply {
                 putExtra("escopoId", escopoId)
@@ -52,6 +54,7 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         }
 
         voltarMenuButton.setOnClickListener { finish() }
+
         voltarEscopo.setOnClickListener { finish() }
     }
 }
