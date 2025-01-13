@@ -13,6 +13,8 @@ class EscoposPendentesActivity : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private lateinit var containerPendentes: LinearLayout
     private lateinit var buttonVoltarMenu: Button
+    private lateinit var searchView: SearchView
+    private val escoposList = mutableListOf<Map<String, String>>() // Lista para armazenar os escopos
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +23,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
         containerPendentes = findViewById(R.id.layoutDinamico) // ID do layout para os escopos
         buttonVoltarMenu = findViewById(R.id.button4) // ID do botão "Voltar ao Menu"
+        searchView = findViewById(R.id.searchView) // ID do SearchView
 
         carregarEscoposPendentes()
 
@@ -30,6 +33,20 @@ class EscoposPendentesActivity : AppCompatActivity() {
             startActivity(intent)
             finish() // Finaliza a activity atual para evitar acúmulo no stack
         }
+
+        // Configuração do SearchView para evitar fechamento automático do teclado
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                // A pesquisa é feita aqui, quando o usuário pressionar "Enter"
+                filtrarEscopos(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Não faz nada enquanto o texto estiver mudando
+                return false
+            }
+        })
     }
 
     private fun carregarEscoposPendentes() {
@@ -37,21 +54,20 @@ class EscoposPendentesActivity : AppCompatActivity() {
             .orderBy("numeroEscopo", Query.Direction.ASCENDING)
             .get()
             .addOnSuccessListener { documents ->
-                var index = 1
+                escoposList.clear() // Limpa a lista antes de carregar novos dados
                 for (document in documents) {
-                    val numeroEscopo = document.get("numeroEscopo").toString()
-                    val empresa = document.get("empresa").toString()
-                    val dataEstimativa = document.get("dataEstimativa").toString()
-                    val status = document.get("status").toString()
-                    val tipoServico = document.get("tipoServico").toString() // Adicionando tipo de serviço
-                    val resumoEscopo = document.get("resumoEscopo").toString() // Adicionando resumo do escopo
-                    val numeroPedidoCompra = document.get("numeroPedidoCompra").toString() // Adicionando número do pedido de compra
-
-                    adicionarTextoDinamico(
-                        numeroEscopo, empresa, dataEstimativa, status, tipoServico,
-                        resumoEscopo, numeroPedidoCompra, document.id
+                    val escopo = mapOf(
+                        "numeroEscopo" to document.get("numeroEscopo").toString(),
+                        "empresa" to document.get("empresa").toString(),
+                        "dataEstimativa" to document.get("dataEstimativa").toString(),
+                        "status" to document.get("status").toString(),
+                        "tipoServico" to document.get("tipoServico").toString(),
+                        "resumoEscopo" to document.get("resumoEscopo").toString(),
+                        "numeroPedidoCompra" to document.get("numeroPedidoCompra").toString(),
+                        "escopoId" to document.id
                     )
-                    index++
+                    escoposList.add(escopo)
+                    adicionarTextoDinamico(escopo)
                 }
             }
             .addOnFailureListener {
@@ -59,16 +75,20 @@ class EscoposPendentesActivity : AppCompatActivity() {
             }
     }
 
-    private fun adicionarTextoDinamico(
-        numeroEscopo: String,
-        empresa: String,
-        dataEstimativa: String,
-        status: String,
-        tipoServico: String,
-        resumoEscopo: String,
-        numeroPedidoCompra: String,
-        escopoId: String
-    ) {
+    private fun filtrarEscopos(query: String?) {
+        val filtro = query?.toLowerCase()?.trim()
+        containerPendentes.removeAllViews() // Remove todas as views do layout
+
+        // Filtra os escopos de acordo com o texto digitado
+        for (escopo in escoposList) {
+            if (escopo["numeroEscopo"]?.toLowerCase()?.contains(filtro ?: "") == true ||
+                escopo["empresa"]?.toLowerCase()?.contains(filtro ?: "") == true) {
+                adicionarTextoDinamico(escopo) // Adiciona o escopo filtrado no layout
+            }
+        }
+    }
+
+    private fun adicionarTextoDinamico(escopo: Map<String, String>) {
         val layoutEscopo = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(16, 16, 16, 16)
@@ -81,8 +101,13 @@ class EscoposPendentesActivity : AppCompatActivity() {
             }
         }
 
-        // Alteração aqui para exibir apenas "Número" e Status
-        val textoEscopo = "Número: $numeroEscopo\nEmpresa: $empresa\nData Estimada: $dataEstimativa\nStatus: $status"
+        val textoEscopo = """
+            Número: ${escopo["numeroEscopo"]}
+            Empresa: ${escopo["empresa"]}
+            Data Estimada: ${escopo["dataEstimativa"]}
+            Status: ${escopo["status"]}
+        """.trimIndent()
+
         val textView = TextView(this).apply {
             text = textoEscopo
             textSize = 16f
@@ -92,14 +117,17 @@ class EscoposPendentesActivity : AppCompatActivity() {
             text = "Visualizar"
             setOnClickListener {
                 val intent = Intent(this@EscoposPendentesActivity, DetalhesEscopoActivity::class.java)
-                intent.putExtra("escopoId", escopoId)
-                intent.putExtra("numeroEscopo", numeroEscopo)
-                intent.putExtra("empresa", empresa)
-                intent.putExtra("dataEstimativa", dataEstimativa)
-                intent.putExtra("status", status)
-                intent.putExtra("tipoServico", tipoServico)
-                intent.putExtra("resumoEscopo", resumoEscopo)
-                intent.putExtra("numeroPedidoCompra", numeroPedidoCompra)
+
+                // Passa os dados do escopo para a próxima activity
+                intent.putExtra("numeroEscopo", escopo["numeroEscopo"])
+                intent.putExtra("empresa", escopo["empresa"])
+                intent.putExtra("dataEstimativa", escopo["dataEstimativa"])
+                intent.putExtra("status", escopo["status"])
+                intent.putExtra("tipoServico", escopo["tipoServico"])
+                intent.putExtra("resumoEscopo", escopo["resumoEscopo"])
+                intent.putExtra("numeroPedidoCompra", escopo["numeroPedidoCompra"])
+                intent.putExtra("escopoId", escopo["escopoId"])
+
                 startActivity(intent)
             }
         }
