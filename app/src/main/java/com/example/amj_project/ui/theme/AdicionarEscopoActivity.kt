@@ -13,6 +13,8 @@ import com.example.amj_project.R
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
+import com.google.firebase.appcheck.FirebaseAppCheck
 
 class AdicionarEscopoActivity : AppCompatActivity() {
 
@@ -27,6 +29,12 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         setContentView(R.layout.add_escopo)
 
         db = FirebaseFirestore.getInstance()
+
+        // Inicializar o Firebase App Check
+        val firebaseAppCheck = FirebaseAppCheck.getInstance()
+        firebaseAppCheck.installAppCheckProviderFactory(
+            PlayIntegrityAppCheckProviderFactory.getInstance()
+        )
 
         // Recuperar dados enviados via Intent
         val editMode = intent.getBooleanExtra("editMode", false)
@@ -105,8 +113,12 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            Log.d("AdicionarEscopo", "Iniciando o upload do PDF...") // Adicionando log para depuração
+
             uploadPdfToStorage(
                 onSuccess = { pdfDownloadUrl ->
+                    Log.d("AdicionarEscopo", "PDF carregado com sucesso. URL: $pdfDownloadUrl") // Verifique o log aqui
+
                     val numeroEscopoAtual = if (editMode && numeroEscopoEdit != null) {
                         numeroEscopoEdit.toInt()
                     } else {
@@ -125,6 +137,8 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                     )
 
                     val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
+
+                    Log.d("AdicionarEscopo", "Salvando escopo no Firestore...") // Verifique se chega aqui
 
                     if (editMode && escopoId != null) {
                         db.collection(collection).document(escopoId).update(novoEscopo).addOnSuccessListener {
@@ -194,8 +208,9 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             Intent(this, EscoposPendentesActivity::class.java)
         }
         startActivity(intent)
-        finish()
+        finish() // Finaliza a Activity atual
     }
+
 
     private fun getSpinnerIndex(spinner: Spinner, value: String?): Int {
         for (i in 0 until spinner.count) {
