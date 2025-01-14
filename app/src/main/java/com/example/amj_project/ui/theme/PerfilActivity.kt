@@ -40,9 +40,11 @@ class PerfilActivity : AppCompatActivity() {
             val userId = user.uid
             val userRef = database.child("users").child(userId)
 
+            // Adiciona um listener para buscar as informações do usuário
             userRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
+                        // Verifica se os campos 'nome' e 'cargo' existem no banco de dados
                         val nome = snapshot.child("nome").getValue(String::class.java) ?: "Nome não disponível"
                         val cargo = snapshot.child("cargo").getValue(String::class.java) ?: "Cargo não disponível"
 
@@ -50,12 +52,14 @@ class PerfilActivity : AppCompatActivity() {
                         tvNome.text = nome
                         tvCargo.text = cargo
                     } else {
+                        // Caso o snapshot não exista, define mensagens padrão
                         tvNome.text = "Nome não disponível"
                         tvCargo.text = "Cargo não disponível"
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    // Trata o erro e exibe mensagens de erro apropriadas
                     tvNome.text = "Erro ao carregar nome"
                     tvCargo.text = "Erro ao carregar cargo"
                 }

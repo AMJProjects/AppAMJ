@@ -4,8 +4,11 @@
 
     <!-- Permissão para acessar a internet -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
+
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -40,7 +43,6 @@
 
         <activity android:name=".ui.theme.RegistroActivity">
         </activity>
-
 
         <activity android:name=".ui.theme.AdicionarEscopoActivity" />
         <activity android:name=".ui.theme.EscoposPendentesActivity" />
