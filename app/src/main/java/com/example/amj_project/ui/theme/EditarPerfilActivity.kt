@@ -5,23 +5,24 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.amj_project.R
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import java.io.IOException
 
 class EditarPerfilActivity : AppCompatActivity() {
 
-    private var imageUri: Uri? = null // Para armazenar a URI da foto
+    private var imageUri: Uri? = null
     private lateinit var storageReference: StorageReference
+    private lateinit var imageView: ImageView
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,8 +37,9 @@ class EditarPerfilActivity : AppCompatActivity() {
         val etCargo = findViewById<EditText>(R.id.etCargo)
         val btnSalvar = findViewById<Button>(R.id.btn_salvar)
         val btnAlterarFoto = findViewById<Button>(R.id.btn_foto)
+        imageView = findViewById(R.id.imageView)
 
-        // Preenchendo campos com dados recebidos
+        // Preencher campos com dados recebidos
         etNome.setText(intent.getStringExtra("nome"))
         etCargo.setText(intent.getStringExtra("cargo"))
 
@@ -49,15 +51,19 @@ class EditarPerfilActivity : AppCompatActivity() {
             val nomeAtualizado = etNome.text.toString().trim()
             val cargoAtualizado = etCargo.text.toString().trim()
 
-            // Verificação para garantir que os campos não estão vazios
-            if (nomeAtualizado.isNotEmpty() && cargoAtualizado.isNotEmpty() && userId.isNotEmpty()) {
+            // Verificação para garantir que pelo menos um campo foi alterado
+            if (nomeAtualizado.isNotEmpty() || cargoAtualizado.isNotEmpty() || imageUri != null) {
                 val database = FirebaseDatabase.getInstance().getReference("usuarios").child(userId)
 
-                // Atualização no Firebase
-                val usuarioAtualizado = mutableMapOf<String, Any>(
-                    "nome" to nomeAtualizado,
-                    "cargo" to cargoAtualizado
-                )
+                val usuarioAtualizado = mutableMapOf<String, Any>()
+
+                // Atualiza nome e cargo se eles foram modificados
+                if (nomeAtualizado.isNotEmpty()) {
+                    usuarioAtualizado["nome"] = nomeAtualizado
+                }
+                if (cargoAtualizado.isNotEmpty()) {
+                    usuarioAtualizado["cargo"] = cargoAtualizado
+                }
 
                 // Se a foto foi alterada, fazer upload da nova foto
                 imageUri?.let { uri ->
@@ -71,13 +77,7 @@ class EditarPerfilActivity : AppCompatActivity() {
                                 database.updateChildren(usuarioAtualizado).addOnCompleteListener { updateTask ->
                                     if (updateTask.isSuccessful) {
                                         Toast.makeText(this, "Dados atualizados com sucesso!", Toast.LENGTH_SHORT).show()
-
-                                        // Enviar os dados atualizados para a PerfilActivity
-                                        val resultIntent = Intent()
-                                        resultIntent.putExtra("nome", nomeAtualizado)
-                                        resultIntent.putExtra("cargo", cargoAtualizado)
-                                        setResult(RESULT_OK, resultIntent)
-                                        finish()  // Fecha a tela de edição
+                                        finish()
                                     } else {
                                         Toast.makeText(this, "Erro ao atualizar dados!", Toast.LENGTH_SHORT).show()
                                     }
@@ -88,24 +88,18 @@ class EditarPerfilActivity : AppCompatActivity() {
                         }
                     }
                 } ?: run {
-                    // Se não tiver foto nova, apenas atualiza os outros dados
+                    // Se não tiver foto nova, apenas atualiza os outros dados (nome/cargo)
                     database.updateChildren(usuarioAtualizado).addOnCompleteListener { updateTask ->
                         if (updateTask.isSuccessful) {
                             Toast.makeText(this, "Dados atualizados com sucesso!", Toast.LENGTH_SHORT).show()
-
-                            // Enviar os dados atualizados para a PerfilActivity
-                            val resultIntent = Intent()
-                            resultIntent.putExtra("nome", nomeAtualizado)
-                            resultIntent.putExtra("cargo", cargoAtualizado)
-                            setResult(RESULT_OK, resultIntent)
-                            finish()  // Fecha a tela de edição
+                            finish()
                         } else {
                             Toast.makeText(this, "Erro ao atualizar dados!", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             } else {
-                Toast.makeText(this, "Preencha todos os campos corretamente!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Nenhuma alteração foi feita!", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -113,19 +107,22 @@ class EditarPerfilActivity : AppCompatActivity() {
         btnAlterarFoto.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
-            galleryResult.launch(intent)  // Alteração do nome do launcher
+            galleryResult.launch(intent)
         }
     }
 
     // Lançar a Activity para escolher a foto
     private val galleryResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
+            if (result.resultCode == Activity.RESULT_OK) {
                 val data = result.data
                 data?.data?.let { uri ->
                     imageUri = uri
-                    val imageView = findViewById<ImageView>(R.id.imageView)
-                    imageView.setImageURI(uri)  // Exibe a foto escolhida
+                    // Carregar a imagem usando Glide e transformá-la em redonda
+                    Glide.with(this)
+                        .load(uri)
+                        .apply(RequestOptions.circleCropTransform()) // Transformar a imagem em circular
+                        .into(imageView)
                 }
             }
         }
