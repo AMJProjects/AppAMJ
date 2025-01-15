@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "AMJ-Project"
 include(":app")
- 
