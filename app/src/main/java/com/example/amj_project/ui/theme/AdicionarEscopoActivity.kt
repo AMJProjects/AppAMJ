@@ -23,6 +23,17 @@ class AdicionarEscopoActivity : AppCompatActivity() {
     private var pdfUri: Uri? = null
     private val PDF_REQUEST_CODE = 100
 
+    // Variáveis globais para serem usadas no método salvarEscopoNoFirestore
+    private var editMode: Boolean = false
+    private var escopoId: String? = null
+    private var numeroEscopoEdit: String? = null
+    private var empresa: String = ""
+    private var dataEstimativa: String = ""
+    private var tipoServico: String = ""
+    private var status: String = ""
+    private var resumo: String = ""
+    private var numeroPedidoCompra: String = ""
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,13 +50,13 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         // Recuperar dados enviados via Intent
         val editMode = intent.getBooleanExtra("editMode", false)
         val escopoId = intent.getStringExtra("escopoId")
-        val empresaEdit = intent.getStringExtra("empresa")
+        val empresaEdit = intent.getStringExtra("empresa") ?: ""
         val numeroEscopoEdit = intent.getStringExtra("numeroEscopo")
-        val dataEstimativaEdit = intent.getStringExtra("dataEstimativa")
-        val tipoServicoEdit = intent.getStringExtra("tipoServico")
-        val statusEdit = intent.getStringExtra("status")
-        val resumoEscopoEdit = intent.getStringExtra("resumoEscopo")
-        val numeroPedidoCompraEdit = intent.getStringExtra("numeroPedidoCompra")
+        val dataEstimativaEdit = intent.getStringExtra("dataEstimativa") ?: ""
+        val tipoServicoEdit = intent.getStringExtra("tipoServico") ?: ""
+        val statusEdit = intent.getStringExtra("status") ?: ""
+        val resumoEscopoEdit = intent.getStringExtra("resumoEscopo") ?: ""
+        val numeroPedidoCompraEdit = intent.getStringExtra("numeroPedidoCompra") ?: ""
 
         // Referenciar os campos do layout
         val empresaField = findViewById<EditText>(R.id.editTextText3)
@@ -108,16 +119,13 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             val resumo = resumoField.text.toString()
             val numeroPedidoCompra = numeroPedidoField.text.toString()
 
-            if (empresa.isEmpty() || dataEstimativa.isEmpty() || resumo.isEmpty() || numeroPedidoCompra.isEmpty() || pdfUri == null) {
+            if (empresa.isEmpty() || dataEstimativa.isEmpty() || resumo.isEmpty() || numeroPedidoCompra.isEmpty()) {
                 Toast.makeText(this, "Por favor, preencha todos os campos e anexe um arquivo PDF.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            Log.d("AdicionarEscopo", "Iniciando o upload do PDF...") // Adicionando log para depuração
-
             uploadPdfToStorage(
                 onSuccess = { pdfDownloadUrl ->
-                    Log.d("AdicionarEscopo", "PDF carregado com sucesso. URL: $pdfDownloadUrl") // Verifique o log aqui
 
                     val numeroEscopoAtual = if (editMode && numeroEscopoEdit != null) {
                         numeroEscopoEdit.toInt()
@@ -137,8 +145,6 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                     )
 
                     val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
-
-                    Log.d("AdicionarEscopo", "Salvando escopo no Firestore...") // Verifique se chega aqui
 
                     if (editMode && escopoId != null) {
                         db.collection(collection).document(escopoId).update(novoEscopo).addOnSuccessListener {
@@ -221,16 +227,13 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         return 0
     }
 
-    private fun uploadPdfToStorage(onSuccess: (String) -> Unit, onFailure: (Exception) -> Unit) {
+    private fun uploadPdfToStorage(onSuccess: (String?) -> Unit, onFailure: (Exception) -> Unit) {
+        // Se nenhum PDF foi selecionado, continua sem fazer upload
         if (pdfUri == null) {
-            Toast.makeText(this, "Nenhum PDF selecionado para upload.", Toast.LENGTH_SHORT).show()
+            onSuccess(null)
             return
         }
 
-        // Verificar o PDF URI
-        Log.d("PDFUri", pdfUri.toString()) // Adicione esta linha para depurar o URI
-
-        // Tente usar um caminho fixo para verificar se o problema está no caminho dinâmico
         val storageRef = FirebaseStorage.getInstance().reference
             .child("pdfs/${System.currentTimeMillis()}.pdf")
 
@@ -245,4 +248,42 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             }
     }
 
+
+    private fun salvarEscopoNoFirestore(pdfDownloadUrl: String?) {
+        // Se estivermos editando, usamos o numeroEscopoEdit, caso contrário, geramos um novo número de escopo
+        val numeroEscopoAtual = if (editMode && numeroEscopoEdit != null) {
+            numeroEscopoEdit!!.toInt()  // Mantém o número do escopo original durante a edição
+        } else {
+            ultimoNumeroEscopo + 1  // Cria um novo número de escopo caso esteja criando
+        }
+
+        val novoEscopo = mapOf(
+            "numeroEscopo" to numeroEscopoAtual,
+            "empresa" to empresa,
+            "dataEstimativa" to dataEstimativa,
+            "tipoServico" to tipoServico,
+            "status" to status,
+            "resumoEscopo" to resumo,
+            "numeroPedidoCompra" to numeroPedidoCompra,
+            "pdfUrl" to (pdfDownloadUrl ?: "")  // Se o PDF não foi carregado, salva vazio
+        )
+
+        val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
+
+        if (editMode && escopoId != null) {
+            db.collection(collection).document(escopoId!!).update(novoEscopo).addOnSuccessListener {
+                Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                voltarParaLista(status)
+            }.addOnFailureListener { e ->
+                Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            db.collection(collection).add(novoEscopo).addOnSuccessListener {
+                Toast.makeText(this, "Escopo criado com sucesso!", Toast.LENGTH_SHORT).show()
+                voltarParaLista(status)
+            }.addOnFailureListener { e ->
+                Toast.makeText(this, "Erro ao salvar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }

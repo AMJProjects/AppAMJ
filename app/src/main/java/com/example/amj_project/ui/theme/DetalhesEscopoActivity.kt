@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.R
@@ -22,7 +23,6 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         val voltarEscopo = findViewById<ImageButton>(R.id.voltarEscopo)
         val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
         val editBtn: ImageButton = findViewById(R.id.editBtn)
-        val pdfViewButton: Button = findViewById(R.id.btnViewPdf)
         val pdfDownloadButton: Button = findViewById(R.id.btnDownloadPdf)
 
         val escopoId = intent.getStringExtra("escopoId") ?: ""
@@ -62,20 +62,6 @@ class DetalhesEscopoActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Botão para visualizar PDF
-        pdfViewButton.setOnClickListener {
-            if (pdfUrl.isNotEmpty()) {
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(pdfUrl))
-                    startActivity(intent)
-                } catch (e: Exception) {
-                    Toast.makeText(this, "Erro ao abrir o PDF: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(this, "URL do PDF não disponível.", Toast.LENGTH_SHORT).show()
-            }
-        }
-
         // Botão para baixar PDF
         pdfDownloadButton.setOnClickListener {
             if (pdfUrl.isNotEmpty()) {
@@ -91,12 +77,21 @@ class DetalhesEscopoActivity : AppCompatActivity() {
 
     private fun baixarPdf(pdfUrl: String) {
         try {
+            if (pdfUrl.isEmpty()) {
+                Toast.makeText(this, "PDF não disponível para download.", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            // Log para verificar o URL
+            Log.d("DetalhesEscopo", "PDF URL: $pdfUrl")
+
             val storageRef = storage.getReferenceFromUrl(pdfUrl)
             val localFile = File(
                 getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
                 "escopo_${System.currentTimeMillis()}.pdf"
             )
 
+            // Baixando o arquivo
             storageRef.getFile(localFile).addOnSuccessListener {
                 Toast.makeText(
                     this,
@@ -104,6 +99,7 @@ class DetalhesEscopoActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG
                 ).show()
             }.addOnFailureListener { exception ->
+                Log.e("DetalhesEscopo", "Erro ao baixar PDF: ${exception.message}")
                 Toast.makeText(
                     this,
                     "Erro ao baixar o PDF: ${exception.message}",
@@ -111,7 +107,10 @@ class DetalhesEscopoActivity : AppCompatActivity() {
                 ).show()
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "URL inválida ou erro: ${e.message}", Toast.LENGTH_SHORT).show()
+            Log.e("DetalhesEscopo", "Erro ao tentar baixar o PDF: ${e.message}")
+            Toast.makeText(this, "Erro ao tentar baixar o PDF: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
 }
+
