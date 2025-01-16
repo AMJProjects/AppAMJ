@@ -2,11 +2,10 @@ package com.example.amj_project.ui.theme
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.R
@@ -15,6 +14,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.appcheck.FirebaseAppCheck
+import android.net.ConnectivityManager
 
 class AdicionarEscopoActivity : AppCompatActivity() {
 
@@ -22,17 +22,6 @@ class AdicionarEscopoActivity : AppCompatActivity() {
     private var ultimoNumeroEscopo: Int = 0
     private var pdfUri: Uri? = null
     private val PDF_REQUEST_CODE = 100
-
-    // Variáveis globais para serem usadas no método salvarEscopoNoFirestore
-    private var editMode: Boolean = false
-    private var escopoId: String? = null
-    private var numeroEscopoEdit: String? = null
-    private var empresa: String = ""
-    private var dataEstimativa: String = ""
-    private var tipoServico: String = ""
-    private var status: String = ""
-    private var resumo: String = ""
-    private var numeroPedidoCompra: String = ""
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +36,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             PlayIntegrityAppCheckProviderFactory.getInstance()
         )
 
-        // Recuperar dados enviados via Intent
+        // Recuperar dados do Intent
         val editMode = intent.getBooleanExtra("editMode", false)
         val escopoId = intent.getStringExtra("escopoId")
         val empresaEdit = intent.getStringExtra("empresa") ?: ""
@@ -65,13 +54,39 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         val statusSpinner = findViewById<Spinner>(R.id.spinnerTipoManutencao2)
         val resumoField = findViewById<EditText>(R.id.textInputEditText)
         val numeroPedidoField = findViewById<EditText>(R.id.editTextNumber2)
-        val salvarButton: Button = findViewById(R.id.button3)
-        val cancelarButton: Button = findViewById(R.id.button5)
-
+        val salvarButton = findViewById<Button>(R.id.button3)
+        val cancelarButton = findViewById<Button>(R.id.button5)
         val attachPdfButton = findViewById<Button>(R.id.buttonAttachPdf)
         val pdfStatusTextView = findViewById<TextView>(R.id.textViewPdfStatus)
 
-        // Configurar botão de anexar PDF
+        // Dados para os Spinners
+        val tiposManutencao = listOf("Preventiva", "Corretiva", "Preditiva")
+        val statusManutencao = listOf("Pendente", "Em Andamento", "Concluído")
+
+        // Configurar Spinners
+        setupSpinner(tipoServicoSpinner, tiposManutencao, tipoServicoEdit)
+        setupSpinner(statusSpinner, statusManutencao, statusEdit)
+
+        // Preencher campos no modo de edição
+        if (editMode) {
+            empresaField.setText(empresaEdit)
+            dataEstimativaField.setText(dataEstimativaEdit)
+            resumoField.setText(resumoEscopoEdit)
+            numeroPedidoField.setText(numeroPedidoCompraEdit)
+        } else {
+            buscarUltimoNumeroEscopo(statusSpinner.selectedItem.toString())
+        }
+
+        // Atualizar último número de escopo ao mudar o status
+        statusSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: android.view.View?, position: Int, id: Long) {
+                buscarUltimoNumeroEscopo(statusSpinner.selectedItem.toString())
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        // Botão de anexar PDF
         attachPdfButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                 type = "application/pdf"
@@ -79,60 +94,41 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             startActivityForResult(intent, PDF_REQUEST_CODE)
         }
 
-        // Dados para os Spinners
-        val tiposManutencao = listOf("Preventiva", "Corretiva", "Preditiva")
-        val statusManutencao = listOf("Pendente", "Em Andamento", "Concluído")
-
-        tipoServicoSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, tiposManutencao).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-        statusSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, statusManutencao).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-
-        if (editMode) {
-            empresaField.setText(empresaEdit)
-            dataEstimativaField.setText(dataEstimativaEdit)
-            resumoField.setText(resumoEscopoEdit)
-            numeroPedidoField.setText(numeroPedidoCompraEdit)
-
-            tipoServicoSpinner.setSelection(getSpinnerIndex(tipoServicoSpinner, tipoServicoEdit))
-            statusSpinner.setSelection(getSpinnerIndex(statusSpinner, statusEdit))
-        } else {
-            buscarUltimoNumeroEscopo(statusSpinner.selectedItem.toString())
-        }
-
-        statusSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val status = statusSpinner.selectedItem.toString()
-                buscarUltimoNumeroEscopo(status)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-
+        // Botão de salvar
         salvarButton.setOnClickListener {
-            val empresa = empresaField.text.toString()
-            val dataEstimativa = dataEstimativaField.text.toString()
+            val empresa = empresaField.text.toString().trim()
+            val dataEstimativa = dataEstimativaField.text.toString().trim()
             val tipoServico = tipoServicoSpinner.selectedItem.toString()
             val status = statusSpinner.selectedItem.toString()
-            val resumo = resumoField.text.toString()
-            val numeroPedidoCompra = numeroPedidoField.text.toString()
+            val resumo = resumoField.text.toString().trim()
+            val numeroPedidoCompra = numeroPedidoField.text.toString().trim()
 
+            // Verificação de campos obrigatórios
             if (empresa.isEmpty() || dataEstimativa.isEmpty() || resumo.isEmpty() || numeroPedidoCompra.isEmpty()) {
-                Toast.makeText(this, "Por favor, preencha todos os campos e anexe um arquivo PDF.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Preencha todos os campos obrigatórios.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // Verificação de conexão com a internet
+            if (!isInternetAvailable()) {
+                Toast.makeText(this, "Sem conexão com a internet.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Iniciar o upload do PDF
             uploadPdfToStorage(
                 onSuccess = { pdfDownloadUrl ->
+                    // Garantir que a variável pdfDownloadUrl nunca seja null
+                    val finalPdfDownloadUrl = pdfDownloadUrl ?: ""
 
+                    // Determinar o número do escopo
                     val numeroEscopoAtual = if (editMode && numeroEscopoEdit != null) {
-                        numeroEscopoEdit.toInt()
+                        numeroEscopoEdit?.toInt() ?: 0
                     } else {
                         ultimoNumeroEscopo + 1
                     }
 
+                    // Criar o mapa para salvar o escopo
                     val novoEscopo = mapOf(
                         "numeroEscopo" to numeroEscopoAtual,
                         "empresa" to empresa,
@@ -141,26 +137,11 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                         "status" to status,
                         "resumoEscopo" to resumo,
                         "numeroPedidoCompra" to numeroPedidoCompra,
-                        "pdfUrl" to pdfDownloadUrl
+                        "pdfUrl" to finalPdfDownloadUrl
                     )
 
-                    val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
-
-                    if (editMode && escopoId != null) {
-                        db.collection(collection).document(escopoId).update(novoEscopo).addOnSuccessListener {
-                            Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                            voltarParaLista(status)
-                        }.addOnFailureListener { e ->
-                            Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    } else {
-                        db.collection(collection).add(novoEscopo).addOnSuccessListener {
-                            Toast.makeText(this, "Escopo criado com sucesso!", Toast.LENGTH_SHORT).show()
-                            voltarParaLista(status)
-                        }.addOnFailureListener { e ->
-                            Toast.makeText(this, "Erro ao salvar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                    // Salvar no Firestore
+                    salvarNoFirestore(status, novoEscopo, editMode, escopoId)
                 },
                 onFailure = { exception ->
                     Toast.makeText(this, "Erro ao fazer upload do PDF: ${exception.message}", Toast.LENGTH_SHORT).show()
@@ -168,9 +149,49 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             )
         }
 
+        // Função para verificar a conexão com a internet
+        fun isInternetAvailable(): Boolean {
+            val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val activeNetwork = connectivityManager.activeNetworkInfo
+            return activeNetwork?.isConnected == true
+        }
+
+
+        fun salvarNoFirestore(
+            status: String,
+            novoEscopo: Map<String, Any>, // Garantindo que o tipo é Map<String, Any>
+            editMode: Boolean,
+            escopoId: String?
+        ) {
+            // Definir a coleção de acordo com o status do escopo
+            val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
+
+            // Verificar se estamos editando um escopo existente
+            if (editMode && !escopoId.isNullOrEmpty()) {
+                // Atualizar o escopo existente no Firestore
+                db.collection(collection).document(escopoId).update(novoEscopo)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                        voltarParaLista(status) // Voltar para a lista de escopos
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                // Criar um novo escopo no Firestore
+                db.collection(collection).add(novoEscopo)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Escopo criado com sucesso!", Toast.LENGTH_SHORT).show()
+                        voltarParaLista(status) // Voltar para a lista de escopos
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Erro ao criar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+        }
+
+        // Botão de cancelar
         cancelarButton.setOnClickListener {
-            val intent = Intent(this, MenuPrincipalActivity::class.java)
-            startActivity(intent)
             finish()
         }
     }
@@ -187,36 +208,14 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         }
     }
 
-    private fun buscarUltimoNumeroEscopo(status: String) {
-        val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
-
-        db.collection(collection)
-            .orderBy("numeroEscopo", Query.Direction.DESCENDING)
-            .limit(1)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    ultimoNumeroEscopo = documents.first().get("numeroEscopo").toString().toInt()
-                } else {
-                    ultimoNumeroEscopo = 0
-                }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao buscar número de escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-                ultimoNumeroEscopo = 0
-            }
-    }
-
-    private fun voltarParaLista(status: String) {
-        val intent = if (status == "Concluído") {
-            Intent(this, EscoposConcluidosActivity::class.java)
-        } else {
-            Intent(this, EscoposPendentesActivity::class.java)
+    private fun setupSpinner(spinner: Spinner, items: List<String>, defaultValue: String?) {
+        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
-        startActivity(intent)
-        finish() // Finaliza a Activity atual
+        defaultValue?.let {
+            spinner.setSelection(getSpinnerIndex(spinner, it))
+        }
     }
-
 
     private fun getSpinnerIndex(spinner: Spinner, value: String?): Int {
         for (i in 0 until spinner.count) {
@@ -227,8 +226,27 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         return 0
     }
 
+    private fun buscarUltimoNumeroEscopo(status: String) {
+        val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
+
+        db.collection(collection)
+            .orderBy("numeroEscopo", Query.Direction.DESCENDING)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { documents ->
+                ultimoNumeroEscopo = if (!documents.isEmpty) {
+                    documents.first().get("numeroEscopo").toString().toInt()
+                } else {
+                    0
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Erro ao buscar número de escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                ultimoNumeroEscopo = 0
+            }
+    }
+
     private fun uploadPdfToStorage(onSuccess: (String?) -> Unit, onFailure: (Exception) -> Unit) {
-        // Se nenhum PDF foi selecionado, continua sem fazer upload
         if (pdfUri == null) {
             onSuccess(null)
             return
@@ -248,42 +266,47 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             }
     }
 
-
-    private fun salvarEscopoNoFirestore(pdfDownloadUrl: String?) {
-        // Se estivermos editando, usamos o numeroEscopoEdit, caso contrário, geramos um novo número de escopo
-        val numeroEscopoAtual = if (editMode && numeroEscopoEdit != null) {
-            numeroEscopoEdit!!.toInt()  // Mantém o número do escopo original durante a edição
-        } else {
-            ultimoNumeroEscopo + 1  // Cria um novo número de escopo caso esteja criando
-        }
-
-        val novoEscopo = mapOf(
-            "numeroEscopo" to numeroEscopoAtual,
-            "empresa" to empresa,
-            "dataEstimativa" to dataEstimativa,
-            "tipoServico" to tipoServico,
-            "status" to status,
-            "resumoEscopo" to resumo,
-            "numeroPedidoCompra" to numeroPedidoCompra,
-            "pdfUrl" to (pdfDownloadUrl ?: "")  // Se o PDF não foi carregado, salva vazio
-        )
-
+    private fun salvarNoFirestore(
+        status: String,
+        novoEscopo: Map<String, Any>,
+        editMode: Boolean,
+        escopoId: String?
+    ) {
         val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
 
         if (editMode && escopoId != null) {
-            db.collection(collection).document(escopoId!!).update(novoEscopo).addOnSuccessListener {
-                Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                voltarParaLista(status)
-            }.addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+            db.collection(collection).document(escopoId).update(novoEscopo)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                    voltarParaLista(status)
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
         } else {
-            db.collection(collection).add(novoEscopo).addOnSuccessListener {
-                Toast.makeText(this, "Escopo criado com sucesso!", Toast.LENGTH_SHORT).show()
-                voltarParaLista(status)
-            }.addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao salvar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+            db.collection(collection).add(novoEscopo)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Escopo criado com sucesso!", Toast.LENGTH_SHORT).show()
+                    voltarParaLista(status)
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Erro ao criar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
         }
+    }
+
+    private fun voltarParaLista(status: String) {
+        val intent = if (status == "Concluído") {
+            Intent(this, EscoposConcluidosActivity::class.java)
+        } else {
+            Intent(this, EscoposPendentesActivity::class.java)
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return connectivityManager.activeNetworkInfo?.isConnected == true
     }
 }

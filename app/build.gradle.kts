@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.gms.google-services") // Plugin de Google Services
+    id("com.google.gms.google-services")  // Já está correto aqui
 }
 
 android {
@@ -62,8 +62,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-base:18.0.1")
     implementation("com.google.firebase:firebase-auth:21.0.1")
     implementation("com.google.firebase:firebase-firestore:24.0.0")
-    implementation ("androidx.appcompat:appcompat:1.3.1")
-    implementation ("com.google.firebase:firebase-appcheck-playintegrity:16.1.0")
+    implementation("androidx.appcompat:appcompat:1.3.1")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity:16.1.0")
 
     // Dependências do Compose
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -79,9 +79,8 @@ dependencies {
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.viewfinder.core)
 
-    implementation ("com.github.bumptech.glide:glide:4.12.0")
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
-
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
 
     // Testes
     testImplementation(libs.junit)
