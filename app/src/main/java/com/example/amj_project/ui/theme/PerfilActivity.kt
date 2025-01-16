@@ -1,9 +1,11 @@
 package com.example.amj_project.ui.theme
 
 import android.content.Intent
+import android.graphics.*
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.MainActivity
@@ -16,6 +18,7 @@ class PerfilActivity : AppCompatActivity() {
     private val REQUEST_CODE_EDITAR_PERFIL = 1  // Código de requisição para identificar a atividade de edição
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
+    private lateinit var profileImageView: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +31,7 @@ class PerfilActivity : AppCompatActivity() {
         val tvNome = findViewById<TextView>(R.id.tvNome)
         val tvCargo = findViewById<TextView>(R.id.tvCargo)
         val tvEmail = findViewById<TextView>(R.id.tvEmail)
+        profileImageView = findViewById(R.id.imageView4)
 
         // Obtém o usuário atual autenticado
         val user = auth.currentUser
@@ -51,6 +55,11 @@ class PerfilActivity : AppCompatActivity() {
                         // Atualiza a interface com os dados do usuário
                         tvNome.text = nome
                         tvCargo.text = cargo
+
+                        // Gera a imagem de perfil com a primeira letra do nome
+                        val firstLetter = nome.firstOrNull() ?: 'N'
+                        val profileImage = generateProfileImage(firstLetter, Color.BLUE, Color.WHITE, 200)
+                        profileImageView.setImageBitmap(profileImage)
                     } else {
                         // Caso o snapshot não exista, define mensagens padrão
                         tvNome.text = "Nome não disponível"
@@ -100,5 +109,33 @@ class PerfilActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.tvNome).text = nomeAtualizado
             findViewById<TextView>(R.id.tvCargo).text = cargoAtualizado
         }
+    }
+
+    // Função para gerar a imagem de perfil com a primeira letra do nome
+    private fun generateProfileImage(firstLetter: Char, backgroundColor: Int, textColor: Int, imageSize: Int): Bitmap {
+        val bitmap = Bitmap.createBitmap(imageSize, imageSize, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        // Preenche o fundo com a cor de fundo
+        val paint = Paint()
+        paint.style = Paint.Style.FILL
+        paint.color = backgroundColor
+        canvas.drawRect(0f, 0f, imageSize.toFloat(), imageSize.toFloat(), paint)
+
+        // Define a cor do texto e seu tamanho
+        paint.color = textColor
+        paint.textSize = imageSize * 0.5f
+        paint.textAlign = Paint.Align.CENTER
+
+        // Calcula as coordenadas do texto
+        val bounds = Rect()
+        paint.getTextBounds(firstLetter.toString(), 0, 1, bounds)
+        val x = imageSize / 2f
+        val y = imageSize / 2f - (bounds.top + bounds.bottom) / 2f
+
+        // Desenha a primeira letra no centro da imagem
+        canvas.drawText(firstLetter.toString(), x, y, paint)
+
+        return bitmap
     }
 }
