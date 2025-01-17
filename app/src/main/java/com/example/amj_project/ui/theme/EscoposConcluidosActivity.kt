@@ -63,7 +63,8 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                         "tipoServico" to document.get("tipoServico").toString(),
                         "resumoEscopo" to document.get("resumoEscopo").toString(),
                         "numeroPedidoCompra" to document.get("numeroPedidoCompra").toString(),
-                        "escopoId" to document.id
+                        "escopoId" to document.id,
+                        "pdfUrl" to document.get("pdfUrl").toString() // Adicionando o pdfUrl aqui
                     )
                     escoposList.add(escopo)
                     adicionarTextoDinamico(escopo)
@@ -126,6 +127,9 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                 intent.putExtra("resumoEscopo", escopo["resumoEscopo"])
                 intent.putExtra("numeroPedidoCompra", escopo["numeroPedidoCompra"])
                 intent.putExtra("escopoId", escopo["escopoId"])
+
+                // Passa o pdfUrl para a DetalhesEscopoActivity
+                intent.putExtra("pdfUrl", escopo["pdfUrl"])
 
                 startActivity(intent)
             }

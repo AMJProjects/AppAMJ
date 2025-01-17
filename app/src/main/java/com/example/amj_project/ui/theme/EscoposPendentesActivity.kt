@@ -21,20 +21,19 @@ class EscoposPendentesActivity : AppCompatActivity() {
         setContentView(R.layout.escopos_pendentes)
 
         db = FirebaseFirestore.getInstance()
-        containerPendentes = findViewById(R.id.layoutDinamico) // ID do layout para os escopos
-        buttonVoltarMenu = findViewById(R.id.button4) // ID do botão "Voltar ao Menu"
-        searchView = findViewById(R.id.searchView) // ID do SearchView
+        containerPendentes = findViewById(R.id.layoutDinamico)
+        buttonVoltarMenu = findViewById(R.id.button4)
+        searchView = findViewById(R.id.searchView)
 
         carregarEscoposPendentes()
 
-        // Configura o botão "Voltar ao Menu" para retornar à tela principal
         buttonVoltarMenu.setOnClickListener {
             val intent = Intent(this, MenuPrincipalActivity::class.java)
             startActivity(intent)
-            finish() // Finaliza a activity atual para evitar acúmulo no stack
+            finish()
         }
 
-        // Configuração do SearchView para evitar fechamento automático do teclado
+        // Configuração do SearchView
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 // A pesquisa é feita aqui, quando o usuário pressionar "Enter"
@@ -64,7 +63,8 @@ class EscoposPendentesActivity : AppCompatActivity() {
                         "tipoServico" to document.get("tipoServico").toString(),
                         "resumoEscopo" to document.get("resumoEscopo").toString(),
                         "numeroPedidoCompra" to document.get("numeroPedidoCompra").toString(),
-                        "escopoId" to document.id
+                        "escopoId" to document.id,
+                        "pdfUrl" to document.get("pdfUrl").toString() // Adicionando o pdfUrl
                     )
                     escoposList.add(escopo)
                     adicionarTextoDinamico(escopo)
@@ -127,6 +127,9 @@ class EscoposPendentesActivity : AppCompatActivity() {
                 intent.putExtra("resumoEscopo", escopo["resumoEscopo"])
                 intent.putExtra("numeroPedidoCompra", escopo["numeroPedidoCompra"])
                 intent.putExtra("escopoId", escopo["escopoId"])
+
+                // Passa o pdfUrl para a DetalhesEscopoActivity
+                intent.putExtra("pdfUrl", escopo["pdfUrl"])
 
                 startActivity(intent)
             }

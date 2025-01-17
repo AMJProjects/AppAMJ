@@ -1,25 +1,18 @@
 package com.example.amj_project.ui.theme
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.Settings
 import android.util.Log
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.amj_project.R
-import com.google.firebase.storage.FirebaseStorage
-import java.io.File
 
 class DetalhesEscopoActivity : AppCompatActivity() {
-
-    private val storage = FirebaseStorage.getInstance()
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,12 +62,12 @@ class DetalhesEscopoActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Botão para baixar PDF
+        // Botão para abrir PDF
         pdfDownloadButton.setOnClickListener {
             if (pdfUrl.isNotEmpty()) {
-                verificarPermissaoEbaixarPdf(pdfUrl)
+                abrirPdf(pdfUrl)
             } else {
-                Toast.makeText(this, "PDF não disponível para download.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "PDF não disponível para visualização.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -82,61 +75,29 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         voltarEscopo.setOnClickListener { finish() }
     }
 
-    // Função para verificar a permissão de armazenamento
-    @RequiresApi(Build.VERSION_CODES.R)
-    private fun verificarPermissaoEbaixarPdf(pdfUrl: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (Environment.isExternalStorageManager()) {
-                // Permissão já concedida para gravar no armazenamento externo
-                baixarPdf(pdfUrl)
-            } else {
-                val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                startActivityForResult(intent, 1)
-            }
-        } else {
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
-            } else {
-                baixarPdf(pdfUrl)
-            }
-        }
-    }
-
-    // Função para baixar o PDF
-    private fun baixarPdf(pdfUrl: String) {
+    // Função para abrir o PDF usando um aplicativo no dispositivo
+    private fun abrirPdf(pdfUrl: String) {
         try {
             if (pdfUrl.isEmpty()) {
-                Toast.makeText(this, "PDF não disponível para download.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "PDF não disponível para visualização.", Toast.LENGTH_SHORT).show()
                 return
             }
 
-            // Log para verificar o URL
-            Log.d("DetalhesEscopo", "PDF URL: $pdfUrl")
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(pdfUrl)
+                setDataAndType(Uri.parse(pdfUrl), "application/pdf")
+                flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+            }
 
-            val storageRef = storage.getReferenceFromUrl(pdfUrl)
-            val localFile = File(
-                getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
-                "escopo_${System.currentTimeMillis()}.pdf"
-            )
-
-            // Baixando o arquivo
-            storageRef.getFile(localFile).addOnSuccessListener {
-                Toast.makeText(
-                    this,
-                    "PDF baixado com sucesso em: ${localFile.absolutePath}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }.addOnFailureListener { exception ->
-                Log.e("DetalhesEscopo", "Erro ao baixar PDF: ${exception.message}")
-                Toast.makeText(
-                    this,
-                    "Erro ao baixar o PDF: ${exception.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+            // Verifica se há aplicativos que podem abrir o PDF
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(Intent.createChooser(intent, "Escolha um aplicativo para abrir o PDF"))
+            } else {
+                Toast.makeText(this, "Nenhum aplicativo encontrado para abrir o PDF.", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
-            Log.e("DetalhesEscopo", "Erro ao tentar baixar o PDF: ${e.message}")
-            Toast.makeText(this, "Erro ao tentar baixar o PDF: ${e.message}", Toast.LENGTH_SHORT).show()
+            Log.e("DetalhesEscopo", "Erro ao tentar abrir o PDF: ${e.message}")
+            Toast.makeText(this, "Erro ao tentar abrir o PDF: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 }
