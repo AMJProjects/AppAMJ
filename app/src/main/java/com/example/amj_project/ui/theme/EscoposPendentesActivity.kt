@@ -54,6 +54,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { documents ->
                 escoposList.clear() // Limpa a lista antes de carregar novos dados
+                containerPendentes.removeAllViews() // Remove todas as views do layout
                 for (document in documents) {
                     val escopo = mapOf(
                         "numeroEscopo" to document.get("numeroEscopo").toString(),
@@ -157,7 +158,6 @@ class EscoposPendentesActivity : AppCompatActivity() {
                                         .addOnSuccessListener {
                                             Toast.makeText(this@EscoposPendentesActivity, "Escopo movido para Concluído!", Toast.LENGTH_SHORT).show()
                                             carregarEscoposPendentes()  // Recarregar a lista de escopos pendentes
-                                            carregarEscoposConcluidos() // Recarregar a lista de escopos concluídos
                                         }
                                         .addOnFailureListener { e ->
                                             Toast.makeText(this@EscoposPendentesActivity, "Erro ao remover escopo da coleção pendente: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -175,33 +175,5 @@ class EscoposPendentesActivity : AppCompatActivity() {
         layoutEscopo.addView(buttonVisualizar)
         layoutEscopo.addView(buttonAlterarStatus) // Adiciona o botão de alteração de status
         containerPendentes.addView(layoutEscopo)
-    }
-
-    // Função para carregar os escopos da coleção "escoposConcluidos"
-    private fun carregarEscoposConcluidos() {
-        db.collection("escoposConcluidos")
-            .orderBy("numeroEscopo", Query.Direction.ASCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
-                // Processa e exibe os escopos concluídos
-                for (document in documents) {
-                    val escopo = mapOf(
-                        "numeroEscopo" to document.get("numeroEscopo").toString(),
-                        "empresa" to document.get("empresa").toString(),
-                        "dataEstimativa" to document.get("dataEstimativa").toString(),
-                        "status" to document.get("status").toString(),
-                        "tipoServico" to document.get("tipoServico").toString(),
-                        "resumoEscopo" to document.get("resumoEscopo").toString(),
-                        "numeroPedidoCompra" to document.get("numeroPedidoCompra").toString(),
-                        "escopoId" to document.id,
-                        "pdfUrl" to document.get("pdfUrl").toString()
-                    )
-                    escoposList.add(escopo)
-                    adicionarTextoDinamico(escopo)
-                }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this@EscoposPendentesActivity, "Erro ao carregar escopos concluídos.", Toast.LENGTH_SHORT).show()
-            }
     }
 }

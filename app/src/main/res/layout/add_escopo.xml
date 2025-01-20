@@ -44,7 +44,7 @@
     <EditText
         android:id="@+id/editTextDate"
         android:layout_width="303dp"
-        android:layout_height="45dp"
+        android:layout_height="48dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#D9D9D9"
@@ -155,7 +155,7 @@
     <Button
         android:id="@+id/buttonAttachPdf"
         android:layout_width="303dp"
-        android:layout_height="45dp"
+        android:layout_height="48dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#D9D9D9"
         android:text="Anexar PDF"
