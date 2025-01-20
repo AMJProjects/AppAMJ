@@ -25,11 +25,11 @@ class EditarEscopoActivity : AppCompatActivity() {
         val numeroPedidoCompra = intent.getStringExtra("numeroPedidoCompra")
 
         // Referências para os campos de entrada
-        val empresaEditText = findViewById<EditText>(R.id.editarEmpresa)
-        val dataEstimativaEditText = findViewById<EditText>(R.id.editarDataEstimativa)
-        val resumoEditText = findViewById<EditText>(R.id.editarResumo)
-        val numeroPedidoCompraEditText = findViewById<EditText>(R.id.editTextNumber2) // Usando o ID correto
-        val salvarButton = findViewById<Button>(R.id.salvarEdicaoBtn)
+        val empresaEditText = findViewById<EditText>(R.id.editTextText3)
+        val dataEstimativaEditText = findViewById<EditText>(R.id.editTextDate)
+        val resumoEditText = findViewById<EditText>(R.id.textInputEditText)
+        val numeroPedidoCompraEditText = findViewById<EditText>(R.id.editTextNumber2)
+        val salvarButton = findViewById<Button>(R.id.button3)
 
         // Preencher os campos recebidos via Intent
         empresaEditText.setText(empresa)
