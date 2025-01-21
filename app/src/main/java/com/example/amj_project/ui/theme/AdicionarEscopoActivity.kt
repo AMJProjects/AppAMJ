@@ -28,7 +28,7 @@ import android.widget.EditText
 class AdicionarEscopoActivity : AppCompatActivity() {
 
     private lateinit var db: FirebaseFirestore
-    private lateinit var progressBarContainer: LinearLayout
+    private lateinit var progressBarContainer: FrameLayout
     private lateinit var progressBar: ProgressBar
     private var ultimoNumeroEscopo: Int = 0
     private var pdfUri: Uri? = null
@@ -151,9 +151,8 @@ class AdicionarEscopoActivity : AppCompatActivity() {
 
         // Botão de salvar
         salvarButton.setOnClickListener {
-            // Mostrar ProgressBar ao iniciar a tarefa
-            progressBarContainer.visibility = View.VISIBLE
-            progressBar.visibility = View.VISIBLE
+            // Mostrar ProgressBar e a tela embaçada
+            toggleProgress(true)
 
             val empresa = empresaField.text.toString().trim()
             val dataEstimativa = dataEstimativaField.text.toString().trim()
@@ -166,9 +165,8 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             if (empresa.isEmpty() || dataEstimativa.isEmpty() || resumo.isEmpty() || numeroPedidoCompra.isEmpty()) {
                 Toast.makeText(this, "Preencha todos os campos obrigatórios.", Toast.LENGTH_SHORT).show()
 
-                // Esconder ProgressBar se houver erro
-                progressBarContainer.visibility = View.GONE
-                progressBar.visibility = View.GONE
+                // Esconder ProgressBar e a tela embaçada
+                toggleProgress(false)
                 return@setOnClickListener
             }
 
@@ -176,9 +174,8 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             if (!isInternetAvailable()) {
                 Toast.makeText(this, "Sem conexão com a internet.", Toast.LENGTH_SHORT).show()
 
-                // Esconder ProgressBar se não houver conexão
-                progressBarContainer.visibility = View.GONE
-                progressBar.visibility = View.GONE
+                // Esconder ProgressBar e a tela embaçada
+                toggleProgress(false)
                 return@setOnClickListener
             }
 
@@ -209,16 +206,14 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                     // Salvar no Firestore
                     salvarNoFirestore(status, novoEscopo, editMode, escopoId)
 
-                    // Esconder ProgressBar após a tarefa
-                    progressBarContainer.visibility = View.GONE
-                    progressBar.visibility = View.GONE
+                    // Esconder ProgressBar e a tela embaçada
+                    toggleProgress(false)
                 },
                 onFailure = { exception ->
                     Toast.makeText(this, "Erro ao fazer upload do PDF: ${exception.message}", Toast.LENGTH_SHORT).show()
 
-                    // Esconder ProgressBar após erro
-                    progressBarContainer.visibility = View.GONE
-                    progressBar.visibility = View.GONE
+                    // Esconder ProgressBar e a tela embaçada
+                    toggleProgress(false)
                 }
             )
         }
@@ -230,20 +225,29 @@ class AdicionarEscopoActivity : AppCompatActivity() {
     }
 
     private fun toggleProgress(isLoading: Boolean) {
-        // Mostrar ou esconder o container da ProgressBar
+        val progressBarContainer = findViewById<FrameLayout>(R.id.progressBarContainer)
+
         if (isLoading) {
             progressBarContainer.visibility = View.VISIBLE
-            progressBar.visibility = View.VISIBLE
+
         } else {
             progressBarContainer.visibility = View.GONE
-            progressBar.visibility = View.GONE
         }
 
-        // Desabilitar botões enquanto está carregando
-        salvarButton.isEnabled = !isLoading
-        cancelarButton.isEnabled = !isLoading
-        attachPdfButton.isEnabled = !isLoading
+        // Desabilitar interação com os botões e outros elementos enquanto carrega
+        findViewById<Button>(R.id.button3).isEnabled = !isLoading
+        findViewById<Button>(R.id.button5).isEnabled = !isLoading
+        findViewById<Button>(R.id.buttonAttachPdf).isEnabled = !isLoading
+        findViewById<EditText>(R.id.editTextText3).isEnabled = !isLoading
+        findViewById<EditText>(R.id.textInputEditText).isEnabled = !isLoading
+        findViewById<EditText>(R.id.editTextNumber2).isEnabled = !isLoading
+        findViewById<EditText>(R.id.editTextDate).isEnabled = !isLoading
+        findViewById<Spinner>(R.id.spinnerTipoManutencao).isEnabled = !isLoading
+        findViewById<Spinner>(R.id.spinnerTipoManutencao2).isEnabled = !isLoading
     }
+
+
+
 
     private fun salvarNoFirestore(status: String, novoEscopo: Map<String, Any>, editMode: Boolean, escopoId: String?) {
         val escoposCollection = if (status == "Concluído") {
