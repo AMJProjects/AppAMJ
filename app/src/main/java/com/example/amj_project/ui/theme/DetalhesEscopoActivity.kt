@@ -11,6 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.example.amj_project.R
+import com.google.firebase.firestore.FirebaseFirestore
 
 class DetalhesEscopoActivity : AppCompatActivity() {
 
@@ -98,6 +99,47 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Log.e("DetalhesEscopo", "Erro ao tentar abrir o PDF: ${e.message}")
             Toast.makeText(this, "Erro ao tentar abrir o PDF: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Função para atualizar os detalhes do escopo quando a tela for retomada
+    override fun onResume() {
+        super.onResume()
+
+        // Atualiza os dados do escopo ao retornar para esta tela
+        val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
+        val escopoId = intent.getStringExtra("escopoId") ?: ""
+
+        if (escopoId.isNotEmpty()) {
+            // Buscar os dados atualizados do Firestore
+            FirebaseFirestore.getInstance().collection("escoposPendentes").document(escopoId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+                        val numeroEscopo = document.get("numeroEscopo")?.toString() ?: "N/A"
+                        val empresa = document.getString("empresa") ?: "N/A"
+                        val dataEstimativa = document.getString("dataEstimativa") ?: "N/A"
+                        val tipoServico = document.getString("tipoServico") ?: "N/A"
+                        val status = document.getString("status") ?: "N/A"
+                        val resumoEscopo = document.getString("resumoEscopo") ?: "N/A"
+                        val numeroPedidoCompra = document.getString("numeroPedidoCompra") ?: "N/A"
+
+                        // Atualiza o texto da tela com os dados mais recentes
+                        textViewDetalhes.text = """
+                            Número: $numeroEscopo
+                            Empresa: $empresa
+                            Data Estimada: $dataEstimativa
+                            Tipo de Serviço: $tipoServico
+                            Status: $status
+                            Resumo: $resumoEscopo
+                            Número do Pedido de Compra: $numeroPedidoCompra
+                        """.trimIndent()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("DetalhesEscopo", "Erro ao buscar os detalhes atualizados: ${e.message}")
+                    Toast.makeText(this, "Erro ao buscar os detalhes atualizados.", Toast.LENGTH_SHORT).show()
+                }
         }
     }
 }
