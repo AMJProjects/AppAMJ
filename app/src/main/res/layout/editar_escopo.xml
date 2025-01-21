@@ -13,7 +13,7 @@
         android:layout_height="44dp"
         android:background="#8E0000"
         android:paddingTop="10dp"
-        android:text="Adicione as informações "
+        android:text="Edite as informações "
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="16sp"

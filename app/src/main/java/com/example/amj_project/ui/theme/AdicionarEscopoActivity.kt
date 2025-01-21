@@ -85,7 +85,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
 
 
         // Dados para os Spinners
-        val tiposManutencao = listOf("Preventiva", "Corretiva", "Preditiva")
+        val tiposManutencao = listOf("Preventiva", "Corretiva", "Obra")
         val statusManutencao = listOf("Pendente", "Em Andamento", "Concluído")
 
         // Configurar o DatePicker

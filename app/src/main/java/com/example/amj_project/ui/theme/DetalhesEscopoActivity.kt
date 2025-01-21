@@ -47,7 +47,7 @@ class DetalhesEscopoActivity : AppCompatActivity() {
 
         // Botão para editar escopo
         editBtn.setOnClickListener {
-            val intent = Intent(this, AdicionarEscopoActivity::class.java).apply {
+            val intent = Intent(this, EditarEscopoActivity::class.java).apply {
                 putExtra("editMode", true)
                 putExtra("escopoId", escopoId)
                 putExtra("numeroEscopo", numeroEscopo)
