@@ -19,6 +19,11 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import android.app.DatePickerDialog
+import java.text.SimpleDateFormat
+import java.util.*
+import android.widget.EditText
+
 
 class AdicionarEscopoActivity : AppCompatActivity() {
 
@@ -51,6 +56,10 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         progressBarContainer = findViewById(R.id.progressBarContainer)
         progressBar = findViewById(R.id.progressBar)
 
+        // Esconder a ProgressBar inicialmente
+        progressBarContainer.visibility = View.GONE
+        progressBar.visibility = View.GONE
+
         // Recuperar dados do Intent
         val editMode = intent.getBooleanExtra("editMode", false)
         val escopoId = intent.getStringExtra("escopoId")
@@ -64,7 +73,6 @@ class AdicionarEscopoActivity : AppCompatActivity() {
 
         // Referenciar os campos do layout
         val empresaField = findViewById<EditText>(R.id.editTextText3)
-        val dataEstimativaField = findViewById<EditText>(R.id.editTextDate)
         val tipoServicoSpinner = findViewById<Spinner>(R.id.spinnerTipoManutencao)
         val statusSpinner = findViewById<Spinner>(R.id.spinnerTipoManutencao2)
         val resumoField = findViewById<EditText>(R.id.textInputEditText)
@@ -75,9 +83,34 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         attachPdfButton = findViewById(R.id.buttonAttachPdf)
         pdfStatusTextView = findViewById(R.id.textViewPdfStatus)
 
+
         // Dados para os Spinners
         val tiposManutencao = listOf("Preventiva", "Corretiva", "Preditiva")
         val statusManutencao = listOf("Pendente", "Em Andamento", "Concluído")
+
+        // Configurar o DatePicker
+
+        val dataEstimativaField = findViewById<EditText>(R.id.editTextDate)
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+
+        dataEstimativaField.setOnClickListener {
+            val datePickerDialog = DatePickerDialog(
+                this,
+                { _, year, monthOfYear, dayOfMonth ->
+                    // Ajustar mês para 1-based (janeiro é 0, fevereiro é 1, etc)
+                    calendar.set(year, monthOfYear, dayOfMonth)
+                    // Formatar a data no formato dd/MM/yy
+                    val sdf = SimpleDateFormat("dd/MM/yy", Locale.getDefault())
+                    val formattedDate = sdf.format(calendar.time)
+                    dataEstimativaField.setText(formattedDate)
+                },
+                year, month, dayOfMonth
+            )
+            datePickerDialog.show()
+        }
 
         // Configurar Spinners
         setupSpinner(tipoServicoSpinner, tiposManutencao, tipoServicoEdit)
@@ -213,98 +246,94 @@ class AdicionarEscopoActivity : AppCompatActivity() {
     }
 
     private fun salvarNoFirestore(status: String, novoEscopo: Map<String, Any>, editMode: Boolean, escopoId: String?) {
-        val escopoCollection = if (status == "Concluído") {
+        val escoposCollection = if (status == "Concluído") {
             db.collection("escoposConcluidos")
         } else {
             db.collection("escoposPendentes")
         }
 
         if (editMode && escopoId != null) {
-            // Atualizar o escopo existente
-            escopoCollection.document(escopoId)
+            escoposCollection.document(escopoId)
                 .set(novoEscopo)
                 .addOnSuccessListener {
-                    Toast.makeText(this, "Escopo atualizado com sucesso.", Toast.LENGTH_SHORT).show()
-                    finish() // Voltar à tela anterior
+                    Toast.makeText(this, "Escopo editado com sucesso.", Toast.LENGTH_SHORT).show()
+                    finish()
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Erro ao editar o escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         } else {
-            // Adicionar um novo escopo
-            escopoCollection.add(novoEscopo)
+            escoposCollection.add(novoEscopo)
                 .addOnSuccessListener {
-                    Toast.makeText(this, "Escopo adicionado com sucesso.", Toast.LENGTH_SHORT).show()
-                    finish() // Voltar à tela anterior
+                    Toast.makeText(this, "Escopo salvo com sucesso.", Toast.LENGTH_SHORT).show()
+                    finish()
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this, "Erro ao adicionar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Erro ao salvar o escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         }
     }
 
-    private fun setupSpinner(spinner: Spinner, items: List<String>, defaultValue: String?) {
-        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+    private fun uploadPdfToStorage(onSuccess: (String?) -> Unit, onFailure: (Exception) -> Unit) {
+        if (pdfUri != null) {
+            val storageRef = FirebaseStorage.getInstance().reference
+            val pdfRef = storageRef.child("pdfs/${System.currentTimeMillis()}.pdf")
+
+            pdfRef.putFile(pdfUri!!)
+                .addOnSuccessListener { taskSnapshot ->
+                    pdfRef.downloadUrl.addOnSuccessListener { uri ->
+                        onSuccess(uri.toString())
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    onFailure(exception)
+                }
+        } else {
+            onSuccess(null)
         }
-        defaultValue?.let {
-            val index = items.indexOf(it)
-            if (index != -1) {
-                spinner.setSelection(index)
-            }
+    }
+
+    private fun setupSpinner(spinner: Spinner, items: List<String>, selectedItem: String) {
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, items)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+
+        val selectedPosition = items.indexOf(selectedItem)
+        if (selectedPosition != -1) {
+            spinner.setSelection(selectedPosition)
+        }
+    }
+
+    private fun isInternetAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+        return when {
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            else -> false
         }
     }
 
     private fun buscarUltimoNumeroEscopo(status: String) {
-        val collection = if (status == "Concluído") "escoposConcluidos" else "escoposPendentes"
-
-        db.collection(collection)
-            .orderBy("numeroEscopo", Query.Direction.DESCENDING)
-            .limit(1)
-            .get()
-            .addOnSuccessListener { documents ->
-                ultimoNumeroEscopo = if (!documents.isEmpty) {
-                    documents.first().get("numeroEscopo").toString().toInt()
-                } else {
-                    0
-                }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao buscar número de escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-                ultimoNumeroEscopo = 0
-            }
-    }
-
-    private fun uploadPdfToStorage(onSuccess: (String?) -> Unit, onFailure: (Exception) -> Unit) {
-        if (pdfUri == null) {
-            onSuccess(null)
-            return
+        val collection = if (status == "Concluído") {
+            db.collection("escoposConcluidos")
+        } else {
+            db.collection("escoposPendentes")
         }
 
-        val storageRef = FirebaseStorage.getInstance().reference
-        val pdfRef = storageRef.child("pdfs/${System.currentTimeMillis()}.pdf")
-
-        pdfRef.putFile(pdfUri!!)
-            .addOnSuccessListener {
-                pdfRef.downloadUrl.addOnSuccessListener { uri ->
-                    Log.d("Storage", "PDF upload bem-sucedido: $uri")
-                    onSuccess(uri.toString())
-                }.addOnFailureListener { e ->
-                    Log.e("Storage", "Erro ao obter URL do PDF: ${e.message}", e)
-                    onFailure(e)
+        collection.orderBy("numeroEscopo", Query.Direction.DESCENDING).limit(1)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val ultimoEscopo = querySnapshot.documents[0]
+                    ultimoNumeroEscopo = (ultimoEscopo.getLong("numeroEscopo") ?: 0).toInt()
+                } else {
+                    ultimoNumeroEscopo = 0
                 }
             }
-            .addOnFailureListener { e ->
-                Log.e("Storage", "Erro ao fazer upload do PDF: ${e.message}", e)
-                onFailure(e)
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "Erro ao buscar o último número de escopo: ${exception.message}")
             }
-    }
-
-    // Função de verificação de conexão com a internet
-    private fun isInternetAvailable(): Boolean {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork
-        val networkCapabilities = connectivityManager.getNetworkCapabilities(network)
-        return networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
     }
 }
