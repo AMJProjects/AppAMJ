@@ -261,7 +261,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                 .set(novoEscopo)
                 .addOnSuccessListener {
                     Toast.makeText(this, "Escopo editado com sucesso.", Toast.LENGTH_SHORT).show()
-                    finish()
+                    voltarParaLista(status) // Redirecionar para a página correta
                 }
                 .addOnFailureListener { e ->
                     Toast.makeText(this, "Erro ao editar o escopo: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -270,7 +270,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             escoposCollection.add(novoEscopo)
                 .addOnSuccessListener {
                     Toast.makeText(this, "Escopo salvo com sucesso.", Toast.LENGTH_SHORT).show()
-                    finish()
+                    voltarParaLista(status) // Redirecionar para a página correta
                 }
                 .addOnFailureListener { e ->
                     Toast.makeText(this, "Erro ao salvar o escopo: ${e.message}", Toast.LENGTH_SHORT).show()
