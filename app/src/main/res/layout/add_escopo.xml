@@ -238,14 +238,13 @@
         android:background="#80000000"
         android:visibility="gone">
 
-        <!-- ProgressBar centralizado -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone"
-            android:indeterminate="true" />
+            android:indeterminate="true"
+            android:indeterminateTint="#831414" />
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

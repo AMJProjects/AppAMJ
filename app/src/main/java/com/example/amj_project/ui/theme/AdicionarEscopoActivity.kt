@@ -225,19 +225,18 @@ class AdicionarEscopoActivity : AppCompatActivity() {
     }
 
     private fun toggleProgress(isLoading: Boolean) {
-        val progressBarContainer = findViewById<FrameLayout>(R.id.progressBarContainer)
-
         if (isLoading) {
             progressBarContainer.visibility = View.VISIBLE
-
+            progressBar.visibility = View.VISIBLE
         } else {
             progressBarContainer.visibility = View.GONE
+            progressBar.visibility = View.GONE
         }
 
         // Desabilitar interação com os botões e outros elementos enquanto carrega
-        findViewById<Button>(R.id.button3).isEnabled = !isLoading
-        findViewById<Button>(R.id.button5).isEnabled = !isLoading
-        findViewById<Button>(R.id.buttonAttachPdf).isEnabled = !isLoading
+        salvarButton.isEnabled = !isLoading
+        cancelarButton.isEnabled = !isLoading
+        attachPdfButton.isEnabled = !isLoading
         findViewById<EditText>(R.id.editTextText3).isEnabled = !isLoading
         findViewById<EditText>(R.id.textInputEditText).isEnabled = !isLoading
         findViewById<EditText>(R.id.editTextNumber2).isEnabled = !isLoading
@@ -245,6 +244,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         findViewById<Spinner>(R.id.spinnerTipoManutencao).isEnabled = !isLoading
         findViewById<Spinner>(R.id.spinnerTipoManutencao2).isEnabled = !isLoading
     }
+
 
 
 
@@ -339,5 +339,14 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             .addOnFailureListener { exception ->
                 Log.e("Firestore", "Erro ao buscar o último número de escopo: ${exception.message}")
             }
+    }
+    private fun voltarParaLista(status: String) {
+        val intent = if (status == "Concluído") {
+            Intent(this, EscoposConcluidosActivity::class.java)
+        } else {
+            Intent(this, EscoposPendentesActivity::class.java)
+        }
+        startActivity(intent)
+        finish()
     }
 }
