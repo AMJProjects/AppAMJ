@@ -109,10 +109,19 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         // Atualiza os dados do escopo ao retornar para esta tela
         val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
         val escopoId = intent.getStringExtra("escopoId") ?: ""
+        val status = intent.getStringExtra("status") ?: "N/A" // Obtendo o status do escopo
 
         if (escopoId.isNotEmpty()) {
-            // Buscar os dados atualizados do Firestore
-            FirebaseFirestore.getInstance().collection("escoposPendentes").document(escopoId)
+            // Definir a coleção com base no status do escopo
+            val colecaoEscopo = when (status) {
+                "Pendente" -> "escoposPendentes"
+                "Em Andamento" -> "escoposAndamento"
+                "Concluído" -> "escoposConcluidos"
+                else -> "escoposPendentes"
+            }
+
+            // Buscar os dados atualizados do Firestore com base na coleção correta
+            FirebaseFirestore.getInstance().collection(colecaoEscopo).document(escopoId)
                 .get()
                 .addOnSuccessListener { document ->
                     if (document != null) {

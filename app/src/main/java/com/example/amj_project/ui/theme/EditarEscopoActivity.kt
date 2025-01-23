@@ -33,6 +33,7 @@ class EditarEscopoActivity : AppCompatActivity() {
         val numeroPedidoCompraEditText = findViewById<EditText>(R.id.editTextNumber2)
         val tipoServicoSpinner = findViewById<Spinner>(R.id.spinnerTipoManutencao)
         val salvarButton = findViewById<Button>(R.id.button3)
+        val cancelarButton = findViewById<Button>(R.id.button5) // Referência ao botão Cancelar
 
         // Dados para o Spinner
         val tiposServicos = listOf("Preventiva", "Corretiva", "Preditiva")
@@ -83,6 +84,11 @@ class EditarEscopoActivity : AppCompatActivity() {
                     Log.e("EditarEscopo", "Erro ao atualizar escopo", e)
                     Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+        }
+
+        // Ação do botão Cancelar
+        cancelarButton.setOnClickListener {
+            finish() // Volta à tela anterior (DetalhesEscopoActivity)
         }
     }
 }
