@@ -139,33 +139,48 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             setOnClickListener {
                 val escopoId = escopo["escopoId"] ?: return@setOnClickListener
 
-                // Atualizar o status para "Pendente"
-                db.collection("escoposConcluidos").document(escopoId).get()
-                    .addOnSuccessListener { document ->
-                        if (document.exists()) {
-                            val dadosAtualizados = document.data?.toMutableMap() ?: return@addOnSuccessListener
+                // Exibe o AlertDialog para confirmação
+                val alertDialog = AlertDialog.Builder(this@EscoposConcluidosActivity)
+                    .setTitle("Confirmar Alteração de Status")
+                    .setMessage("Você tem certeza de que deseja marcar este escopo como Pendente?")
+                    .setPositiveButton("Sim") { dialog, _ ->
+                        // Atualizar o status para "Pendente"
+                        db.collection("escoposConcluidos").document(escopoId).get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    val dadosAtualizados = document.data?.toMutableMap() ?: return@addOnSuccessListener
 
-                            dadosAtualizados["status"] = "Pendente"  // Mudando o status
-                            db.collection("escoposPendentes").document(escopoId)
-                                .set(dadosAtualizados)
-                                .addOnSuccessListener {
-                                    // Após mover para 'escoposPendentes', exclui da coleção de concluídos
-                                    db.collection("escoposConcluidos").document(escopoId).delete()
+                                    dadosAtualizados["status"] = "Pendente"  // Mudando o status
+                                    db.collection("escoposPendentes").document(escopoId)
+                                        .set(dadosAtualizados)
                                         .addOnSuccessListener {
-                                            Toast.makeText(this@EscoposConcluidosActivity, "Escopo movido para Pendente!", Toast.LENGTH_SHORT).show()
+                                            // Após mover para 'escoposPendentes', exclui da coleção de concluídos
+                                            db.collection("escoposConcluidos").document(escopoId).delete()
+                                                .addOnSuccessListener {
+                                                    Toast.makeText(this@EscoposConcluidosActivity, "Escopo movido para Pendente!", Toast.LENGTH_SHORT).show()
 
-                                            // Atualiza a lista de escopos concluídos sem redirecionar
-                                            carregarEscoposConcluidos() // Recarrega os escopos concluídos
+                                                    // Atualiza a lista de escopos concluídos sem redirecionar
+                                                    carregarEscoposConcluidos() // Recarrega os escopos concluídos
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    Toast.makeText(this@EscoposConcluidosActivity, "Erro ao remover escopo da coleção concluída: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                }
                                         }
                                         .addOnFailureListener { e ->
-                                            Toast.makeText(this@EscoposConcluidosActivity, "Erro ao remover escopo da coleção concluída: ${e.message}", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(this@EscoposConcluidosActivity, "Erro ao mover escopo para Pendente: ${e.message}", Toast.LENGTH_SHORT).show()
                                         }
                                 }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(this@EscoposConcluidosActivity, "Erro ao mover escopo para Pendente: ${e.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        }
+                            }
+                        dialog.dismiss() // Fecha o diálogo após a ação
                     }
+                    .setNegativeButton("Cancelar") { dialog, _ ->
+                        // Apenas fecha o diálogo se o usuário cancelar
+                        dialog.dismiss()
+                    }
+                    .create()
+
+                // Exibe o diálogo
+                alertDialog.show()
             }
         }
 

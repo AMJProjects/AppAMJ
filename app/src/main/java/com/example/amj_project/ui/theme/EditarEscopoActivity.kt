@@ -78,6 +78,29 @@ class EditarEscopoActivity : AppCompatActivity() {
                 .addOnSuccessListener {
                     Log.d("EditarEscopo", "Escopo atualizado com sucesso: $dadosAtualizados")
                     Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+
+                    // Agora, após a atualização ser concluída, vamos buscar o documento atualizado
+                    db.collection(colecaoAtual).document(escopoId).get()
+                        .addOnSuccessListener { document ->
+                            if (document.exists()) {
+                                // Se o documento existe, vamos carregar os dados diretamente
+                                val updatedData = document.data
+                                empresaEditText.setText(updatedData?.get("empresa") as String)
+                                dataEstimativaEditText.setText(updatedData["dataEstimativa"] as String)
+                                resumoEditText.setText(updatedData["resumoEscopo"] as String)
+                                numeroPedidoCompraEditText.setText(updatedData["numeroPedidoCompra"] as String)
+
+                                val tipoServicoIndex = tiposServicos.indexOf(updatedData["tipoServico"])
+                                if (tipoServicoIndex != -1) {
+                                    tipoServicoSpinner.setSelection(tipoServicoIndex)
+                                }
+                            } else {
+                                Toast.makeText(this, "Erro: Documento não encontrado após a atualização.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Erro ao buscar dados atualizados: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                     finish()
                 }
                 .addOnFailureListener { e ->
