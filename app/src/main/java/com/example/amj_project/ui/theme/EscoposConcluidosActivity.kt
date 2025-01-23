@@ -3,6 +3,7 @@ package com.example.amj_project.ui.theme
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.R
 import com.google.firebase.firestore.FirebaseFirestore
@@ -102,11 +103,11 @@ class EscoposConcluidosActivity : AppCompatActivity() {
         }
 
         val textoEscopo = """
-            Número: ${escopo["numeroEscopo"]}
-            Empresa: ${escopo["empresa"]}
-            Data Estimada: ${escopo["dataEstimativa"]}
-            Status: ${escopo["status"]}
-        """.trimIndent()
+        Número: ${escopo["numeroEscopo"]}
+        Empresa: ${escopo["empresa"]}
+        Data Estimada: ${escopo["dataEstimativa"]}
+        Status: ${escopo["status"]}
+    """.trimIndent()
 
         val textView = TextView(this).apply {
             text = textoEscopo
@@ -168,9 +169,35 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             }
         }
 
+        val buttonExcluir = Button(this).apply {
+            text = "Excluir"
+            setOnClickListener {
+                val escopoId = escopo["escopoId"] ?: return@setOnClickListener
+
+                // Confirmação antes de excluir
+                AlertDialog.Builder(this@EscoposConcluidosActivity)
+                    .setTitle("Excluir Escopo")
+                    .setMessage("Tem certeza de que deseja excluir este escopo permanentemente?")
+                    .setPositiveButton("Sim") { _, _ ->
+                        // Excluir o escopo do Firestore
+                        db.collection("escoposConcluidos").document(escopoId).delete()
+                            .addOnSuccessListener {
+                                Toast.makeText(this@EscoposConcluidosActivity, "Escopo excluído com sucesso!", Toast.LENGTH_SHORT).show()
+                                carregarEscoposConcluidos() // Recarrega a lista após exclusão
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this@EscoposConcluidosActivity, "Erro ao excluir escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                    .setNegativeButton("Não", null)
+                    .show()
+            }
+        }
+
         layoutEscopo.addView(textView)
         layoutEscopo.addView(buttonVisualizar)
         layoutEscopo.addView(buttonAlterarStatus) // Adiciona o botão de alteração de status
+        layoutEscopo.addView(buttonExcluir) // Adiciona o botão de exclusão
         containerConcluidos.addView(layoutEscopo)
     }
 }

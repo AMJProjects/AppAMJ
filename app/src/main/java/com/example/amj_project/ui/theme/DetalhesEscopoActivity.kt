@@ -4,16 +4,20 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.amj_project.R
 import com.google.firebase.firestore.FirebaseFirestore
+import android.Manifest
+import android.content.pm.PackageManager
 
 class DetalhesEscopoActivity : AppCompatActivity() {
+
+    private val PERMISSION_REQUEST_CODE = 1
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,7 +70,9 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         // Botão para abrir PDF
         pdfDownloadButton.setOnClickListener {
             if (pdfUrl.isNotEmpty()) {
-                abrirPdf(pdfUrl)
+                if (checkAndRequestPermissions()) {
+                    abrirPdf(pdfUrl)
+                }
             } else {
                 Toast.makeText(this, "PDF não disponível para visualização.", Toast.LENGTH_SHORT).show()
             }
@@ -86,19 +92,60 @@ class DetalhesEscopoActivity : AppCompatActivity() {
 
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 data = Uri.parse(pdfUrl)
-                setDataAndType(Uri.parse(pdfUrl), "application/pdf")
                 flags = Intent.FLAG_ACTIVITY_NO_HISTORY
             }
+            intent.setDataAndType(Uri.parse(pdfUrl), "application/pdf")
 
             // Verifica se há aplicativos que podem abrir o PDF
             if (intent.resolveActivity(packageManager) != null) {
                 startActivity(Intent.createChooser(intent, "Escolha um aplicativo para abrir o PDF"))
             } else {
+                Log.e("DetalhesEscopo", "Nenhum aplicativo encontrado para abrir o PDF.")
                 Toast.makeText(this, "Nenhum aplicativo encontrado para abrir o PDF.", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             Log.e("DetalhesEscopo", "Erro ao tentar abrir o PDF: ${e.message}")
             Toast.makeText(this, "Erro ao tentar abrir o PDF: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Função para verificar e solicitar permissões para acessar arquivos
+    private fun checkAndRequestPermissions(): Boolean {
+        val readStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        val writeStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+        // Se alguma das permissões não estiver concedida, solicita
+        if (readStoragePermission != PackageManager.PERMISSION_GRANTED || writeStoragePermission != PackageManager.PERMISSION_GRANTED) {
+            // Verifica se o usuário já negou anteriormente
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                Toast.makeText(this, "Você precisa permitir o acesso ao armazenamento para visualizar o PDF.", Toast.LENGTH_LONG).show()
+            }
+
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                PERMISSION_REQUEST_CODE
+            )
+            return false
+        }
+        return true
+    }
+
+    // Função para lidar com a resposta das permissões solicitadas
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permissões concedidas
+                val pdfUrl = intent.getStringExtra("pdfUrl") ?: ""
+                if (pdfUrl.isNotEmpty()) {
+                    abrirPdf(pdfUrl)
+                }
+            } else {
+                Toast.makeText(this, "Permissão negada para acessar arquivos.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
