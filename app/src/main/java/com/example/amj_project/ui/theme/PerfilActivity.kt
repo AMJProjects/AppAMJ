@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import kotlin.random.Random
 import androidx.appcompat.app.AppCompatActivity
 import com.example.amj_project.MainActivity
 import com.example.amj_project.R
@@ -48,7 +49,7 @@ class PerfilActivity : AppCompatActivity() {
                         tvCargo.text = cargo
 
                         val firstLetter = nome.firstOrNull() ?: 'N'
-                        val profileImage = generateProfileImage(firstLetter, Color.BLUE, Color.WHITE, 200)
+                        val profileImage = generateProfileImage(firstLetter, Color.WHITE, 200)
                         profileImageView.setImageBitmap(profileImage)
                     } else {
                         tvNome.text = "Nome não disponível"
@@ -86,27 +87,62 @@ class PerfilActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_EDITAR_PERFIL && resultCode == RESULT_OK && data != null) {
-            findViewById<TextView>(R.id.tvNome).text = data.getStringExtra("nome")
-            findViewById<TextView>(R.id.tvCargo).text = data.getStringExtra("cargo")
+            val nomeAtualizado = data.getStringExtra("nome") ?: ""
+            val cargoAtualizado = data.getStringExtra("cargo") ?: ""
+
+            // Atualiza os textos na tela de perfil
+            findViewById<TextView>(R.id.tvNome).text = nomeAtualizado
+            findViewById<TextView>(R.id.tvCargo).text = cargoAtualizado
+
+            // Gera a nova imagem com base na primeira letra do nome atualizado
+            val firstLetter = nomeAtualizado.firstOrNull()?.uppercaseChar() ?: 'N'
+            val profileImage = generateProfileImage(firstLetter, Color.WHITE, 200)
+            profileImageView.setImageBitmap(profileImage)
         }
     }
 
-    private fun generateProfileImage(firstLetter: Char, backgroundColor: Int, textColor: Int, imageSize: Int): Bitmap {
+    private fun generateProfileImage(firstLetter: Char, textColor: Int, imageSize: Int): Bitmap {
         val bitmap = Bitmap.createBitmap(imageSize, imageSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
+
+        // Gerar uma cor de fundo aleatória
+        val backgroundColor = generateRandomColor()
+
         val paint = Paint().apply {
+            isAntiAlias = true
             style = Paint.Style.FILL
             color = backgroundColor
         }
-        canvas.drawRect(0f, 0f, imageSize.toFloat(), imageSize.toFloat(), paint)
+
+        // Desenhar o círculo de fundo
+        val radius = imageSize / 2f
+        canvas.drawCircle(radius, radius, radius, paint)
+
+        // Configuração do texto
         paint.color = textColor
         paint.textSize = imageSize * 0.5f
         paint.textAlign = Paint.Align.CENTER
         val bounds = Rect()
-        paint.getTextBounds(firstLetter.toString(), 0, 1, bounds)
+
+        // Converter a letra para maiúscula
+        val upperCaseLetter = firstLetter.uppercaseChar()
+
+        // Obter os limites do texto
+        paint.getTextBounds(upperCaseLetter.toString(), 0, 1, bounds)
         val x = imageSize / 2f
         val y = imageSize / 2f - (bounds.top + bounds.bottom) / 2f
-        canvas.drawText(firstLetter.toString(), x, y, paint)
+
+        // Desenhar a letra maiúscula no centro
+        canvas.drawText(upperCaseLetter.toString(), x, y, paint)
         return bitmap
     }
+
+    private fun generateRandomColor(): Int {
+        val random = Random(System.currentTimeMillis())
+        val red = random.nextInt(256)
+        val green = random.nextInt(256)
+        val blue = random.nextInt(256)
+        return Color.rgb(red, green, blue)
+    }
+
 }

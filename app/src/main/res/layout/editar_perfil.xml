@@ -6,27 +6,12 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_perfil">
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="72dp"
-        android:layout_gravity="center"
-        android:scaleType="centerCrop"
-        android:background="@drawable/circle_background"
-        android:padding="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/icon_perfil" />
-
 
     <EditText
         android:id="@+id/etNome"
         android:layout_width="242dp"
         android:layout_height="53dp"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="320dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#ADADAD"
         android:ems="10"
@@ -35,18 +20,16 @@
         android:paddingLeft="20dp"
         android:textColor="#1B1A1A"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/etCargo"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.485"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_foto"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/etCargo"
         android:layout_width="242dp"
         android:layout_height="53dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/botaoredondo"
         android:backgroundTint="#ADADAD"
         android:ems="10"
@@ -56,7 +39,7 @@
         android:textColor="#211F1F"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.485"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etNome" />
 
@@ -74,24 +57,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etCargo"
-        app:layout_constraintVertical_bias="0.382"
+        app:layout_constraintVertical_bias="0.226"
         tools:ignore="TouchTargetSizeCheck" />
-
-    <Button
-        android:id="@+id/btn_foto"
-        android:layout_width="136dp"
-        android:layout_height="42dp"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/botaoredondo"
-        android:backgroundTint="#530303"
-        android:text="Alterar foto"
-        android:textColor="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/etNome"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:layout_constraintVertical_bias="0.5"
-        tools:ignore="TouchTargetSizeCheck,TextSizeCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

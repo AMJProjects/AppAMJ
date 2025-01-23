@@ -36,8 +36,6 @@ class EditarPerfilActivity : AppCompatActivity() {
         val etNome = findViewById<EditText>(R.id.etNome)
         val etCargo = findViewById<EditText>(R.id.etCargo)
         val btnSalvar = findViewById<Button>(R.id.btn_salvar)
-        val btnAlterarFoto = findViewById<Button>(R.id.btn_foto)
-        imageView = findViewById(R.id.imageView)
 
         // Preencher campos com dados recebidos
         etNome.setText(intent.getStringExtra("nome"))
@@ -94,12 +92,6 @@ class EditarPerfilActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Nenhuma alteração foi feita!", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        btnAlterarFoto.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            galleryResult.launch(intent)
         }
     }
 

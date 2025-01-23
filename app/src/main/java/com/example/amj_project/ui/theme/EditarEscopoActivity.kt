@@ -33,10 +33,10 @@ class EditarEscopoActivity : AppCompatActivity() {
         val numeroPedidoCompraEditText = findViewById<EditText>(R.id.editTextNumber2)
         val tipoServicoSpinner = findViewById<Spinner>(R.id.spinnerTipoManutencao)
         val salvarButton = findViewById<Button>(R.id.button3)
-        val cancelarButton = findViewById<Button>(R.id.button5) // Referência ao botão Cancelar
+        val cancelarButton = findViewById<Button>(R.id.button5)
 
         // Dados para o Spinner
-        val tiposServicos = listOf("Preventiva", "Corretiva", "Preditiva")
+        val tiposServicos = listOf("Preventiva", "Corretiva", "Obra")
 
         // Configurar o Spinner
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, tiposServicos)
