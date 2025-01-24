@@ -18,13 +18,15 @@ class EditarEscopoActivity : AppCompatActivity() {
 
         db = FirebaseFirestore.getInstance()
 
-        // Recebe os dados da Intent
+        // Recebe o ID do escopo pela Intent
         val escopoId = intent.getStringExtra("escopoId")
-        val empresa = intent.getStringExtra("empresa")
-        val dataEstimativa = intent.getStringExtra("dataEstimativa")
-        val resumoEscopo = intent.getStringExtra("resumoEscopo")
-        val tipoServico = intent.getStringExtra("tipoServico")
-        val numeroPedidoCompra = intent.getStringExtra("numeroPedidoCompra")
+
+        // Verifica se o escopoId é nulo ou vazio
+        if (escopoId.isNullOrEmpty()) {
+            Toast.makeText(this, "Erro: ID do escopo não encontrado!", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         // Referências para os campos de entrada
         val empresaEditText = findViewById<EditText>(R.id.editTextText3)
@@ -43,24 +45,42 @@ class EditarEscopoActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         tipoServicoSpinner.adapter = adapter
 
-        // Preencher os campos recebidos via Intent
-        empresaEditText.setText(empresa)
-        dataEstimativaEditText.setText(dataEstimativa)
-        resumoEditText.setText(resumoEscopo)
-        numeroPedidoCompraEditText.setText(numeroPedidoCompra)
+        // Função para carregar os dados mais recentes do Firestore
+        fun carregarDadosDoFirestore() {
+            db.collection("escoposPendentes").document(escopoId).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val empresa = document.getString("empresa") ?: ""
+                        val dataEstimativa = document.getString("dataEstimativa") ?: ""
+                        val resumoEscopo = document.getString("resumoEscopo") ?: ""
+                        val tipoServico = document.getString("tipoServico") ?: ""
+                        val numeroPedidoCompra = document.getString("numeroPedidoCompra") ?: ""
 
-        // Configurar o Spinner para selecionar o valor correto
-        val tipoServicoIndex = tiposServicos.indexOf(tipoServico)
-        if (tipoServicoIndex != -1) {
-            tipoServicoSpinner.setSelection(tipoServicoIndex)
+                        // Preencher os campos com os dados do Firestore
+                        empresaEditText.setText(empresa)
+                        dataEstimativaEditText.setText(dataEstimativa)
+                        resumoEditText.setText(resumoEscopo)
+                        numeroPedidoCompraEditText.setText(numeroPedidoCompra)
+
+                        // Configurar o Spinner para selecionar o valor correto
+                        val tipoServicoIndex = tiposServicos.indexOf(tipoServico)
+                        if (tipoServicoIndex != -1) {
+                            tipoServicoSpinner.setSelection(tipoServicoIndex)
+                        }
+                    } else {
+                        Toast.makeText(this, "Erro: Documento não encontrado!", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Erro ao carregar dados: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
         }
 
-        salvarButton.setOnClickListener {
-            if (escopoId.isNullOrEmpty()) {
-                Toast.makeText(this, "Erro: ID do escopo não encontrado!", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+        // Carrega os dados ao abrir a tela
+        carregarDadosDoFirestore()
 
+        salvarButton.setOnClickListener {
             // Captura os dados atualizados do formulário
             val dadosAtualizados = hashMapOf(
                 "empresa" to empresaEditText.text.toString(),
@@ -70,38 +90,13 @@ class EditarEscopoActivity : AppCompatActivity() {
                 "numeroPedidoCompra" to numeroPedidoCompraEditText.text.toString()
             )
 
-            val colecaoAtual = "escoposPendentes" // Nome da coleção no Firestore
-
             // Atualiza o documento no Firestore
-            db.collection(colecaoAtual).document(escopoId)
-                .set(dadosAtualizados, SetOptions.merge()) // Usando merge para evitar erros de campos ausentes
+            db.collection("escoposPendentes").document(escopoId)
+                .set(dadosAtualizados, SetOptions.merge())
                 .addOnSuccessListener {
                     Log.d("EditarEscopo", "Escopo atualizado com sucesso: $dadosAtualizados")
                     Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-
-                    // Agora, após a atualização ser concluída, vamos buscar o documento atualizado
-                    db.collection(colecaoAtual).document(escopoId).get()
-                        .addOnSuccessListener { document ->
-                            if (document.exists()) {
-                                // Se o documento existe, vamos carregar os dados diretamente
-                                val updatedData = document.data
-                                empresaEditText.setText(updatedData?.get("empresa") as String)
-                                dataEstimativaEditText.setText(updatedData["dataEstimativa"] as String)
-                                resumoEditText.setText(updatedData["resumoEscopo"] as String)
-                                numeroPedidoCompraEditText.setText(updatedData["numeroPedidoCompra"] as String)
-
-                                val tipoServicoIndex = tiposServicos.indexOf(updatedData["tipoServico"])
-                                if (tipoServicoIndex != -1) {
-                                    tipoServicoSpinner.setSelection(tipoServicoIndex)
-                                }
-                            } else {
-                                Toast.makeText(this, "Erro: Documento não encontrado após a atualização.", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this, "Erro ao buscar dados atualizados: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    finish()
+                    finish() // Voltar para a tela anterior
                 }
                 .addOnFailureListener { e ->
                     Log.e("EditarEscopo", "Erro ao atualizar escopo", e)
@@ -109,7 +104,6 @@ class EditarEscopoActivity : AppCompatActivity() {
                 }
         }
 
-        // Ação do botão Cancelar
         cancelarButton.setOnClickListener {
             finish() // Volta à tela anterior (DetalhesEscopoActivity)
         }
