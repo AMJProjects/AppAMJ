@@ -18,6 +18,7 @@ import android.content.pm.PackageManager
 class DetalhesEscopoActivity : AppCompatActivity() {
 
     private val PERMISSION_REQUEST_CODE = 1
+    private val PICK_PDF_REQUEST_CODE = 2
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,26 +112,33 @@ class DetalhesEscopoActivity : AppCompatActivity() {
 
     // Função para verificar e solicitar permissões para acessar arquivos
     private fun checkAndRequestPermissions(): Boolean {
-        val readStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-        val writeStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        val currentApiVersion = Build.VERSION.SDK_INT
+        if (currentApiVersion >= Build.VERSION_CODES.Q) { // Android 10 e superior
+            // Usar o Storage Access Framework (SAF) para abrir o arquivo
+            openFilePicker()
+            return true
+        } else {
+            val readStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+            val writeStoragePermission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-        // Se alguma das permissões não estiver concedida, solicita
-        if (readStoragePermission != PackageManager.PERMISSION_GRANTED || writeStoragePermission != PackageManager.PERMISSION_GRANTED) {
-            // Verifica se o usuário já negou anteriormente
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
-                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            // Se alguma das permissões não estiver concedida, solicita
+            if (readStoragePermission != PackageManager.PERMISSION_GRANTED || writeStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                // Verifica se o usuário já negou anteriormente
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
-                Toast.makeText(this, "Você precisa permitir o acesso ao armazenamento para visualizar o PDF.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Você precisa permitir o acesso ao armazenamento para visualizar o PDF.", Toast.LENGTH_LONG).show()
+                }
+
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    PERMISSION_REQUEST_CODE
+                )
+                return false
             }
-
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                PERMISSION_REQUEST_CODE
-            )
-            return false
+            return true
         }
-        return true
     }
 
     // Função para lidar com a resposta das permissões solicitadas
@@ -145,6 +153,25 @@ class DetalhesEscopoActivity : AppCompatActivity() {
                 }
             } else {
                 Toast.makeText(this, "Permissão negada para acessar arquivos.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // Função para abrir o seletor de arquivos (Storage Access Framework - SAF)
+    private fun openFilePicker() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            type = "application/pdf"
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
+        startActivityForResult(intent, PICK_PDF_REQUEST_CODE)
+    }
+
+    // Função para lidar com o resultado do seletor de arquivos
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode == PICK_PDF_REQUEST_CODE) {
+            data?.data?.let { uri ->
+                abrirPdf(uri.toString())
             }
         }
     }
