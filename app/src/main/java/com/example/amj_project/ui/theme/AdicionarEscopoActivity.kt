@@ -170,6 +170,15 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // Verificar se o PDF foi anexado
+            if (pdfUri == null) {
+                Toast.makeText(this, "Por favor, anexe um arquivo PDF antes de salvar.", Toast.LENGTH_SHORT).show()
+
+                // Esconder ProgressBar e a tela embaçada
+                toggleProgress(false)
+                return@setOnClickListener
+            }
+
             // Verificar conexão com a internet
             if (!isInternetAvailable()) {
                 Toast.makeText(this, "Sem conexão com a internet.", Toast.LENGTH_SHORT).show()
@@ -217,6 +226,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
                 }
             )
         }
+
 
         // Botão de cancelar
         cancelarButton.setOnClickListener {
