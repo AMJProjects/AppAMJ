@@ -83,7 +83,6 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         voltarEscopo.setOnClickListener { finish() }
     }
 
-    // Função para abrir o PDF usando um aplicativo no dispositivo
     private fun abrirPdf(pdfUrl: String) {
         try {
             if (pdfUrl.isEmpty()) {
@@ -91,24 +90,29 @@ class DetalhesEscopoActivity : AppCompatActivity() {
                 return
             }
 
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse(pdfUrl)
-                flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-            }
-            intent.setDataAndType(Uri.parse(pdfUrl), "application/pdf")
+            // Cria uma Uri a partir da URL do PDF
+            val uri = Uri.parse(pdfUrl)
 
-            // Verifica se há aplicativos que podem abrir o PDF
+            // Cria a Intent para abrir o PDF com um visualizador padrão de PDF (sem download)
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/pdf")
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_GRANT_READ_URI_PERMISSION
+            }
+
+            // Verifica se há algum aplicativo que pode abrir o PDF diretamente
             if (intent.resolveActivity(packageManager) != null) {
-                startActivity(Intent.createChooser(intent, "Escolha um aplicativo para abrir o PDF"))
+                startActivity(intent)
             } else {
-                Log.e("DetalhesEscopo", "Nenhum aplicativo encontrado para abrir o PDF.")
-                Toast.makeText(this, "Nenhum aplicativo encontrado para abrir o PDF.", Toast.LENGTH_SHORT).show()
+                // Se não houver visualizador de PDF disponível, abre no navegador como fallback
+                val browserIntent = Intent(Intent.ACTION_VIEW, uri)
+                startActivity(browserIntent)
             }
         } catch (e: Exception) {
             Log.e("DetalhesEscopo", "Erro ao tentar abrir o PDF: ${e.message}")
             Toast.makeText(this, "Erro ao tentar abrir o PDF: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
+
 
     // Função para verificar e solicitar permissões para acessar arquivos
     private fun checkAndRequestPermissions(): Boolean {
