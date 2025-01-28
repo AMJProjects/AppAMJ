@@ -47,6 +47,7 @@ class EditarEscopoActivity : AppCompatActivity() {
 
         // Função para carregar os dados mais recentes do Firestore
         fun carregarDadosDoFirestore() {
+            // Carregar dados de escoposPendentes
             db.collection("escoposPendentes").document(escopoId).get()
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
@@ -68,8 +69,35 @@ class EditarEscopoActivity : AppCompatActivity() {
                             tipoServicoSpinner.setSelection(tipoServicoIndex)
                         }
                     } else {
-                        Toast.makeText(this, "Erro: Documento não encontrado!", Toast.LENGTH_SHORT).show()
-                        finish()
+                        // Tentar carregar dados de escoposConcluidos se não encontrado em escoposPendentes
+                        db.collection("escoposConcluidos").document(escopoId).get()
+                            .addOnSuccessListener { documentConcluido ->
+                                if (documentConcluido.exists()) {
+                                    val empresa = documentConcluido.getString("empresa") ?: ""
+                                    val dataEstimativa = documentConcluido.getString("dataEstimativa") ?: ""
+                                    val resumoEscopo = documentConcluido.getString("resumoEscopo") ?: ""
+                                    val tipoServico = documentConcluido.getString("tipoServico") ?: ""
+                                    val numeroPedidoCompra = documentConcluido.getString("numeroPedidoCompra") ?: ""
+
+                                    // Preencher os campos com os dados de escoposConcluidos
+                                    empresaEditText.setText(empresa)
+                                    dataEstimativaEditText.setText(dataEstimativa)
+                                    resumoEditText.setText(resumoEscopo)
+                                    numeroPedidoCompraEditText.setText(numeroPedidoCompra)
+
+                                    // Configurar o Spinner para selecionar o valor correto
+                                    val tipoServicoIndex = tiposServicos.indexOf(tipoServico)
+                                    if (tipoServicoIndex != -1) {
+                                        tipoServicoSpinner.setSelection(tipoServicoIndex)
+                                    }
+                                } else {
+                                    Toast.makeText(this, "Erro: Documento não encontrado nas duas coleções!", Toast.LENGTH_SHORT).show()
+                                    finish() // Aqui, se o documento não existir, fechamos a activity
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Erro ao carregar dados: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
                     }
                 }
                 .addOnFailureListener { e ->
@@ -90,17 +118,28 @@ class EditarEscopoActivity : AppCompatActivity() {
                 "numeroPedidoCompra" to numeroPedidoCompraEditText.text.toString()
             )
 
-            // Atualiza o documento no Firestore
+            // Atualiza o documento em escoposPendentes
             db.collection("escoposPendentes").document(escopoId)
                 .set(dadosAtualizados, SetOptions.merge())
                 .addOnSuccessListener {
-                    Log.d("EditarEscopo", "Escopo atualizado com sucesso: $dadosAtualizados")
-                    Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                    finish() // Voltar para a tela anterior
+                    Log.d("EditarEscopo", "Escopo em Pendentes atualizado com sucesso: $dadosAtualizados")
+
+                    // Após atualizar pendentes, atualizar em escoposConcluidos
+                    db.collection("escoposConcluidos").document(escopoId)
+                        .set(dadosAtualizados, SetOptions.merge())
+                        .addOnSuccessListener {
+                            Log.d("EditarEscopo", "Escopo em Concluídos atualizado com sucesso: $dadosAtualizados")
+                            Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                            finish() // Voltar para a tela anterior
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("EditarEscopo", "Erro ao atualizar escopo em Concluídos", e)
+                            Toast.makeText(this, "Erro ao atualizar escopo em Concluídos: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                 }
                 .addOnFailureListener { e ->
-                    Log.e("EditarEscopo", "Erro ao atualizar escopo", e)
-                    Toast.makeText(this, "Erro ao atualizar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Log.e("EditarEscopo", "Erro ao atualizar escopo em Pendentes", e)
+                    Toast.makeText(this, "Erro ao atualizar escopo em Pendentes: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         }
 
@@ -109,3 +148,4 @@ class EditarEscopoActivity : AppCompatActivity() {
         }
     }
 }
+

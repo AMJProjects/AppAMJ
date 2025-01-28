@@ -54,7 +54,6 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             .addOnSuccessListener { documents ->
                 escoposList.clear() // Limpa a lista antes de carregar novos dados
                 containerConcluidos.removeAllViews() // Limpa o layout dinâmico
-
                 for (document in documents) {
                     val escopo = mapOf(
                         "numeroEscopo" to document.get("numeroEscopo").toString(),
@@ -72,7 +71,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Erro ao carregar escopos concluídos.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@EscoposConcluidosActivity, "Erro ao carregar escopos concluídos.", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -128,12 +127,18 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                 intent.putExtra("resumoEscopo", escopo["resumoEscopo"])
                 intent.putExtra("numeroPedidoCompra", escopo["numeroPedidoCompra"])
                 intent.putExtra("escopoId", escopo["escopoId"])
-                intent.putExtra("pdfUrl", escopo["pdfUrl"]) // Passa o pdfUrl para a DetalhesEscopoActivity
+
+                // Passa o pdfUrl para a DetalhesEscopoActivity
+                intent.putExtra("pdfUrl", escopo["pdfUrl"])
+
+                // Passa a coleção de origem
+                intent.putExtra("colecaoOrigem", "escoposConcluidos")
 
                 startActivity(intent)
             }
         }
 
+        // Botão para alterar o status e mover para a coleção 'escoposConcluidos'
         val buttonAlterarStatus = Button(this).apply {
             text = "Marcar como Pendente"
             setOnClickListener {
@@ -151,6 +156,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                                     val dadosAtualizados = document.data?.toMutableMap() ?: return@addOnSuccessListener
 
                                     dadosAtualizados["status"] = "Pendente"  // Mudando o status
+                                    // Mover o documento para a coleção 'escoposPendentes'
                                     db.collection("escoposPendentes").document(escopoId)
                                         .set(dadosAtualizados)
                                         .addOnSuccessListener {
