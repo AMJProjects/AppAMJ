@@ -29,21 +29,17 @@ class EscoposPendentesActivity : AppCompatActivity() {
         carregarEscoposPendentes()
 
         buttonVoltarMenu.setOnClickListener {
-            val intent = Intent(this, MenuPrincipalActivity::class.java)
-            startActivity(intent)
-            finish()
+            finish() // Voltar ao menu anterior
         }
 
         // Configuração do SearchView
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                // A pesquisa é feita aqui, quando o usuário pressionar "Enter"
                 filtrarEscopos(query)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                // Não faz nada enquanto o texto estiver mudando
                 return false
             }
         })
@@ -129,15 +125,12 @@ class EscoposPendentesActivity : AppCompatActivity() {
                 intent.putExtra("resumoEscopo", escopo["resumoEscopo"])
                 intent.putExtra("numeroPedidoCompra", escopo["numeroPedidoCompra"])
                 intent.putExtra("escopoId", escopo["escopoId"])
-
-                // Passa o pdfUrl para a DetalhesEscopoActivity
-                intent.putExtra("pdfUrl", escopo["pdfUrl"])
+                intent.putExtra("pdfUrl", escopo["pdfUrl"]) // Passa o pdfUrl para a DetalhesEscopoActivity
 
                 startActivity(intent)
             }
         }
 
-        // Botão para alterar o status e mover para a coleção 'escoposConcluidos'
         val buttonAlterarStatus = Button(this).apply {
             text = "Marcar como Concluído"
             setOnClickListener {
@@ -155,7 +148,6 @@ class EscoposPendentesActivity : AppCompatActivity() {
                                     val dadosAtualizados = document.data?.toMutableMap() ?: return@addOnSuccessListener
 
                                     dadosAtualizados["status"] = "Concluído"  // Mudando o status
-                                    // Mover o documento para a coleção 'escoposConcluidos'
                                     db.collection("escoposConcluidos").document(escopoId)
                                         .set(dadosAtualizados)
                                         .addOnSuccessListener {
@@ -163,7 +155,9 @@ class EscoposPendentesActivity : AppCompatActivity() {
                                             db.collection("escoposPendentes").document(escopoId).delete()
                                                 .addOnSuccessListener {
                                                     Toast.makeText(this@EscoposPendentesActivity, "Escopo movido para Concluído!", Toast.LENGTH_SHORT).show()
-                                                    carregarEscoposPendentes()  // Recarregar a lista de escopos pendentes
+
+                                                    // Atualiza a lista de escopos pendentes sem redirecionar
+                                                    carregarEscoposPendentes() // Recarrega os escopos pendentes
                                                 }
                                                 .addOnFailureListener { e ->
                                                     Toast.makeText(this@EscoposPendentesActivity, "Erro ao remover escopo da coleção pendente: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -177,17 +171,14 @@ class EscoposPendentesActivity : AppCompatActivity() {
                         dialog.dismiss() // Fecha o diálogo após a ação
                     }
                     .setNegativeButton("Cancelar") { dialog, _ ->
-                        // Apenas fecha o diálogo se o usuário cancelar
                         dialog.dismiss()
                     }
                     .create()
 
-                // Exibe o diálogo
                 alertDialog.show()
             }
         }
 
-        // Botão para excluir o escopo da coleção "escoposPendentes"
         val buttonExcluir = Button(this).apply {
             text = "Excluir"
             setOnClickListener {
@@ -198,7 +189,6 @@ class EscoposPendentesActivity : AppCompatActivity() {
                     .setTitle("Excluir Escopo")
                     .setMessage("Tem certeza de que deseja excluir este escopo permanentemente?")
                     .setPositiveButton("Sim") { _, _ ->
-                        // Excluir o escopo do Firestore
                         db.collection("escoposPendentes").document(escopoId).delete()
                             .addOnSuccessListener {
                                 Toast.makeText(this@EscoposPendentesActivity, "Escopo excluído com sucesso!", Toast.LENGTH_SHORT).show()
