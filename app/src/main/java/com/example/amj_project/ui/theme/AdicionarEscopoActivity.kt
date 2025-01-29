@@ -23,7 +23,7 @@ import android.app.DatePickerDialog
 import java.text.SimpleDateFormat
 import java.util.*
 import android.widget.EditText
-
+import java.util.Locale
 
 class AdicionarEscopoActivity : AppCompatActivity() {
 
@@ -96,14 +96,24 @@ class AdicionarEscopoActivity : AppCompatActivity() {
         val month = calendar.get(Calendar.MONTH)
         val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
 
+// Forçar o Locale para português
+        val locale = Locale("pt", "BR")
+        Locale.setDefault(locale)
+
+// Atualizar as configurações de recursos com a localidade
+        val config = resources.configuration
+        config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
+
         dataEstimativaField.setOnClickListener {
             val datePickerDialog = DatePickerDialog(
                 this,
+                R.style.DatePickerCustomStyle,  // Estilo com cabeçalho vermelho
                 { _, year, monthOfYear, dayOfMonth ->
-                    // Ajustar mês para 1-based (janeiro é 0, fevereiro é 1, etc)
+                    // Ajuste o mês para 1-based (janeiro é 0, fevereiro é 1, etc)
                     calendar.set(year, monthOfYear, dayOfMonth)
                     // Formatar a data no formato dd/MM/yy
-                    val sdf = SimpleDateFormat("dd/MM/yy", Locale.getDefault())
+                    val sdf = SimpleDateFormat("dd/MM/yy", locale)  // Usando o Locale português
                     val formattedDate = sdf.format(calendar.time)
                     dataEstimativaField.setText(formattedDate)
                 },
@@ -111,6 +121,7 @@ class AdicionarEscopoActivity : AppCompatActivity() {
             )
             datePickerDialog.show()
         }
+
 
         // Configurar Spinners
         setupSpinner(tipoServicoSpinner, tiposManutencao, tipoServicoEdit)

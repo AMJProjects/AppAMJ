@@ -105,8 +105,8 @@ class PerfilActivity : AppCompatActivity() {
         val bitmap = Bitmap.createBitmap(imageSize, imageSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
 
-        // Gerar uma cor de fundo aleatória
-        val backgroundColor = generateRandomColor()
+        // Definir a cor de fundo como vermelha (código de cor #FF0000)
+        val backgroundColor = Color.RED
 
         val paint = Paint().apply {
             isAntiAlias = true
@@ -136,6 +136,7 @@ class PerfilActivity : AppCompatActivity() {
         canvas.drawText(upperCaseLetter.toString(), x, y, paint)
         return bitmap
     }
+
 
     private fun generateRandomColor(): Int {
         val random = Random(System.currentTimeMillis())

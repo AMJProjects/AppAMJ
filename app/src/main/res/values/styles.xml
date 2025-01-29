@@ -1,0 +1,6 @@
+<resources>
+    <!-- Estilo para o DatePickerDialog, com o cabeçalho vermelho -->
+    <style name="DatePickerCustomStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">#FF0000</item> <!-- Cor vermelha para o cabeçalho -->
+    </style>
+</resources>
