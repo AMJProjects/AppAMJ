@@ -50,28 +50,32 @@ class EscoposConcluidosActivity : AppCompatActivity() {
     private fun carregarEscoposConcluidos() {
         db.collection("escoposConcluidos")
             .orderBy("numeroEscopo", Query.Direction.ASCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
-                escoposList.clear() // Limpa a lista antes de carregar novos dados
-                containerConcluidos.removeAllViews() // Limpa o layout dinâmico
-                for (document in documents) {
-                    val escopo = mapOf(
-                        "numeroEscopo" to document.get("numeroEscopo").toString(),
-                        "empresa" to document.get("empresa").toString(),
-                        "dataEstimativa" to document.get("dataEstimativa").toString(),
-                        "status" to document.get("status").toString(),
-                        "tipoServico" to document.get("tipoServico").toString(),
-                        "resumoEscopo" to document.get("resumoEscopo").toString(),
-                        "numeroPedidoCompra" to document.get("numeroPedidoCompra").toString(),
-                        "escopoId" to document.id,
-                        "pdfUrl" to document.get("pdfUrl").toString()
-                    )
-                    escoposList.add(escopo)
-                    adicionarTextoDinamico(escopo)
+            .addSnapshotListener { snapshots, error ->
+                if (error != null) {
+                    Toast.makeText(this@EscoposConcluidosActivity, "Erro ao carregar escopos.", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
                 }
-            }
-            .addOnFailureListener {
-                Toast.makeText(this@EscoposConcluidosActivity, "Erro ao carregar escopos concluídos.", Toast.LENGTH_SHORT).show()
+
+                escoposList.clear()
+                containerConcluidos.removeAllViews()
+
+                snapshots?.let {
+                    for (document in it) {
+                        val escopo = mapOf(
+                            "numeroEscopo" to (document.getLong("numeroEscopo")?.toString() ?: ""), // Conversão segura
+                            "empresa" to document.getString("empresa").orEmpty(),
+                            "dataEstimativa" to document.getString("dataEstimativa").orEmpty(),
+                            "status" to document.getString("status").orEmpty(),
+                            "tipoServico" to document.getString("tipoServico").orEmpty(),
+                            "resumoEscopo" to document.getString("resumoEscopo").orEmpty(),
+                            "numeroPedidoCompra" to document.getString("numeroPedidoCompra").orEmpty(),
+                            "escopoId" to document.id,
+                            "pdfUrl" to document.getString("pdfUrl").orEmpty()
+                        )
+                        escoposList.add(escopo)
+                        adicionarTextoDinamico(escopo)
+                    }
+                }
             }
     }
 

@@ -48,30 +48,35 @@ class EscoposPendentesActivity : AppCompatActivity() {
     private fun carregarEscoposPendentes() {
         db.collection("escoposPendentes")
             .orderBy("numeroEscopo", Query.Direction.ASCENDING)
-            .get()
-            .addOnSuccessListener { documents ->
-                escoposList.clear() // Limpa a lista antes de carregar novos dados
-                containerPendentes.removeAllViews() // Remove todas as views do layout
-                for (document in documents) {
-                    val escopo = mapOf(
-                        "numeroEscopo" to document.get("numeroEscopo").toString(),
-                        "empresa" to document.get("empresa").toString(),
-                        "dataEstimativa" to document.get("dataEstimativa").toString(),
-                        "status" to document.get("status").toString(),
-                        "tipoServico" to document.get("tipoServico").toString(),
-                        "resumoEscopo" to document.get("resumoEscopo").toString(),
-                        "numeroPedidoCompra" to document.get("numeroPedidoCompra").toString(),
-                        "escopoId" to document.id,
-                        "pdfUrl" to document.get("pdfUrl").toString() // Adicionando o pdfUrl
-                    )
-                    escoposList.add(escopo)
-                    adicionarTextoDinamico(escopo)
+            .addSnapshotListener { snapshots, error ->
+                if (error != null) {
+                    Toast.makeText(this@EscoposPendentesActivity, "Erro ao carregar escopos pendentes.", Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                escoposList.clear()
+                containerPendentes.removeAllViews()
+
+                snapshots?.let {
+                    for (document in it) {
+                        val escopo = mapOf(
+                            "numeroEscopo" to (document.getLong("numeroEscopo")?.toString() ?: ""),
+                            "empresa" to document.getString("empresa").orEmpty(),
+                            "dataEstimativa" to document.getString("dataEstimativa").orEmpty(),
+                            "status" to document.getString("status").orEmpty(),
+                            "tipoServico" to document.getString("tipoServico").orEmpty(),
+                            "resumoEscopo" to document.getString("resumoEscopo").orEmpty(),
+                            "numeroPedidoCompra" to document.getString("numeroPedidoCompra").orEmpty(),
+                            "escopoId" to document.id,
+                            "pdfUrl" to document.getString("pdfUrl").orEmpty()
+                        )
+                        escoposList.add(escopo)
+                        adicionarTextoDinamico(escopo)
+                    }
                 }
             }
-            .addOnFailureListener {
-                Toast.makeText(this@EscoposPendentesActivity, "Erro ao carregar escopos pendentes.", Toast.LENGTH_SHORT).show()
-            }
     }
+
 
     private fun filtrarEscopos(query: String?) {
         val filtro = query?.toLowerCase()?.trim()
