@@ -52,6 +52,16 @@ class RegistroActivity : AppCompatActivity() {
     }
 
     private fun createUserAndSaveData(nome: String, cargo: String, email: String, password: String) {
+        val dominioPermitido = "amjsecurityfire.com.br"
+        val dominioEmail = email.substringAfterLast("@")
+
+        // Verificar se o domínio do email é permitido
+        if (dominioEmail != dominioPermitido) {
+            Toast.makeText(this, "O registro só é permitido para emails do domínio $dominioPermitido", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        // Se o domínio for válido, criar a conta no Firebase
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val userId = auth.currentUser?.uid

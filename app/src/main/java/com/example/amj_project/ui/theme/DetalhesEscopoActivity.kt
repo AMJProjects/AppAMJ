@@ -113,7 +113,6 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         }
     }
 
-
     // Função para verificar e solicitar permissões para acessar arquivos
     private fun checkAndRequestPermissions(): Boolean {
         val currentApiVersion = Build.VERSION.SDK_INT
@@ -173,60 +172,15 @@ class DetalhesEscopoActivity : AppCompatActivity() {
     // Função para lidar com o resultado do seletor de arquivos
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK && requestCode == PICK_PDF_REQUEST_CODE) {
-            data?.data?.let { uri ->
-                abrirPdf(uri.toString())
-            }
-        }
-    }
-
-    // Função para atualizar os detalhes do escopo quando a tela for retomada
-    override fun onResume() {
-        super.onResume()
-
-        // Atualiza os dados do escopo ao retornar para esta tela
-        val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
-        val escopoId = intent.getStringExtra("escopoId") ?: ""
-        val status = intent.getStringExtra("status") ?: "N/A" // Obtendo o status do escopo
-
-        if (escopoId.isNotEmpty()) {
-            // Definir a coleção com base no status do escopo
-            val colecaoEscopo = when (status) {
-                "Pendente" -> "escoposPendentes"
-                "Em Andamento" -> "escoposAndamento"
-                "Concluído" -> "escoposConcluidos"
-                else -> "escoposPendentes"
-            }
-
-            // Buscar os dados atualizados do Firestore com base na coleção correta
-            FirebaseFirestore.getInstance().collection(colecaoEscopo).document(escopoId)
-                .get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
-                        val numeroEscopo = document.get("numeroEscopo")?.toString() ?: "N/A"
-                        val empresa = document.getString("empresa") ?: "N/A"
-                        val dataEstimativa = document.getString("dataEstimativa") ?: "N/A"
-                        val tipoServico = document.getString("tipoServico") ?: "N/A"
-                        val status = document.getString("status") ?: "N/A"
-                        val resumoEscopo = document.getString("resumoEscopo") ?: "N/A"
-                        val numeroPedidoCompra = document.getString("numeroPedidoCompra") ?: "N/A"
-
-                        // Atualiza o texto da tela com os dados mais recentes
-                        textViewDetalhes.text = """
-                            Número: $numeroEscopo
-                            Empresa: $empresa
-                            Data Estimada: $dataEstimativa
-                            Tipo de Serviço: $tipoServico
-                            Status: $status
-                            Resumo: $resumoEscopo
-                            Número do Pedido de Compra: $numeroPedidoCompra
-                        """.trimIndent()
-                    }
+        if (requestCode == PICK_PDF_REQUEST_CODE && resultCode == RESULT_OK) {
+            val uri: Uri? = data?.data
+            if (uri != null) {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/pdf")
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_GRANT_READ_URI_PERMISSION
                 }
-                .addOnFailureListener { e ->
-                    Log.e("DetalhesEscopo", "Erro ao buscar os detalhes atualizados: ${e.message}")
-                    Toast.makeText(this, "Erro ao buscar os detalhes atualizados.", Toast.LENGTH_SHORT).show()
-                }
+                startActivity(intent)
+            }
         }
     }
 }
