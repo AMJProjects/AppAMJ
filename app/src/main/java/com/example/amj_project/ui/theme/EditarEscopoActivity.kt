@@ -131,6 +131,9 @@ class EditarEscopoActivity : AppCompatActivity() {
 
                             // Envia os dados atualizados para a DetalhesEscopoActivity
                             val resultIntent = Intent()
+                            resultIntent.putExtra("escopoId", escopoId)
+                            resultIntent.putExtra("numeroEscopo", intent.getStringExtra("numeroEscopo")) // Manter o número do escopo
+                            resultIntent.putExtra("status", intent.getStringExtra("status")) // Preservar o status original
                             resultIntent.putExtra("empresa", empresaEditText.text.toString())
                             resultIntent.putExtra("dataEstimativa", dataEstimativaEditText.text.toString())
                             resultIntent.putExtra("resumoEscopo", resumoEditText.text.toString())
@@ -138,7 +141,6 @@ class EditarEscopoActivity : AppCompatActivity() {
                             resultIntent.putExtra("numeroPedidoCompra", numeroPedidoCompraEditText.text.toString())
 
                             setResult(RESULT_OK, resultIntent)
-
                             finish() // Volta para a tela anterior (DetalhesEscopoActivity)
                         }
                         .addOnFailureListener { e ->

@@ -185,7 +185,6 @@ class DetalhesEscopoActivity : AppCompatActivity() {
 
         // Atualizando os dados após editar
         if (requestCode == 100 && resultCode == RESULT_OK) {
-            // Carregar os dados atualizados diretamente do intent
             val escopoId = data?.getStringExtra("escopoId") ?: ""
             val numeroEscopo = data?.getStringExtra("numeroEscopo") ?: "N/A"
             val empresa = data?.getStringExtra("empresa") ?: "N/A"
@@ -194,19 +193,17 @@ class DetalhesEscopoActivity : AppCompatActivity() {
             val status = data?.getStringExtra("status") ?: "N/A"
             val resumoEscopo = data?.getStringExtra("resumoEscopo") ?: "N/A"
             val numeroPedidoCompra = data?.getStringExtra("numeroPedidoCompra") ?: "N/A"
-            val pdfUrl = data?.getStringExtra("pdfUrl") ?: ""
 
-            // Atualizar o TextView com os dados atualizados
             val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
             textViewDetalhes.text = """
-                Número: $numeroEscopo
-                Empresa: $empresa
-                Data Estimada: $dataEstimativa
-                Tipo de Serviço: $tipoServico
-                Status: $status
-                Resumo: $resumoEscopo
-                Número do Pedido de Compra: $numeroPedidoCompra
-            """.trimIndent()
+            Número: $numeroEscopo
+            Empresa: $empresa
+            Data Estimada: $dataEstimativa
+            Tipo de Serviço: $tipoServico
+            Status: $status
+            Resumo: $resumoEscopo
+            Número do Pedido de Compra: $numeroPedidoCompra
+        """.trimIndent()
         }
     }
 }
