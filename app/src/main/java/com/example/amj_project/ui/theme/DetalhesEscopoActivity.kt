@@ -31,14 +31,14 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         val editBtn: ImageButton = findViewById(R.id.editBtn)
         val pdfDownloadButton: Button = findViewById(R.id.btnDownloadPdf)
 
-        val escopoId = intent.getStringExtra("escopoId") ?: ""
-        val numeroEscopo = intent.getStringExtra("numeroEscopo") ?: "N/A"
-        val empresa = intent.getStringExtra("empresa") ?: "N/A"
-        val dataEstimativa = intent.getStringExtra("dataEstimativa") ?: "N/A"
-        val tipoServico = intent.getStringExtra("tipoServico") ?: "N/A"
-        val status = intent.getStringExtra("status") ?: "N/A"
-        val resumoEscopo = intent.getStringExtra("resumoEscopo") ?: "N/A"
-        val numeroPedidoCompra = intent.getStringExtra("numeroPedidoCompra") ?: "N/A"
+        var escopoId = intent.getStringExtra("escopoId") ?: ""
+        var numeroEscopo = intent.getStringExtra("numeroEscopo") ?: "N/A"
+        var empresa = intent.getStringExtra("empresa") ?: "N/A"
+        var dataEstimativa = intent.getStringExtra("dataEstimativa") ?: "N/A"
+        var tipoServico = intent.getStringExtra("tipoServico") ?: "N/A"
+        var status = intent.getStringExtra("status") ?: "N/A"
+        var resumoEscopo = intent.getStringExtra("resumoEscopo") ?: "N/A"
+        var numeroPedidoCompra = intent.getStringExtra("numeroPedidoCompra") ?: "N/A"
         val pdfUrl = intent.getStringExtra("pdfUrl") ?: ""
 
         textViewDetalhes.text = """
@@ -65,7 +65,7 @@ class DetalhesEscopoActivity : AppCompatActivity() {
                 putExtra("numeroPedidoCompra", numeroPedidoCompra)
                 putExtra("pdfUrl", pdfUrl)
             }
-            startActivity(intent)
+            startActivityForResult(intent, 100) // Código de requisição 100
         }
 
         // Botão para abrir PDF
@@ -181,6 +181,32 @@ class DetalhesEscopoActivity : AppCompatActivity() {
                 }
                 startActivity(intent)
             }
+        }
+
+        // Atualizando os dados após editar
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            // Carregar os dados atualizados diretamente do intent
+            val escopoId = data?.getStringExtra("escopoId") ?: ""
+            val numeroEscopo = data?.getStringExtra("numeroEscopo") ?: "N/A"
+            val empresa = data?.getStringExtra("empresa") ?: "N/A"
+            val dataEstimativa = data?.getStringExtra("dataEstimativa") ?: "N/A"
+            val tipoServico = data?.getStringExtra("tipoServico") ?: "N/A"
+            val status = data?.getStringExtra("status") ?: "N/A"
+            val resumoEscopo = data?.getStringExtra("resumoEscopo") ?: "N/A"
+            val numeroPedidoCompra = data?.getStringExtra("numeroPedidoCompra") ?: "N/A"
+            val pdfUrl = data?.getStringExtra("pdfUrl") ?: ""
+
+            // Atualizar o TextView com os dados atualizados
+            val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
+            textViewDetalhes.text = """
+                Número: $numeroEscopo
+                Empresa: $empresa
+                Data Estimada: $dataEstimativa
+                Tipo de Serviço: $tipoServico
+                Status: $status
+                Resumo: $resumoEscopo
+                Número do Pedido de Compra: $numeroPedidoCompra
+            """.trimIndent()
         }
     }
 }

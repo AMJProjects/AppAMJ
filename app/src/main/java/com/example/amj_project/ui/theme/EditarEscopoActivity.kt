@@ -1,5 +1,6 @@
 package com.example.amj_project.ui.theme
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
@@ -109,7 +110,6 @@ class EditarEscopoActivity : AppCompatActivity() {
         carregarDadosDoFirestore()
 
         salvarButton.setOnClickListener {
-            // Captura os dados atualizados do formulário
             val dadosAtualizados = hashMapOf(
                 "empresa" to empresaEditText.text.toString(),
                 "dataEstimativa" to dataEstimativaEditText.text.toString(),
@@ -118,19 +118,28 @@ class EditarEscopoActivity : AppCompatActivity() {
                 "numeroPedidoCompra" to numeroPedidoCompraEditText.text.toString()
             )
 
-            // Atualiza o documento em escoposPendentes
             db.collection("escoposPendentes").document(escopoId)
                 .set(dadosAtualizados, SetOptions.merge())
                 .addOnSuccessListener {
                     Log.d("EditarEscopo", "Escopo em Pendentes atualizado com sucesso: $dadosAtualizados")
 
-                    // Após atualizar pendentes, atualizar em escoposConcluidos
                     db.collection("escoposConcluidos").document(escopoId)
                         .set(dadosAtualizados, SetOptions.merge())
                         .addOnSuccessListener {
                             Log.d("EditarEscopo", "Escopo em Concluídos atualizado com sucesso: $dadosAtualizados")
                             Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                            finish() // Voltar para a tela anterior
+
+                            // Envia os dados atualizados para a DetalhesEscopoActivity
+                            val resultIntent = Intent()
+                            resultIntent.putExtra("empresa", empresaEditText.text.toString())
+                            resultIntent.putExtra("dataEstimativa", dataEstimativaEditText.text.toString())
+                            resultIntent.putExtra("resumoEscopo", resumoEditText.text.toString())
+                            resultIntent.putExtra("tipoServico", tipoServicoSpinner.selectedItem.toString())
+                            resultIntent.putExtra("numeroPedidoCompra", numeroPedidoCompraEditText.text.toString())
+
+                            setResult(RESULT_OK, resultIntent)
+
+                            finish() // Volta para a tela anterior (DetalhesEscopoActivity)
                         }
                         .addOnFailureListener { e ->
                             Log.e("EditarEscopo", "Erro ao atualizar escopo em Concluídos", e)
@@ -142,6 +151,7 @@ class EditarEscopoActivity : AppCompatActivity() {
                     Toast.makeText(this, "Erro ao atualizar escopo em Pendentes: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         }
+
 
         cancelarButton.setOnClickListener {
             finish() // Volta à tela anterior (DetalhesEscopoActivity)
