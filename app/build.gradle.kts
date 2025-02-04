@@ -2,15 +2,15 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.gms.google-services")  // Já está correto aqui
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.amj_project"
+    namespace = "com.amjsecurityfire.amjsecurityfire"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.amj_project"
+        applicationId = "com.amjsecurityfire.amjsecurityfire"
         minSdk = 23
         targetSdk = 34
         versionCode = 1
