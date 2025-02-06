@@ -43,6 +43,7 @@ class MenuPrincipalActivity : AppCompatActivity() {
             val intent = Intent(this, PerfilActivity::class.java)
             startActivity(intent)
         }
+
         escopoExcluidoButton.setOnClickListener {
             val intent = Intent(this, EscoposExcluidosActivity::class.java)
             startActivity(intent)
