@@ -1,4 +1,4 @@
-package com.example.`amjsecurityfire'`.ui.theme
+package com.amjsecurityfire.amjsecurityfire.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
