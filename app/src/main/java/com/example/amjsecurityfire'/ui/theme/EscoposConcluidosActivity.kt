@@ -199,19 +199,53 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             setOnClickListener {
                 val escopoId = escopo["escopoId"] ?: return@setOnClickListener
 
-                // Confirmação antes de excluir
+                // Caixa de diálogo para obter o motivo da exclusão
+                val input = EditText(this@EscoposConcluidosActivity).apply {
+                    hint = "Digite o motivo da exclusão"
+                    setPadding(20, 0, 0, 25)
+                }
+
                 AlertDialog.Builder(this@EscoposConcluidosActivity)
                     .setTitle("Excluir Escopo")
                     .setMessage("Tem certeza de que deseja excluir este escopo permanentemente?")
+                    .setView(input)
                     .setPositiveButton("Sim") { _, _ ->
-                        // Excluir o escopo do Firestore
-                        db.collection("escoposConcluidos").document(escopoId).delete()
-                            .addOnSuccessListener {
-                                Toast.makeText(this@EscoposConcluidosActivity, "Escopo excluído com sucesso!", Toast.LENGTH_SHORT).show()
-                                carregarEscoposConcluidos() // Recarrega a lista após exclusão
+                        val motivo = input.text.toString().trim()
+
+                        if (motivo.isEmpty()) {
+                            Toast.makeText(this@EscoposConcluidosActivity, "Por favor, informe o motivo da exclusão.", Toast.LENGTH_SHORT).show()
+                            return@setPositiveButton
+                        }
+
+                        // Busca os dados atuais do escopo para salvar na coleção de excluídos
+                        db.collection("escoposConcluidos").document(escopoId).get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    val escopoData = document.data?.toMutableMap() ?: return@addOnSuccessListener
+                                    escopoData["motivoExclusao"] = motivo
+                                    escopoData["dataExclusao"] = System.currentTimeMillis()
+
+                                    // Salvar na coleção de escopos excluídos
+                                    db.collection("escoposExcluidos").document(escopoId)
+                                        .set(escopoData)
+                                        .addOnSuccessListener {
+                                            // Após salvar, exclui o documento da coleção atual
+                                            db.collection("escoposConcluidos").document(escopoId).delete()
+                                                .addOnSuccessListener {
+                                                    Toast.makeText(this@EscoposConcluidosActivity, "Escopo excluído com sucesso!", Toast.LENGTH_SHORT).show()
+                                                    carregarEscoposConcluidos()
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    Toast.makeText(this@EscoposConcluidosActivity, "Erro ao excluir escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                }
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Toast.makeText(this@EscoposConcluidosActivity, "Erro ao salvar escopo excluído: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                }
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(this@EscoposConcluidosActivity, "Erro ao excluir escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this@EscoposConcluidosActivity, "Erro ao buscar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
                     }
                     .setNegativeButton("Não", null)
