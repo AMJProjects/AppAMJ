@@ -24,7 +24,8 @@ import java.util.*
 import android.widget.EditText
 import java.util.Locale
 
-class AdicionarEscopoActivity : AppCompatActivity() {
+class
+AdicionarEscopoActivity : AppCompatActivity() {
 
     private lateinit var db: FirebaseFirestore
     private lateinit var progressBarContainer: FrameLayout
