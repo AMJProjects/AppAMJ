@@ -1,14 +1,17 @@
 
 package com.amjsecurityfire.amjsecurityfire.ui.theme
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.amjsecurityfire.amjsecurityfire.R
+import com.example.amjsecurityfire.ui.theme.EscoposExcluidosActivity
 
 class MenuPrincipalActivity : AppCompatActivity() {
+    @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.menu_principal)
@@ -17,6 +20,7 @@ class MenuPrincipalActivity : AppCompatActivity() {
         val escoposPendentesButton = findViewById<Button>(R.id.btn_pendente)
         val adicionarEscopoButton = findViewById<Button>(R.id.btn_add_escopo)
         val escoposConcluidosButton = findViewById<Button>(R.id.btn_concluido)
+        val escopoExcluidoButton = findViewById<Button>(R.id.btn_lixo)
         val perfilButton = findViewById<ImageButton>(R.id.perfil)
 
         // Navegação para as atividades correspondentes
@@ -37,6 +41,10 @@ class MenuPrincipalActivity : AppCompatActivity() {
 
         perfilButton.setOnClickListener {
             val intent = Intent(this, PerfilActivity::class.java)
+            startActivity(intent)
+        }
+        escopoExcluidoButton.setOnClickListener {
+            val intent = Intent(this, EscoposExcluidosActivity::class.java)
             startActivity(intent)
         }
     }
