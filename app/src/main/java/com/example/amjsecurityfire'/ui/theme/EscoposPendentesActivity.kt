@@ -35,11 +35,13 @@ class EscoposPendentesActivity : AppCompatActivity() {
         // Configuração do SearchView
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
+                // A pesquisa é feita aqui, quando o usuário pressionar "Enter"
                 filtrarEscopos(query)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                // Não faz nada enquanto o texto estiver mudando
                 return false
             }
         })
@@ -50,7 +52,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
             .orderBy("numeroEscopo", Query.Direction.ASCENDING)
             .addSnapshotListener { snapshots, error ->
                 if (error != null) {
-                    Toast.makeText(this@EscoposPendentesActivity, "Erro ao carregar escopos pendentes.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@EscoposPendentesActivity, "Erro ao carregar escopos.", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
@@ -60,7 +62,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
                 snapshots?.let {
                     for (document in it) {
                         val escopo = mapOf(
-                            "numeroEscopo" to (document.getLong("numeroEscopo")?.toString() ?: ""),
+                            "numeroEscopo" to (document.getLong("numeroEscopo")?.toString() ?: ""), // Conversão segura
                             "empresa" to document.getString("empresa").orEmpty(),
                             "dataEstimativa" to document.getString("dataEstimativa").orEmpty(),
                             "status" to document.getString("status").orEmpty(),
@@ -76,7 +78,6 @@ class EscoposPendentesActivity : AppCompatActivity() {
                 }
             }
     }
-
 
     private fun filtrarEscopos(query: String?) {
         val filtro = query?.toLowerCase()?.trim()
@@ -109,6 +110,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
         Empresa: ${escopo["empresa"]}
         Data Estimada: ${escopo["dataEstimativa"]}
         Status: ${escopo["status"]}
+        Criado por: ${escopo["criador"] ?: "Desconhecido"}
     """.trimIndent()
 
         val textView = TextView(this).apply {
@@ -116,137 +118,118 @@ class EscoposPendentesActivity : AppCompatActivity() {
             textSize = 16f
         }
 
-        val buttonVisualizar = Button(this).apply {
-            text = "Visualizar"
-            setOnClickListener {
-                val intent = Intent(this@EscoposPendentesActivity, DetalhesEscopoActivity::class.java)
-
-                // Passa os dados do escopo para a próxima activity
-                intent.putExtra("numeroEscopo", escopo["numeroEscopo"])
-                intent.putExtra("empresa", escopo["empresa"])
-                intent.putExtra("dataEstimativa", escopo["dataEstimativa"])
-                intent.putExtra("status", escopo["status"])
-                intent.putExtra("tipoServico", escopo["tipoServico"])
-                intent.putExtra("resumoEscopo", escopo["resumoEscopo"])
-                intent.putExtra("numeroPedidoCompra", escopo["numeroPedidoCompra"])
-                intent.putExtra("escopoId", escopo["escopoId"])
-                intent.putExtra("pdfUrl", escopo["pdfUrl"]) // Passa o pdfUrl para a DetalhesEscopoActivity
-
-                startActivity(intent)
-            }
+        val buttonVisualizar = criarBotao("Visualizar") {
+            navegarParaDetalhesEscopo(escopo)
         }
 
-        val buttonAlterarStatus = Button(this).apply {
-            text = "Marcar como Concluído"
-            setOnClickListener {
-                val escopoId = escopo["escopoId"] ?: return@setOnClickListener
-
-                // Exibe o AlertDialog para confirmação
-                val alertDialog = AlertDialog.Builder(this@EscoposPendentesActivity)
-                    .setTitle("Confirmar Alteração de Status")
-                    .setMessage("Você tem certeza de que deseja marcar este escopo como Concluído?")
-                    .setPositiveButton("Sim") { dialog, _ ->
-                        // Atualizar o status para "Concluído"
-                        db.collection("escoposPendentes").document(escopoId).get()
-                            .addOnSuccessListener { document ->
-                                if (document.exists()) {
-                                    val dadosAtualizados = document.data?.toMutableMap() ?: return@addOnSuccessListener
-
-                                    dadosAtualizados["status"] = "Concluído"  // Mudando o status
-                                    db.collection("escoposConcluidos").document(escopoId)
-                                        .set(dadosAtualizados)
-                                        .addOnSuccessListener {
-                                            // Após mover para 'escoposConcluidos', exclui da coleção de pendentes
-                                            db.collection("escoposPendentes").document(escopoId).delete()
-                                                .addOnSuccessListener {
-                                                    Toast.makeText(this@EscoposPendentesActivity, "Escopo movido para Concluído!", Toast.LENGTH_SHORT).show()
-
-                                                    // Atualiza a lista de escopos pendentes sem redirecionar
-                                                    carregarEscoposPendentes() // Recarrega os escopos pendentes
-                                                }
-                                                .addOnFailureListener { e ->
-                                                    Toast.makeText(this@EscoposPendentesActivity, "Erro ao remover escopo da coleção pendente: ${e.message}", Toast.LENGTH_SHORT).show()
-                                                }
-                                        }
-                                        .addOnFailureListener { e ->
-                                            Toast.makeText(this@EscoposPendentesActivity, "Erro ao mover escopo para Concluído: ${e.message}", Toast.LENGTH_SHORT).show()
-                                        }
-                                }
-                            }
-                        dialog.dismiss() // Fecha o diálogo após a ação
-                    }
-                    .setNegativeButton("Cancelar") { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .create()
-
-                alertDialog.show()
-            }
+        val buttonAlterarStatus = criarBotao("Marcar como Pendente") {
+            alterarStatusEscopo(escopo, "escoposPendentes", "escoposPendentes", "Pendente")
         }
 
-        val buttonExcluir = Button(this).apply {
-            text = "Excluir"
-            setOnClickListener {
-                val escopoId = escopo["escopoId"] ?: return@setOnClickListener
-
-                // Caixa de diálogo para obter o motivo da exclusão
-                val input = EditText(this@EscoposPendentesActivity).apply {
-                    hint = "Digite o motivo da exclusão"
-                    setPadding(20, 0, 0, 25)
-                }
-
-                AlertDialog.Builder(this@EscoposPendentesActivity)
-                    .setTitle("Excluir Escopo")
-                    .setMessage("Tem certeza de que deseja excluir este escopo permanentemente?")
-                    .setView(input)
-                    .setPositiveButton("Sim") { _, _ ->
-                        val motivo = input.text.toString().trim()
-
-                        if (motivo.isEmpty()) {
-                            Toast.makeText(this@EscoposPendentesActivity, "Por favor, informe o motivo da exclusão.", Toast.LENGTH_SHORT).show()
-                            return@setPositiveButton
-                        }
-
-                        // Busca os dados atuais do escopo para salvar na coleção de excluídos
-                        db.collection("escoposPendentes").document(escopoId).get()
-                            .addOnSuccessListener { document ->
-                                if (document.exists()) {
-                                    val escopoData = document.data?.toMutableMap() ?: return@addOnSuccessListener
-                                    escopoData["motivoExclusao"] = motivo
-                                    escopoData["dataExclusao"] = System.currentTimeMillis()
-
-                                    // Salvar na coleção de escopos excluídos
-                                    db.collection("escoposExcluidos").document(escopoId)
-                                        .set(escopoData)
-                                        .addOnSuccessListener {
-                                            // Após salvar, exclui o documento da coleção atual
-                                            db.collection("escoposPendentes").document(escopoId).delete()
-                                                .addOnSuccessListener {
-                                                    Toast.makeText(this@EscoposPendentesActivity, "Escopo excluído com sucesso!", Toast.LENGTH_SHORT).show()
-                                                    carregarEscoposPendentes()
-                                                }
-                                                .addOnFailureListener { e ->
-                                                    Toast.makeText(this@EscoposPendentesActivity, "Erro ao excluir escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-                                                }
-                                        }
-                                        .addOnFailureListener { e ->
-                                            Toast.makeText(this@EscoposPendentesActivity, "Erro ao salvar escopo excluído: ${e.message}", Toast.LENGTH_SHORT).show()
-                                        }
-                                }
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(this@EscoposPendentesActivity, "Erro ao buscar escopo: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                    .setNegativeButton("Não", null)
-                    .show()
-            }
+        val buttonExcluir = criarBotao("Excluir") {
+            excluirEscopo(escopo)
         }
 
-        layoutEscopo.addView(textView)
-        layoutEscopo.addView(buttonVisualizar)
-        layoutEscopo.addView(buttonAlterarStatus) // Adiciona o botão de alteração de status
-        layoutEscopo.addView(buttonExcluir) // Adiciona o botão de exclusão
+        layoutEscopo.apply {
+            addView(textView)
+            addView(buttonVisualizar)
+            addView(buttonAlterarStatus)
+            addView(buttonExcluir)
+        }
         containerPendentes.addView(layoutEscopo)
+    }
+
+    private fun criarBotao(texto: String, acao: () -> Unit): Button {
+        return Button(this).apply {
+            text = texto
+            setOnClickListener { acao() }
+        }
+    }
+
+    private fun navegarParaDetalhesEscopo(escopo: Map<String, String>) {
+        val intent = Intent(this, DetalhesEscopoActivity::class.java).apply {
+            escopo.forEach { putExtra(it.key, it.value) }
+            putExtra("colecaoOrigem", "escoposPendentes")
+        }
+        startActivity(intent)
+    }
+
+    private fun alterarStatusEscopo(
+        escopo: Map<String, String>,
+        colecaoAtual: String,
+        novaColecao: String,
+        novoStatus: String
+    ) {
+        val escopoId = escopo["escopoId"] ?: return
+        val alertDialog = AlertDialog.Builder(this)
+            .setTitle("Confirmar Alteração de Status")
+            .setMessage("Você tem certeza de que deseja marcar este escopo como $novoStatus?")
+            .setPositiveButton("Sim") { dialog, _ ->
+                db.collection(colecaoAtual).document(escopoId).get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            val dadosAtualizados = document.data?.toMutableMap() ?: return@addOnSuccessListener
+                            dadosAtualizados["status"] = novoStatus
+                            moverDocumentoParaColecao(dadosAtualizados, escopoId, novaColecao, colecaoAtual)
+                        }
+                    }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar") { dialog, _ -> dialog.dismiss() }
+            .create()
+        alertDialog.show()
+    }
+
+    private fun excluirEscopo(escopo: Map<String, String>) {
+        val escopoId = escopo["escopoId"] ?: return
+        val input = EditText(this).apply {
+            hint = "Digite o motivo da exclusão"
+            setPadding(20, 0, 0, 25)
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Excluir Escopo")
+            .setMessage("Tem certeza de que deseja excluir este escopo permanentemente?")
+            .setView(input)
+            .setPositiveButton("Sim") { _, _ ->
+                val motivo = input.text.toString().trim()
+                if (motivo.isEmpty()) {
+                    Toast.makeText(this, "Por favor, informe o motivo da exclusão.", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                db.collection("escoposPendentes").document(escopoId).get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            val escopoData = document.data?.toMutableMap() ?: return@addOnSuccessListener
+                            escopoData["motivoExclusao"] = motivo
+                            escopoData["dataExclusao"] = System.currentTimeMillis()
+                            moverDocumentoParaColecao(escopoData, escopoId, "escoposExcluidos", "escoposPendentes")
+                        }
+                    }
+            }
+            .setNegativeButton("Não", null)
+            .show()
+    }
+
+    private fun moverDocumentoParaColecao(
+        dadosAtualizados: MutableMap<String, Any>,
+        escopoId: String,
+        novaColecao: String,
+        colecaoAtual: String
+    ) {
+        db.collection(novaColecao).document(escopoId)
+            .set(dadosAtualizados)
+            .addOnSuccessListener {
+                db.collection(colecaoAtual).document(escopoId).delete()
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Operação concluída com sucesso!", Toast.LENGTH_SHORT).show()
+                        carregarEscoposPendentes()
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "Erro ao remover escopo da coleção atual: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Erro ao mover escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 }

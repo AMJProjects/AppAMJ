@@ -8,7 +8,6 @@ import android.widget.Button
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.amjsecurityfire.amjsecurityfire.R
-import com.example.amjsecurityfire.ui.theme.EscoposExcluidosActivity
 
 class MenuPrincipalActivity : AppCompatActivity() {
     @SuppressLint("WrongViewCast")
@@ -20,7 +19,7 @@ class MenuPrincipalActivity : AppCompatActivity() {
         val escoposPendentesButton = findViewById<Button>(R.id.btn_pendente)
         val adicionarEscopoButton = findViewById<Button>(R.id.btn_add_escopo)
         val escoposConcluidosButton = findViewById<Button>(R.id.btn_concluido)
-        val escopoExcluidoButton = findViewById<Button>(R.id.btn_lixo)
+        val escopoExcluidoButton = findViewById<ImageButton>(R.id.btn_lixo)
         val perfilButton = findViewById<ImageButton>(R.id.perfil)
 
         // Navegação para as atividades correspondentes
