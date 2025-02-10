@@ -1,6 +1,8 @@
 package com.amjsecurityfire.amjsecurityfire.ui.theme
 
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -8,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.amjsecurityfire.amjsecurityfire.R
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import java.text.SimpleDateFormat
+import java.util.*
 
 class EscoposConcluidosActivity : AppCompatActivity() {
 
@@ -35,13 +39,11 @@ class EscoposConcluidosActivity : AppCompatActivity() {
         // Configuração do SearchView
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                // A pesquisa é feita aqui, quando o usuário pressionar "Enter"
                 filtrarEscopos(query)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                // Não faz nada enquanto o texto estiver mudando
                 return false
             }
         })
@@ -62,7 +64,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                 snapshots?.let {
                     for (document in it) {
                         val escopo = mapOf(
-                            "numeroEscopo" to (document.getLong("numeroEscopo")?.toString() ?: ""), // Conversão segura
+                            "numeroEscopo" to (document.getLong("numeroEscopo")?.toString() ?: ""),
                             "empresa" to document.getString("empresa").orEmpty(),
                             "dataEstimativa" to document.getString("dataEstimativa").orEmpty(),
                             "status" to document.getString("status").orEmpty(),
@@ -80,23 +82,24 @@ class EscoposConcluidosActivity : AppCompatActivity() {
     }
 
     private fun filtrarEscopos(query: String?) {
-        val filtro = query?.toLowerCase()?.trim()
+        val filtro = query?.toLowerCase(Locale.getDefault())?.trim()
         containerConcluidos.removeAllViews() // Remove todas as views do layout
 
         // Filtra os escopos de acordo com o texto digitado
         for (escopo in escoposList) {
-            if (escopo["numeroEscopo"]?.toLowerCase()?.contains(filtro ?: "") == true ||
-                escopo["empresa"]?.toLowerCase()?.contains(filtro ?: "") == true) {
-                adicionarTextoDinamico(escopo) // Adiciona o escopo filtrado no layout
+            if (escopo["numeroEscopo"]?.toLowerCase(Locale.getDefault())?.contains(filtro ?: "") == true ||
+                escopo["empresa"]?.toLowerCase(Locale.getDefault())?.contains(filtro ?: "") == true
+            ) {
+                adicionarTextoDinamico(escopo)
             }
         }
     }
 
     private fun adicionarTextoDinamico(escopo: Map<String, String>) {
+        // Cria o layout para o escopo
         val layoutEscopo = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(16, 16, 16, 16)
-            setBackgroundResource(R.drawable.botaoredondo)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -105,27 +108,58 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             }
         }
 
+        // Calcula a cor da borda com base na data estimada (formato "dd/MM/yy")
+        val dataEstimativaStr = escopo["dataEstimativa"].orEmpty()
+        var borderColor = Color.GRAY  // Cor padrão se não houver data ou ocorrer erro
+        if (dataEstimativaStr.isNotEmpty()) {
+            try {
+                val sdf = SimpleDateFormat("dd/MM/yy", Locale.getDefault())
+                val dataEstimativa = sdf.parse(dataEstimativaStr)
+                val diffMillis = dataEstimativa.time - Date().time
+                val diffDays = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
+
+                borderColor = when {
+                    diffDays < 0 -> Color.parseColor("#FF0000")    // Vencido: vermelho
+                    diffDays <= 3 -> Color.parseColor("#FFA500")   // Até 3 dias: laranja
+                    diffDays <= 7 -> Color.parseColor("#FFFF00")   // Até 7 dias: amarelo
+                    else -> Color.parseColor("#00FF00")            // Mais de 7 dias: verde
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                borderColor = Color.GRAY
+            }
+        }
+
+        // Cria um drawable para definir apenas a borda colorida
+        val drawable = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            setColor(Color.WHITE)       // Cor de fundo (pode ser alterada para transparente se preferir)
+            cornerRadius = 28f          // Arredondamento dos cantos
+            setStroke(6, borderColor)   // Largura da borda e cor definida dinamicamente
+        }
+        layoutEscopo.background = drawable
+
+        // Monta o texto com os detalhes do escopo
         val textoEscopo = """
-        Número: ${escopo["numeroEscopo"]}
-        Empresa: ${escopo["empresa"]}
-        Data Estimada: ${escopo["dataEstimativa"]}
-        Status: ${escopo["status"]}
-        Criado por: ${escopo["criador"] ?: "Desconhecido"}
-    """.trimIndent()
+            Número: ${escopo["numeroEscopo"]}
+            Empresa: ${escopo["empresa"]}
+            Data Estimada: ${escopo["dataEstimativa"]}
+            Status: ${escopo["status"]}
+            Criado por: ${escopo["criador"] ?: "Desconhecido"}
+        """.trimIndent()
 
         val textView = TextView(this).apply {
             text = textoEscopo
             textSize = 16f
         }
 
+        // Cria os botões para as ações
         val buttonVisualizar = criarBotao("Visualizar") {
             navegarParaDetalhesEscopo(escopo)
         }
-
         val buttonAlterarStatus = criarBotao("Marcar como Pendente") {
             alterarStatusEscopo(escopo, "escoposConcluidos", "escoposPendentes", "Pendente")
         }
-
         val buttonExcluir = criarBotao("Excluir") {
             excluirEscopo(escopo)
         }
@@ -141,7 +175,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
 
     private fun criarBotao(texto: String, acao: () -> Unit): Button {
         return Button(this).apply {
-            text = texto
+            this.text = texto
             setOnClickListener { acao() }
         }
     }
