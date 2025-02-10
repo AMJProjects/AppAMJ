@@ -21,6 +21,7 @@ class MenuPrincipalActivity : AppCompatActivity() {
         val escoposConcluidosButton = findViewById<Button>(R.id.btn_concluido)
         val escopoExcluidoButton = findViewById<ImageButton>(R.id.btn_lixo)
         val perfilButton = findViewById<ImageButton>(R.id.perfil)
+        val historicoEscopoButton = findViewById<ImageButton>(R.id.btn_historico)
 
         // Navegação para as atividades correspondentes
         escoposPendentesButton.setOnClickListener {
@@ -45,6 +46,11 @@ class MenuPrincipalActivity : AppCompatActivity() {
 
         escopoExcluidoButton.setOnClickListener {
             val intent = Intent(this, EscoposExcluidosActivity::class.java)
+            startActivity(intent)
+        }
+
+        historicoEscopoButton.setOnClickListener {
+            val intent = Intent(this, HistoricosEscoposActivity::class.java)
             startActivity(intent)
         }
     }

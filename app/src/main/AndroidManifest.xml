@@ -55,6 +55,8 @@
         <activity android:name=".ui.theme.EditarPerfilActivity" />
         <activity android:name=".ui.theme.DetalhesEscopoActivity" />
         <activity android:name=".ui.theme.EditarEscopoActivity" />
+        <activity android:name=".ui.theme.HistoricosEscoposActivity" />
+
 
         <!-- Nova Tela de Escopos Excluídos -->
         <activity android:name=".ui.theme.EscoposExcluidosActivity" />

@@ -277,21 +277,30 @@ AdicionarEscopoActivity : AppCompatActivity() {
             db.collection("escoposPendentes")
         }
 
+        // Adicionar data, horário e nome do usuário
+        val dataCriacao = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+        val usuarioNome = "Usuário Exemplo" // Substitua pelo nome do usuário obtido de uma autenticação
+
+        val escopoComMetadados = novoEscopo + mapOf(
+            "dataCriacao" to dataCriacao,
+            "usuarioNome" to usuarioNome
+        )
+
         if (editMode && escopoId != null) {
             escoposCollection.document(escopoId)
-                .set(novoEscopo)
+                .set(escopoComMetadados)
                 .addOnSuccessListener {
                     Toast.makeText(this, "Escopo editado com sucesso.", Toast.LENGTH_SHORT).show()
-                    voltarParaLista(status) // Redirecionar para a página correta
+                    voltarParaLista(status)
                 }
                 .addOnFailureListener { e ->
                     Toast.makeText(this, "Erro ao editar o escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         } else {
-            escoposCollection.add(novoEscopo)
+            escoposCollection.add(escopoComMetadados)
                 .addOnSuccessListener {
                     Toast.makeText(this, "Escopo salvo com sucesso.", Toast.LENGTH_SHORT).show()
-                    voltarParaLista(status) // Redirecionar para a página correta
+                    voltarParaLista(status)
                 }
                 .addOnFailureListener { e ->
                     Toast.makeText(this, "Erro ao salvar o escopo: ${e.message}", Toast.LENGTH_SHORT).show()
