@@ -96,7 +96,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
     }
 
     private fun adicionarTextoDinamico(escopo: Map<String, String>) {
-        // Cria o layout para o item (escopo)
+        // Cria o layout para o escopo
         val layoutEscopo = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(16, 16, 16, 16)
@@ -106,9 +106,12 @@ class EscoposPendentesActivity : AppCompatActivity() {
             ).apply {
                 setMargins(0, 16, 0, 16)
             }
+
+            // Define a borda do layout (contorno) usando o arquivo 'botaoredondo'
+            background = resources.getDrawable(R.drawable.botaoredondo)  // Usando o arquivo 'botaoredondo.xml'
         }
 
-        // Calcula a cor da borda com base na data estimada (formato "dd/MM/yy")
+        // Calcula a cor do círculo com base na data estimada (formato "dd/MM/yy")
         val dataEstimativaStr = escopo["dataEstimativa"].orEmpty()
         var borderColor = Color.GRAY  // Cor padrão se não houver data ou ocorrer erro
         if (dataEstimativaStr.isNotEmpty()) {
@@ -130,46 +133,85 @@ class EscoposPendentesActivity : AppCompatActivity() {
             }
         }
 
-        // Cria um GradientDrawable para definir apenas a borda colorida
-        val drawable = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(Color.WHITE)       // Cor de fundo (pode ser alterada para transparente)
-            cornerRadius = 28f          // Arredondamento dos cantos (ajuste conforme necessário)
-            setStroke(6, borderColor)   // Largura da borda e cor dinâmica
+        // Adiciona o CircleView ao layout
+        val circleView = CircleView(this, borderColor).apply {
+            layoutParams = LinearLayout.LayoutParams(50, 50).apply {
+                setMargins(0, 0, 0, 8)  // Ajuste de margem superior se necessário
+            }
         }
-        layoutEscopo.background = drawable
+        layoutEscopo.addView(circleView)
 
         // Monta o texto com os detalhes do escopo
         val textoEscopo = """
-            Número: ${escopo["numeroEscopo"]}
-            Empresa: ${escopo["empresa"]}
-            Data Estimada: ${escopo["dataEstimativa"]}
-            Status: ${escopo["status"]}
-            Criado por: ${escopo["criador"] ?: "Desconhecido"}
-        """.trimIndent()
+        Número: ${escopo["numeroEscopo"]}
+        Empresa: ${escopo["empresa"]}
+        Data Estimada: ${escopo["dataEstimativa"]}
+        Status: ${escopo["status"]}
+        Criado por: ${escopo["criador"] ?: "Desconhecido"}
+    """.trimIndent()
 
         val textView = TextView(this).apply {
             text = textoEscopo
             textSize = 16f
         }
 
+        // Cria o layout para os botões "Visualizar" e "Excluir" (horizontal)
+        val buttonsLayoutHorizontal = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL // Alinha os botões horizontalmente
+            gravity = android.view.Gravity.CENTER_HORIZONTAL // Centraliza os botões
+            setPadding(0, 16, 0, 16)
+        }
+
+        // Cria o botão "Visualizar" e "Excluir"
         val buttonVisualizar = criarBotao("Visualizar") {
             navegarParaDetalhesEscopo(escopo)
-        }
-        val buttonAlterarStatus = criarBotao("Marcar como Pendente") {
-            // Neste exemplo, o status permanece pendente, mas você pode ajustar se necessário
-            alterarStatusEscopo(escopo, "escoposPendentes", "escoposPendentes", "Pendente")
         }
         val buttonExcluir = criarBotao("Excluir") {
             excluirEscopo(escopo)
         }
 
-        layoutEscopo.apply {
-            addView(textView)
+        // Definir o layout params com weight para ambos os botões ocuparem a largura disponível igualmente
+        val layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+            setMargins(8, 0, 8, 0) // Margens horizontais para os botões
+        }
+
+        // Atribui os layout params aos botões
+        buttonVisualizar.layoutParams = layoutParams
+        buttonExcluir.layoutParams = layoutParams
+
+        // Adiciona os botões ao layout horizontal
+        buttonsLayoutHorizontal.apply {
             addView(buttonVisualizar)
-            addView(buttonAlterarStatus)
             addView(buttonExcluir)
         }
+
+        // Cria o layout para o botão "Marcar como Pendente" (vertical)
+        val buttonAlterarStatusLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_HORIZONTAL
+        }
+
+        // Aumenta a largura do botão "Marcar como Pendente"
+        val layoutParamsAlterarStatus = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f).apply {
+            setMargins(8, 0, 8, 0) // Margens horizontais para o botão
+        }
+
+        val buttonAlterarStatus = criarBotao("Marcar como Concluído") {
+            alterarStatusEscopo(escopo, "escoposPendentes", "escoposConcluidos", "Concluído")
+        }
+
+        // Atribui o novo layout params ao botão "Marcar como Pendente"
+        buttonAlterarStatus.layoutParams = layoutParamsAlterarStatus
+
+        // Adiciona o botão "Marcar como Pendente"
+        buttonAlterarStatusLayout.addView(buttonAlterarStatus)
+
+        layoutEscopo.apply {
+            addView(textView)
+            addView(buttonsLayoutHorizontal)  // Adiciona os botões "Visualizar" e "Excluir"
+            addView(buttonAlterarStatusLayout) // Adiciona o botão "Marcar como Pendente"
+        }
+
         containerPendentes.addView(layoutEscopo)
     }
 

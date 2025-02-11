@@ -18,7 +18,7 @@ class HistoricosEscoposActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.historicos_escopos)
 
-        listView = findViewById(R.id.listViewEscopos)
+        listView = findViewById(R.id.listViewHistorico)
         db = FirebaseFirestore.getInstance()
 
         // Buscar escopos

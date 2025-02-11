@@ -11,8 +11,10 @@ import android.os.Environment
 import android.provider.Settings
 import android.text.InputType
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -64,14 +66,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Configuração do botão Entrar
+        // Configuração do botão Entrar
         entrarButton.setOnClickListener {
-            val email = emailEditText.text.toString().trim() // Remove espaços extras
-            val senha = senhaEditText.text.toString().trim() // Remove espaços extras
+            val email = emailEditText.text.toString().trim()
+            val senha = senhaEditText.text.toString().trim()
 
-            // Verifica se os campos não estão vazios
             if (email.isEmpty() || senha.isEmpty()) {
                 Toast.makeText(this, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT).show()
             } else {
+                mostrarProgressBar(true) // Mostrar a ProgressBar
                 signInWithEmailAndPassword(email, senha)
             }
         }
@@ -141,6 +144,23 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             Toast.makeText(context, "Erro ao iniciar o download: ${e.message}", Toast.LENGTH_LONG).show()
         }
+    }
+
+    private fun mostrarProgressBar(visivel: Boolean) {
+        val progressBarContainer = findViewById<FrameLayout>(R.id.progressBarContainer)
+        progressBarContainer.visibility = if (visivel) View.VISIBLE else View.GONE
+
+        // Desativa/Ativa todos os elementos enquanto a ProgressBar está visível
+        setEnableViews(!visivel)
+    }
+
+    private fun setEnableViews(enable: Boolean) {
+        findViewById<EditText>(R.id.emailEditText).isEnabled = enable
+        findViewById<EditText>(R.id.senhaEditText).isEnabled = enable
+        findViewById<ImageView>(R.id.eyeIcon).isEnabled = enable
+        findViewById<Button>(R.id.entrarButton).isEnabled = enable
+        findViewById<Button>(R.id.registerButton).isEnabled = enable
+        findViewById<TextView>(R.id.forgotPasswordTextView).isEnabled = enable
     }
 
     override fun onRequestPermissionsResult(

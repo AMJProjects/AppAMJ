@@ -1,5 +1,6 @@
 package com.amjsecurityfire.amjsecurityfire.ui.theme
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -106,9 +107,12 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             ).apply {
                 setMargins(0, 16, 0, 16)
             }
+
+            // Define a borda do layout (contorno) usando o arquivo 'botaoredondo'
+            background = resources.getDrawable(R.drawable.botaoredondo)  // Usando o arquivo 'botaoredondo.xml'
         }
 
-        // Calcula a cor da borda com base na data estimada (formato "dd/MM/yy")
+        // Calcula a cor do círculo com base na data estimada (formato "dd/MM/yy")
         val dataEstimativaStr = escopo["dataEstimativa"].orEmpty()
         var borderColor = Color.GRAY  // Cor padrão se não houver data ou ocorrer erro
         if (dataEstimativaStr.isNotEmpty()) {
@@ -130,52 +134,95 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             }
         }
 
-        // Cria um drawable para definir apenas a borda colorida
-        val drawable = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(Color.WHITE)       // Cor de fundo (pode ser alterada para transparente se preferir)
-            cornerRadius = 28f          // Arredondamento dos cantos
-            setStroke(6, borderColor)   // Largura da borda e cor definida dinamicamente
+        // Adiciona o CircleView ao layout
+        val circleView = CircleView(this, borderColor).apply {
+            layoutParams = LinearLayout.LayoutParams(50, 50).apply {
+                setMargins(0, 0, 0, 8)  // Ajuste de margem superior se necessário
+            }
         }
-        layoutEscopo.background = drawable
+        layoutEscopo.addView(circleView)
 
         // Monta o texto com os detalhes do escopo
         val textoEscopo = """
-            Número: ${escopo["numeroEscopo"]}
-            Empresa: ${escopo["empresa"]}
-            Data Estimada: ${escopo["dataEstimativa"]}
-            Status: ${escopo["status"]}
-            Criado por: ${escopo["criador"] ?: "Desconhecido"}
-        """.trimIndent()
+        Número: ${escopo["numeroEscopo"]}
+        Empresa: ${escopo["empresa"]}
+        Data Estimada: ${escopo["dataEstimativa"]}
+        Status: ${escopo["status"]}
+        Criado por: ${escopo["criador"] ?: "Desconhecido"}
+    """.trimIndent()
 
         val textView = TextView(this).apply {
             text = textoEscopo
             textSize = 16f
         }
 
-        // Cria os botões para as ações
+        // Cria o layout para os botões "Visualizar" e "Excluir" (horizontal)
+        val buttonsLayoutHorizontal = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL // Alinha os botões horizontalmente
+            gravity = android.view.Gravity.CENTER_HORIZONTAL // Centraliza os botões
+            setPadding(0, 16, 0, 16)
+        }
+
+        // Cria o botão "Visualizar" e "Excluir"
         val buttonVisualizar = criarBotao("Visualizar") {
             navegarParaDetalhesEscopo(escopo)
-        }
-        val buttonAlterarStatus = criarBotao("Marcar como Pendente") {
-            alterarStatusEscopo(escopo, "escoposConcluidos", "escoposPendentes", "Pendente")
         }
         val buttonExcluir = criarBotao("Excluir") {
             excluirEscopo(escopo)
         }
 
-        layoutEscopo.apply {
-            addView(textView)
+        // Definir o layout params com weight para ambos os botões ocuparem a largura disponível igualmente
+        val layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+            setMargins(8, 0, 8, 0) // Margens horizontais para os botões
+        }
+
+        // Atribui os layout params aos botões
+        buttonVisualizar.layoutParams = layoutParams
+        buttonExcluir.layoutParams = layoutParams
+
+        // Adiciona os botões ao layout horizontal
+        buttonsLayoutHorizontal.apply {
             addView(buttonVisualizar)
-            addView(buttonAlterarStatus)
             addView(buttonExcluir)
         }
+
+        // Cria o layout para o botão "Marcar como Pendente" (vertical)
+        val buttonAlterarStatusLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_HORIZONTAL
+        }
+
+        // Aumenta a largura do botão "Marcar como Pendente"
+        val layoutParamsAlterarStatus = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f).apply {
+            setMargins(8, 0, 8, 0) // Margens horizontais para o botão
+        }
+
+        val buttonAlterarStatus = criarBotao("Marcar como Pendente") {
+            alterarStatusEscopo(escopo, "escoposConcluidos", "escoposPendentes", "Pendente")
+        }
+
+        // Atribui o novo layout params ao botão "Marcar como Pendente"
+        buttonAlterarStatus.layoutParams = layoutParamsAlterarStatus
+
+        // Adiciona o botão "Marcar como Pendente"
+        buttonAlterarStatusLayout.addView(buttonAlterarStatus)
+
+        layoutEscopo.apply {
+            addView(textView)
+            addView(buttonsLayoutHorizontal)  // Adiciona os botões "Visualizar" e "Excluir"
+            addView(buttonAlterarStatusLayout) // Adiciona o botão "Marcar como Pendente"
+        }
+
         containerConcluidos.addView(layoutEscopo)
     }
 
     private fun criarBotao(texto: String, acao: () -> Unit): Button {
         return Button(this).apply {
             this.text = texto
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,  // Largura ajustada ao conteúdo
+                LinearLayout.LayoutParams.WRAP_CONTENT   // Altura ajustada ao conteúdo
+            )
             setOnClickListener { acao() }
         }
     }
@@ -266,4 +313,5 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                 Toast.makeText(this, "Erro ao mover escopo: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 }
