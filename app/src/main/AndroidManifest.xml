@@ -61,5 +61,7 @@
         <!-- Nova Tela de Escopos Excluídos -->
         <activity android:name=".ui.theme.EscoposExcluidosActivity" />
 
+        <activity android:name=".ui.theme.LogsEscoposActivity"/>
+
     </application>
 </manifest>

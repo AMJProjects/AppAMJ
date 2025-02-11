@@ -29,6 +29,7 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
         val editBtn: ImageButton = findViewById(R.id.editBtn)
         val pdfDownloadButton: Button = findViewById(R.id.btnDownloadPdf)
+        val buttonVerLogs: ImageButton = findViewById(R.id.buttonVerLogs) // Novo botão
 
         var escopoId = intent.getStringExtra("escopoId") ?: ""
         var numeroEscopo = intent.getStringExtra("numeroEscopo") ?: "N/A"
@@ -76,6 +77,14 @@ class DetalhesEscopoActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "PDF não disponível para visualização.", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        // Botão para visualizar logs do escopo
+        buttonVerLogs.setOnClickListener {
+            val intent = Intent(this, LogsEscoposActivity::class.java).apply { // Correção aqui
+                putExtra("escopoId", escopoId) // Passando o escopoId para os logs
+            }
+            startActivity(intent)
         }
 
         voltarMenuButton.setOnClickListener { finish() }
@@ -192,17 +201,18 @@ class DetalhesEscopoActivity : AppCompatActivity() {
             val status = data?.getStringExtra("status") ?: "N/A"
             val resumoEscopo = data?.getStringExtra("resumoEscopo") ?: "N/A"
             val numeroPedidoCompra = data?.getStringExtra("numeroPedidoCompra") ?: "N/A"
+            val pdfUrl = data?.getStringExtra("pdfUrl") ?: ""
 
             val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
             textViewDetalhes.text = """
-            Número: $numeroEscopo
-            Empresa: $empresa
-            Data Estimada: $dataEstimativa
-            Tipo de Serviço: $tipoServico
-            Status: $status
-            Resumo: $resumoEscopo
-            Número do Pedido de Compra: $numeroPedidoCompra
-        """.trimIndent()
+                Número: $numeroEscopo
+                Empresa: $empresa
+                Data Estimada: $dataEstimativa
+                Tipo de Serviço: $tipoServico
+                Status: $status
+                Resumo: $resumoEscopo
+                Número do Pedido de Compra: $numeroPedidoCompra
+            """.trimIndent()
         }
     }
 }
