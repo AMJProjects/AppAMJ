@@ -37,7 +37,7 @@ class PerfilActivity : AppCompatActivity() {
         if (user != null) {
             tvEmail.text = user.email
             val userId = user.uid
-            val userRef = database.child("users").child(userId)
+            val userRef = database.child("users").child(userId)  // Certifique-se de que "users" está correto!
 
             userRef.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
