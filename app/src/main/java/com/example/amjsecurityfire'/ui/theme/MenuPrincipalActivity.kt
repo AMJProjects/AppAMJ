@@ -1,4 +1,3 @@
-
 package com.amjsecurityfire.amjsecurityfire.ui.theme
 
 import android.annotation.SuppressLint

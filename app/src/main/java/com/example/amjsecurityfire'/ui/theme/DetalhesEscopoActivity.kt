@@ -29,7 +29,6 @@ class DetalhesEscopoActivity : AppCompatActivity() {
         val textViewDetalhes = findViewById<TextView>(R.id.textViewDetalhes)
         val editBtn: ImageButton = findViewById(R.id.editBtn)
         val pdfDownloadButton: Button = findViewById(R.id.btnDownloadPdf)
-        val buttonVerLogs: ImageButton = findViewById(R.id.buttonVerLogs) // Novo botão
 
         var escopoId = intent.getStringExtra("escopoId") ?: ""
         var numeroEscopo = intent.getStringExtra("numeroEscopo") ?: "N/A"
@@ -77,14 +76,6 @@ class DetalhesEscopoActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "PDF não disponível para visualização.", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        // Botão para visualizar logs do escopo
-        buttonVerLogs.setOnClickListener {
-            val intent = Intent(this, LogsEscoposActivity::class.java).apply { // Correção aqui
-                putExtra("escopoId", escopoId) // Passando o escopoId para os logs
-            }
-            startActivity(intent)
         }
 
         voltarMenuButton.setOnClickListener { finish() }
