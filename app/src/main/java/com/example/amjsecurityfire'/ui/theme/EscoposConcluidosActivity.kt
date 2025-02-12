@@ -45,7 +45,12 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                return false
+                if (newText.isNullOrEmpty()) {
+                    carregarEscoposConcluidos() // Recarrega todos os escopos quando a busca é apagada
+                } else {
+                    filtrarEscopos(newText)
+                }
+                return true
             }
         })
     }
