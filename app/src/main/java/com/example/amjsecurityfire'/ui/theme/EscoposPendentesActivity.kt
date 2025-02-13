@@ -8,6 +8,11 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.amjsecurityfire.amjsecurityfire.R
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
@@ -20,6 +25,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
     private lateinit var buttonVoltarMenu: Button
     private lateinit var searchView: SearchView
     private val escoposList = mutableListOf<Map<String, String>>() // Lista para armazenar os escopos
+    private var nomeUsuario: String = "Desconhecido"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,12 +35,16 @@ class EscoposPendentesActivity : AppCompatActivity() {
         containerPendentes = findViewById(R.id.layoutDinamico)
         buttonVoltarMenu = findViewById(R.id.button4)
         searchView = findViewById(R.id.searchView)
+        carregarNomeUsuario()
 
-        carregarEscoposPendentes()
-
-        buttonVoltarMenu.setOnClickListener {
-            finish() // Voltar ao menu anterior
-        }
+        buttonVoltarMenu.setOnClickListener { finish() }
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean { filtrarEscopos(query); return true }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText.isNullOrEmpty()) carregarEscoposPendentes() else filtrarEscopos(newText)
+                return true
+            }
+        })
 
         // Configuração do SearchView
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -62,10 +72,8 @@ class EscoposPendentesActivity : AppCompatActivity() {
                     Toast.makeText(this@EscoposPendentesActivity, "Erro ao carregar escopos.", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
-
                 escoposList.clear()
                 containerPendentes.removeAllViews()
-
                 snapshots?.let {
                     for (document in it) {
                         val escopo = mapOf(
@@ -77,13 +85,33 @@ class EscoposPendentesActivity : AppCompatActivity() {
                             "resumoEscopo" to document.getString("resumoEscopo").orEmpty(),
                             "numeroPedidoCompra" to document.getString("numeroPedidoCompra").orEmpty(),
                             "escopoId" to document.id,
-                            "pdfUrl" to document.getString("pdfUrl").orEmpty()
+                            "pdfUrl" to document.getString("pdfUrl").orEmpty(),
+                            "criador" to nomeUsuario
                         )
                         escoposList.add(escopo)
                         adicionarTextoDinamico(escopo)
                     }
                 }
             }
+    }
+
+    private fun carregarNomeUsuario() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val userRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
+            userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    nomeUsuario = snapshot.getValue(Usuario::class.java)?.nome ?: "Desconhecido"
+                    carregarEscoposPendentes()
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(this@EscoposPendentesActivity, "Erro ao carregar nome do usuário", Toast.LENGTH_SHORT).show()
+                    carregarEscoposPendentes()
+                }
+            })
+        } else {
+            carregarEscoposPendentes()
+        }
     }
 
     private fun filtrarEscopos(query: String?) {
