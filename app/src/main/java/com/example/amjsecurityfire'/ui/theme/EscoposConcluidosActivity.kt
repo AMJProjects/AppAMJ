@@ -14,7 +14,11 @@ import com.amjsecurityfire.amjsecurityfire.R
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.TaskCompletionSource
 import com.google.android.gms.tasks.Tasks
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import java.text.SimpleDateFormat
@@ -26,7 +30,8 @@ class EscoposConcluidosActivity : AppCompatActivity() {
     private lateinit var containerConcluidos: LinearLayout
     private lateinit var buttonVoltarMenu: Button
     private lateinit var searchView: SearchView
-    private val escoposList = mutableListOf<Map<String, String>>() // Lista para armazenar os escopos
+    private val escoposList = mutableListOf<Map<String, String>>()
+    private var nomeUsuario: String = "Desconhecido"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,26 +41,13 @@ class EscoposConcluidosActivity : AppCompatActivity() {
         containerConcluidos = findViewById(R.id.layoutDinamico)
         buttonVoltarMenu = findViewById(R.id.button4)
         searchView = findViewById(R.id.searchView)
+        carregarNomeUsuario()
 
-        carregarEscoposConcluidos()
-
-        buttonVoltarMenu.setOnClickListener {
-            finish() // Voltar ao menu anterior
-        }
-
-        // Configuração do SearchView
+        buttonVoltarMenu.setOnClickListener { finish() }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                filtrarEscopos(query)
-                return true
-            }
-
+            override fun onQueryTextSubmit(query: String?): Boolean { filtrarEscopos(query); return true }
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (newText.isNullOrEmpty()) {
-                    carregarEscoposConcluidos() // Recarrega todos os escopos quando a busca é apagada
-                } else {
-                    filtrarEscopos(newText)
-                }
+                if (newText.isNullOrEmpty()) carregarEscoposConcluidos() else filtrarEscopos(newText)
                 return true
             }
         })
@@ -69,69 +61,53 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                     Toast.makeText(this@EscoposConcluidosActivity, "Erro ao carregar escopos.", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
-
                 escoposList.clear()
                 containerConcluidos.removeAllViews()
 
-                val tarefas = mutableListOf<Task<Void>>()  // Lista para armazenar as tarefas assíncronas
-
                 snapshots?.let {
                     for (document in it) {
-                        val uidCriador = document.getString("criadorUid").orEmpty()
-
-                        val tarefa = TaskCompletionSource<Void>()  // Cria uma tarefa para cada escopo
-                        tarefas.add(tarefa.task)
-
-                        // Chama a função para buscar o nome do criador
-                        buscarNomeDoUsuario(uidCriador) { nomeCriador ->
-                            val escopo = mapOf(
-                                "numeroEscopo" to (document.getLong("numeroEscopo")?.toString() ?: ""),
-                                "empresa" to document.getString("empresa").orEmpty(),
-                                "dataEstimativa" to document.getString("dataEstimativa").orEmpty(),
-                                "status" to document.getString("status").orEmpty(),
-                                "tipoServico" to document.getString("tipoServico").orEmpty(),
-                                "resumoEscopo" to document.getString("resumoEscopo").orEmpty(),
-                                "numeroPedidoCompra" to document.getString("numeroPedidoCompra").orEmpty(),
-                                "escopoId" to document.id,
-                                "pdfUrl" to document.getString("pdfUrl").orEmpty(),
-                                "criador" to nomeCriador
-                            )
-                            escoposList.add(escopo)
-                            adicionarTextoDinamico(escopo)
-
-                            tarefa.setResult(null)  // Marca a tarefa como concluída
-                        }
-                    }
-
-                    // Espera que todas as tarefas sejam concluídas
-                    Tasks.whenAllSuccess<Void>(*tarefas.toTypedArray()).addOnSuccessListener {
-                        // Aqui você pode realizar qualquer ação após todos os nomes serem carregados
-                        containerConcluidos.visibility = View.VISIBLE  // Exibe os escopos depois de tudo carregado
+                        val escopo = mapOf(
+                            "numeroEscopo" to (document.getLong("numeroEscopo")?.toString() ?: ""),
+                            "empresa" to document.getString("empresa").orEmpty(),
+                            "dataEstimativa" to document.getString("dataEstimativa").orEmpty(),
+                            "status" to document.getString("status").orEmpty(),
+                            "tipoServico" to document.getString("tipoServico").orEmpty(),
+                            "resumoEscopo" to document.getString("resumoEscopo").orEmpty(),
+                            "numeroPedidoCompra" to document.getString("numeroPedidoCompra").orEmpty(),
+                            "escopoId" to document.id,
+                            "pdfUrl" to document.getString("pdfUrl").orEmpty(),
+                            "criador" to nomeUsuario
+                        )
+                        escoposList.add(escopo)
+                        adicionarTextoDinamico(escopo)
                     }
                 }
             }
     }
 
-    private fun buscarNomeDoUsuario(uid: String, callback: (String) -> Unit) {
-        val database = FirebaseDatabase.getInstance().getReference("users/$uid/nome")
-        database.get().addOnSuccessListener { snapshot ->
-            if (snapshot.exists()) {
-                val nome = snapshot.getValue(String::class.java) ?: "Desconhecido"
-                callback(nome)
-            } else {
-                callback("Desconhecido")
-            }
-        }.addOnFailureListener { exception ->
-            Log.e("FirebaseError", "Falha ao acessar o banco de dados", exception)
-            callback("Desconhecido")
+    private fun carregarNomeUsuario() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val userRef = FirebaseDatabase.getInstance().getReference("users").child(userId)
+            userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    nomeUsuario = snapshot.getValue(Usuario::class.java)?.nome ?: "Desconhecido"
+                    carregarEscoposConcluidos()
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(this@EscoposConcluidosActivity, "Erro ao carregar nome do usuário", Toast.LENGTH_SHORT).show()
+                    carregarEscoposConcluidos()
+                }
+            })
+        } else {
+            carregarEscoposConcluidos()
         }
     }
 
     private fun filtrarEscopos(query: String?) {
         val filtro = query?.toLowerCase(Locale.getDefault())?.trim()
-        containerConcluidos.removeAllViews() // Remove todas as views do layout
+        containerConcluidos.removeAllViews()
 
-        // Filtra os escopos de acordo com o texto digitado
         for (escopo in escoposList) {
             if (escopo["numeroEscopo"]?.toLowerCase(Locale.getDefault())?.contains(filtro ?: "") == true ||
                 escopo["empresa"]?.toLowerCase(Locale.getDefault())?.contains(filtro ?: "") == true
@@ -142,7 +118,6 @@ class EscoposConcluidosActivity : AppCompatActivity() {
     }
 
     private fun adicionarTextoDinamico(escopo: Map<String, String>) {
-        // Cria o layout para o escopo
         val layoutEscopo = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(16, 16, 16, 16)
@@ -152,14 +127,11 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             ).apply {
                 setMargins(0, 16, 0, 16)
             }
-
-            // Define a borda do layout (contorno) usando o arquivo 'botaoredondo'
-            background = resources.getDrawable(R.drawable.botaoredondo)  // Usando o arquivo 'botaoredondo.xml'
+            background = resources.getDrawable(R.drawable.botaoredondo)
         }
 
-        // Calcula a cor do círculo com base na data estimada (formato "dd/MM/yy")
         val dataEstimativaStr = escopo["dataEstimativa"].orEmpty()
-        var borderColor = Color.GRAY  // Cor padrão se não houver data ou ocorrer erro
+        var borderColor = Color.GRAY
         if (dataEstimativaStr.isNotEmpty()) {
             try {
                 val sdf = SimpleDateFormat("dd/MM/yy", Locale.getDefault())
@@ -168,10 +140,10 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                 val diffDays = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
 
                 borderColor = when {
-                    diffDays < 0 -> Color.parseColor("#FF0000")    // Vencido: vermelho
-                    diffDays <= 3 -> Color.parseColor("#FFA500")   // Até 3 dias: laranja
-                    diffDays <= 7 -> Color.parseColor("#FFFF00")   // Até 7 dias: amarelo
-                    else -> Color.parseColor("#00FF00")            // Mais de 7 dias: verde
+                    diffDays < 0 -> Color.parseColor("#FF0000")
+                    diffDays <= 3 -> Color.parseColor("#FFA500")
+                    diffDays <= 7 -> Color.parseColor("#FFFF00")
+                    else -> Color.parseColor("#00FF00")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -179,101 +151,79 @@ class EscoposConcluidosActivity : AppCompatActivity() {
             }
         }
 
-        // Adiciona o CircleView ao layout
         val circleView = CircleView(this, borderColor).apply {
             layoutParams = LinearLayout.LayoutParams(50, 50).apply {
-                setMargins(0, 0, 0, 8)  // Ajuste de margem superior se necessário
+                setMargins(0, 0, 0, 8)
             }
         }
         layoutEscopo.addView(circleView)
 
-        // Busca o nome do criador usando o UID
-        val uidCriador = escopo["criadorUid"].orEmpty()  // Pegando o UID do criador a partir do escopo
+        val textoEscopo = """
+        Número: ${escopo["numeroEscopo"]}
+        Empresa: ${escopo["empresa"]}
+        Data Estimada: ${escopo["dataEstimativa"]}
+        Status: ${escopo["status"]}
+        Criado por: ${escopo["criador"] ?: "Desconhecido"}
+    """.trimIndent()
 
-        buscarNomeDoUsuario(uidCriador) { nomeCriador ->
-            // Modificar a parte onde você monta o texto do escopo
-            val textoEscopo = """
-    Número: ${escopo["numeroEscopo"] ?: "Não disponível"}
-    Empresa: ${escopo["empresa"] ?: "Não disponível"}
-    Data Estimada: ${escopo["dataEstimativa"] ?: "Não disponível"}
-    Status: ${escopo["status"] ?: "Não disponível"}
-    Criado por: ${escopo["criador"] ?: "Desconhecido"}
-""".trimIndent()
-
-            val textView = TextView(this).apply {
-                text = textoEscopo
-                textSize = 16f
-            }
-
-            // Cria o layout para os botões "Visualizar" e "Excluir" (horizontal)
-            val buttonsLayoutHorizontal = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL // Alinha os botões horizontalmente
-                gravity = android.view.Gravity.CENTER_HORIZONTAL // Centraliza os botões
-                setPadding(0, 16, 0, 16)
-            }
-
-            // Cria o botão "Visualizar" e "Excluir"
-            val buttonVisualizar = criarBotao("Visualizar") {
-                navegarParaDetalhesEscopo(escopo)
-            }
-            val buttonExcluir = criarBotao("Excluir") {
-                excluirEscopo(escopo)
-            }
-
-            // Definir o layout params com weight para ambos os botões ocuparem a largura disponível igualmente
-            val layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
-                setMargins(8, 0, 8, 0) // Margens horizontais para os botões
-            }
-
-            // Atribui os layout params aos botões
-            buttonVisualizar.layoutParams = layoutParams
-            buttonExcluir.layoutParams = layoutParams
-
-            // Adiciona os botões ao layout horizontal
-            buttonsLayoutHorizontal.apply {
-                addView(buttonVisualizar)
-                addView(buttonExcluir)
-            }
-
-            // Cria o layout para o botão "Marcar como Pendente" (vertical)
-            val buttonAlterarStatusLayout = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = android.view.Gravity.CENTER_HORIZONTAL
-            }
-
-            // Aumenta a largura do botão "Marcar como Pendente"
-            val layoutParamsAlterarStatus = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f).apply {
-                setMargins(8, 0, 8, 0) // Margens horizontais para o botão
-            }
-
-            val buttonAlterarStatus = criarBotao("Marcar como Pendente") {
-                alterarStatusEscopo(escopo, "escoposConcluidos", "escoposPendentes", "Pendente")
-            }
-
-            // Atribui o novo layout params ao botão "Marcar como Pendente"
-            buttonAlterarStatus.layoutParams = layoutParamsAlterarStatus
-
-            // Adiciona o botão "Marcar como Pendente"
-            buttonAlterarStatusLayout.addView(buttonAlterarStatus)
-
-            layoutEscopo.apply {
-                addView(textView)
-                addView(buttonsLayoutHorizontal)  // Adiciona os botões "Visualizar" e "Excluir"
-                addView(buttonAlterarStatusLayout) // Adiciona o botão "Marcar como Pendente"
-            }
-
-            // Adiciona o layout ao container
-            containerConcluidos.addView(layoutEscopo)
+        val textView = TextView(this).apply {
+            text = textoEscopo
+            textSize = 16f
         }
+
+        val buttonsLayoutHorizontal = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_HORIZONTAL
+            setPadding(0, 16, 0, 16)
+        }
+
+        val buttonVisualizar = criarBotao("Visualizar") {
+            navegarParaDetalhesEscopo(escopo)
+        }
+        val buttonExcluir = criarBotao("Excluir") {
+            excluirEscopo(escopo)
+        }
+
+        val layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+            setMargins(8, 0, 8, 0)
+        }
+
+        buttonVisualizar.layoutParams = layoutParams
+        buttonExcluir.layoutParams = layoutParams
+
+        buttonsLayoutHorizontal.apply {
+            addView(buttonVisualizar)
+            addView(buttonExcluir)
+        }
+
+        val buttonAlterarStatusLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_HORIZONTAL
+        }
+
+        val layoutParamsAlterarStatus = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f).apply {
+            setMargins(8, 0, 8, 0)
+        }
+
+        val buttonAlterarStatus = criarBotao("Marcar como Pendente") {
+            alterarStatusEscopoParaPendente(escopo, "escoposConcluidos", "escoposPendentes", "Pendente")
+        }
+
+        buttonAlterarStatus.layoutParams = layoutParamsAlterarStatus
+        buttonAlterarStatusLayout.addView(buttonAlterarStatus)
+
+        layoutEscopo.apply {
+            addView(textView)
+            addView(buttonsLayoutHorizontal)
+            addView(buttonAlterarStatusLayout)
+        }
+
+        containerConcluidos.addView(layoutEscopo)
     }
 
     private fun criarBotao(texto: String, acao: () -> Unit): Button {
         return Button(this).apply {
             this.text = texto
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,  // Largura ajustada ao conteúdo
-                LinearLayout.LayoutParams.WRAP_CONTENT   // Altura ajustada ao conteúdo
-            )
             setOnClickListener { acao() }
         }
     }
@@ -286,7 +236,7 @@ class EscoposConcluidosActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun alterarStatusEscopo(
+    private fun alterarStatusEscopoParaPendente(
         escopo: Map<String, String>,
         colecaoAtual: String,
         novaColecao: String,
@@ -364,5 +314,5 @@ class EscoposConcluidosActivity : AppCompatActivity() {
                 Toast.makeText(this, "Erro ao mover escopo: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
-
 }
+

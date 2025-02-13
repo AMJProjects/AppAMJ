@@ -24,7 +24,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
     private lateinit var containerPendentes: LinearLayout
     private lateinit var buttonVoltarMenu: Button
     private lateinit var searchView: SearchView
-    private val escoposList = mutableListOf<Map<String, String>>() // Lista para armazenar os escopos
+    private val escoposList = mutableListOf<Map<String, String>>()
     private var nomeUsuario: String = "Desconhecido"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,6 +74,7 @@ class EscoposPendentesActivity : AppCompatActivity() {
                 }
                 escoposList.clear()
                 containerPendentes.removeAllViews()
+
                 snapshots?.let {
                     for (document in it) {
                         val escopo = mapOf(
