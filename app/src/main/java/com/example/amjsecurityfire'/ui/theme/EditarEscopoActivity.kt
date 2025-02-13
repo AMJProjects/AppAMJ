@@ -118,6 +118,7 @@ class EditarEscopoActivity : AppCompatActivity() {
                 "numeroPedidoCompra" to numeroPedidoCompraEditText.text.toString()
             )
 
+            // Atualizar escopo nas coleções escoposPendentes e escoposConcluidos
             db.collection("escoposPendentes").document(escopoId)
                 .set(dadosAtualizados, SetOptions.merge())
                 .addOnSuccessListener {
@@ -129,11 +130,28 @@ class EditarEscopoActivity : AppCompatActivity() {
                             Log.d("EditarEscopo", "Escopo em Concluídos atualizado com sucesso: $dadosAtualizados")
                             Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
 
-                            // Envia os dados atualizados para a DetalhesEscopoActivity
+                            // Salvar o histórico da edição
+                            val historicoDados = hashMapOf(
+                                "acao" to "Edição",
+                                "data" to System.currentTimeMillis().toString(),
+                                "escopoId" to escopoId,
+                                "usuario" to "ID_DO_USUARIO_LOGADO" // Substitua com o ID do usuário logado
+                            )
+
+                            // Gravar o histórico na coleção de históricoEscopos
+                            db.collection("historicoEscopos").add(historicoDados)
+                                .addOnSuccessListener {
+                                    Log.d("HistoricoEscopo", "Histórico de edição registrado com sucesso!")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("HistoricoEscopo", "Erro ao registrar histórico de edição", e)
+                                }
+
+                            // Enviar os dados atualizados para a DetalhesEscopoActivity
                             val resultIntent = Intent()
                             resultIntent.putExtra("escopoId", escopoId)
-                            resultIntent.putExtra("numeroEscopo", intent.getStringExtra("numeroEscopo")) // Manter o número do escopo
-                            resultIntent.putExtra("status", intent.getStringExtra("status")) // Preservar o status original
+                            resultIntent.putExtra("numeroEscopo", intent.getStringExtra("numeroEscopo"))
+                            resultIntent.putExtra("status", intent.getStringExtra("status"))
                             resultIntent.putExtra("empresa", empresaEditText.text.toString())
                             resultIntent.putExtra("dataEstimativa", dataEstimativaEditText.text.toString())
                             resultIntent.putExtra("resumoEscopo", resumoEditText.text.toString())
@@ -153,6 +171,7 @@ class EditarEscopoActivity : AppCompatActivity() {
                     Toast.makeText(this, "Erro ao atualizar escopo em Pendentes: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         }
+
 
 
         cancelarButton.setOnClickListener {

@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import android.widget.EditText
 import java.util.Locale
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.Timestamp
 
 class
 AdicionarEscopoActivity : AppCompatActivity() {
@@ -106,21 +108,32 @@ AdicionarEscopoActivity : AppCompatActivity() {
         resources.updateConfiguration(config, resources.displayMetrics)
 
         dataEstimativaField.setOnClickListener {
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("America/Sao_Paulo"))
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+
             val datePickerDialog = DatePickerDialog(
                 this,
-                R.style.DatePickerCustomStyle,  // Estilo com cabeçalho vermelho
-                { _, year, monthOfYear, dayOfMonth ->
-                    // Ajuste o mês para 1-based (janeiro é 0, fevereiro é 1, etc)
-                    calendar.set(year, monthOfYear, dayOfMonth)
+                R.style.DatePickerCustomStyle, // Seu estilo personalizado
+                { _, selectedYear, selectedMonth, selectedDayOfMonth ->
+                    // Configura o calendário com a data selecionada
+                    calendar.set(selectedYear, selectedMonth, selectedDayOfMonth)
+
+                    // Ajusta o fuso horário para Brasília
+                    calendar.timeZone = TimeZone.getTimeZone("America/Sao_Paulo")
+
                     // Formatar a data no formato dd/MM/yy
-                    val sdf = SimpleDateFormat("dd/MM/yy", locale)  // Usando o Locale português
+                    val sdf = SimpleDateFormat("dd/MM/yy", Locale("pt", "BR"))
                     val formattedDate = sdf.format(calendar.time)
+
                     dataEstimativaField.setText(formattedDate)
                 },
                 year, month, dayOfMonth
             )
             datePickerDialog.show()
         }
+
 
 
         // Configurar Spinners
@@ -266,10 +279,6 @@ AdicionarEscopoActivity : AppCompatActivity() {
         findViewById<Spinner>(R.id.spinnerTipoManutencao2).isEnabled = !isLoading
     }
 
-
-
-
-
     private fun salvarNoFirestore(status: String, novoEscopo: Map<String, Any>, editMode: Boolean, escopoId: String?) {
         val escoposCollection = if (status == "Concluído") {
             db.collection("escoposConcluidos")
@@ -277,36 +286,60 @@ AdicionarEscopoActivity : AppCompatActivity() {
             db.collection("escoposPendentes")
         }
 
-        // Adicionar data, horário e nome do usuário
-        val dataCriacao = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
-        val usuarioNome = "Usuário Exemplo" // Substitua pelo nome do usuário obtido de uma autenticação
+        // Obter o usuário autenticado
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val usuarioNome = currentUser?.displayName ?: "Usuário Desconhecido" // Caso o usuário não tenha nome configurado
 
-        val escopoComMetadados = novoEscopo + mapOf(
-            "dataCriacao" to dataCriacao,
-            "usuarioNome" to usuarioNome
-        )
+        // Definir o fuso horário para horário de Brasília
+        val timeZone = TimeZone.getTimeZone("America/Sao_Paulo")
+        val calendar = Calendar.getInstance(timeZone)
+        val dataCriacao = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(calendar.time)
 
+        // Se editMode é verdadeiro, edita o escopo existente, caso contrário cria um novo escopo
         if (editMode && escopoId != null) {
             escoposCollection.document(escopoId)
-                .set(escopoComMetadados)
+                .update(novoEscopo)
                 .addOnSuccessListener {
-                    Toast.makeText(this, "Escopo editado com sucesso.", Toast.LENGTH_SHORT).show()
-                    voltarParaLista(status)
+                    Toast.makeText(this, "Escopo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                    registrarHistoricoEscopo(escopoId, usuarioNome, "Editado", dataCriacao) // Registrar histórico de edição
+                    finish()
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this, "Erro ao editar o escopo: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Erro ao atualizar o escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         } else {
-            escoposCollection.add(escopoComMetadados)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Escopo salvo com sucesso.", Toast.LENGTH_SHORT).show()
-                    voltarParaLista(status)
+            escoposCollection.add(novoEscopo)
+                .addOnSuccessListener { documentReference ->
+                    Toast.makeText(this, "Escopo salvo com sucesso!", Toast.LENGTH_SHORT).show()
+                    registrarHistoricoEscopo(documentReference.id, usuarioNome, "Criado", dataCriacao) // Registrar histórico de criação
+                    finish()
                 }
                 .addOnFailureListener { e ->
                     Toast.makeText(this, "Erro ao salvar o escopo: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         }
     }
+
+
+    // Função para registrar histórico de escopo
+    private fun registrarHistoricoEscopo(escopoId: String, usuario: String, acao: String, data: String) {
+        val historico = mapOf(
+            "escopoId" to escopoId,
+            "usuario" to usuario,
+            "acao" to acao,
+            "data" to data
+        )
+
+        db.collection("historicoEscopos")
+            .add(historico)
+            .addOnSuccessListener {
+                Log.d("Historico", "Histórico registrado com sucesso.")
+            }
+            .addOnFailureListener { e ->
+                Log.w("Historico", "Erro ao registrar o histórico: ${e.message}")
+            }
+    }
+
 
     private fun uploadPdfToStorage(onSuccess: (String?) -> Unit, onFailure: (Exception) -> Unit) {
         if (pdfUri != null) {
