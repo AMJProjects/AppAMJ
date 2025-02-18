@@ -14,7 +14,8 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 
-class EscoposExcluidosActivity : AppCompatActivity() {
+class
+EscoposExcluidosActivity : AppCompatActivity() {
 
     private lateinit var db: FirebaseFirestore
     private lateinit var containerExcluidos: LinearLayout
